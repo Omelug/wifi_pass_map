@@ -12,14 +12,13 @@ function enableAllButtons() {
 }
 
 function scrollToBottom(element) {
-    var height = element.prop('scrollHeight');
+    const height = element.prop('scrollHeight');
     element.scrollTop(height);
 }
 
-function runScript(scriptName) {
-    var liveResults = $('#live-results');
+function runTool(scriptName) {
+    let liveResults = $('#live-results');
 
-    // Disable all buttons
     disableAllButtons();
 
     $.ajax({
@@ -55,7 +54,7 @@ function runScript(scriptName) {
         }
     });
 }
-
+/*
 function uploadFile(event) {
     var file = event.target.files[0];
     if (file) {
@@ -70,7 +69,7 @@ function uploadFile(event) {
             processData: false,
             success: function (response) {
                 if (response.status === "success") {
-                    runScript('manual_pot');
+                    runTool('manual_pot');
                 } else {
                     $('#live-results').html(response.message);
                     enableAllButtons();
@@ -83,5 +82,5 @@ function uploadFile(event) {
             }
         });
     }
-}
+}*/
 

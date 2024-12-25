@@ -4,21 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>wifi_pass_map</title>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/menu.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/menu.css') }}">
 </head>
 <body>
-    <div class="header">
-        <p>User: {{ username }}</p>
-    </div>
-
     <div class="button-container">
-        <button onclick="window.location.href='wifi_pass_map'">Wifi pass map</button>
-        <button onclick="window.location.href='tools'">Tools</button>
-        <button onclick="window.location.href='explore'">Database Explorer</button>        
-        <button onclick="window.location.href='stats'">Stats</button>
-        <button onclick="window.location.href='settings'">Settings</button>
-        <button onclick="window.location.href='login'">Login</button>
-
+        <button onclick="location.href='wifi_pass_map'">Wifi pass map</button>
+        <button onclick="location.href='tools'">Tools</button>
+        <button onclick="location.href='explore'">Database Explorer</button>
+        <button onclick="location.href='stats'">Stats</button>
     </div>
 </body>
 </html>

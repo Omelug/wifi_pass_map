@@ -1,0 +1,20 @@
+h1, p, ul {
+    text-align: center;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+li {
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: center;
+}
+
+.label {
+    display: inline-block;
+    width: 300px;
+    text-align: left;
+}

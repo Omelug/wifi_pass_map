@@ -2,7 +2,6 @@ from flask import Flask
 from .web.static import static_bp
 from .web.api import api_bp
 
-
 def create_app():
     app = Flask(__name__)
 

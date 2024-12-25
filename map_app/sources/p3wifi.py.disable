@@ -1,0 +1,77 @@
+import csv
+import datetime
+import os
+import sys
+from sqlalchemy import create_engine
+from sqlalchemy import create_engine, exc
+from sqlalchemy import text
+import pandas as pd
+import requests
+from sqlalchemy import Column, String, UniqueConstraint, Table, inspect
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.schema import DDL
+from sqlalchemy import event
+import configparser
+from map_app.tools.db import Base, get_db_connection, create_wifi_table
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+from formator.bssid import format_bssid
+from map_app.tools.db import Session,engine,metadata
+from map_app.tools.wigle_api import wigle_locate
+
+
+# ------------CONFIG----------------
+
+# create default config if not exists
+SOURCES_CONFIG_FILE = "map_app/sources/config"
+os.makedirs(SOURCES_CONFIG_FILE, exist_ok=True)
+config_file_path = f'{SOURCES_CONFIG_FILE}/p3wifi.ini'
+if not os.path.exists(config_file_path):
+    config = configparser.ConfigParser()
+
+    config['MAIN'] = {
+        'db_ip':"localhost",
+        'db_user':"root",
+        'db_pass':"new_password",
+        'db_name':"p3wifi"
+        }
+
+    with open(config_file_path, 'w') as config_file:
+        config.write(config_file)
+    print(f"WPASEC configuration created {config_file_path}")
+
+
+def get_map_data():
+    config = configparser.ConfigParser()
+    config.read(config_file_path)
+
+    db_user = config['MAIN']['db_user']
+    db_pass = config['MAIN']['db_pass']
+    db_ip = config['MAIN']['db_ip']
+    db_name = config['MAIN']['db_name']
+
+    engine = create_engine(
+        f'mysql+mysqlconnector://{db_user}:{db_pass}@{db_ip}/{db_name}',
+        connect_args={'charset': 'utf8', 'collation': 'utf8mb4_general_ci'}
+    )
+    try:
+        with engine.connect() as connection:
+            with open('map_app/sources/get_3wifi_data.sql', 'r') as file:
+                sql_script = file.read()
+            result = connection.execute(text(sql_script))
+            rows = result.fetchall()
+            #print(rows)
+    except exc.SQLAlchemyError as e:
+        print(f"An error occurred: {e}")
+        return []
+    return [
+        {
+            "bssid": row[0],
+            "essid": row[1],
+            "password": row[2],
+            "latitude": row[3],
+            "longitude": row[4]
+        }
+        for row in rows
+    ]

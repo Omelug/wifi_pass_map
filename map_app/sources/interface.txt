@@ -1,0 +1,9 @@
+if is module loaded,
+
+it creates new table in database if during import
+
+def get_map_data() -> list
+
+set of tools for module
+
+get_tools() ->
