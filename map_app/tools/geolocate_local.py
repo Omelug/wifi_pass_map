@@ -15,7 +15,7 @@ def populate_pwned_data():
 
     try:
         # Query wpasec table
-        cursor.execute('SELECT ap_mac, password FROM wpasec')
+        cursor.execute('SELECT bssid, password FROM wpasec')
         wpasec_data = cursor.fetchall()
 
         # Query wigle table and populate pwned table
@@ -25,9 +25,9 @@ def populate_pwned_data():
 
             total_networks += 1 # Counter for total proccessed Networks
 
-            # Convert ap_mac to the format used in the wigle table
+            # Convert bssid to the format used in the wigle table
             # Query wigle table for the corresponding network_id (case-insensitive matching)
-            cursor.execute('SELECT name, network_id, encryption, accuracy, latitude, longitude FROM wigle WHERE lower(network_id) = lower(?)', (ap_mac,))
+            cursor.execute('SELECT name, network_id, encryption, accuracy, latitude, longitude FROM wigle WHERE lower(network_id) = lower(?)', (bssid,))
             wigle_data = cursor.fetchone()
 
             # If data is found in the wigle table, insert into pwned table
@@ -55,14 +55,4 @@ def populate_pwned_data():
     return new_networks, no_geolocation_networks, total_networks
 
 
-def main():
-    # Create the 'pwned' table if it doesn't exist
-    create_pwned_table()
-    # Populate data into the 'pwned' table
-    print("Local Geolocate: Starting")
-    new_networks, no_geolocation_networks, total_networks = populate_pwned_data()
-    print(f"Processed {total_networks} Networks in total. {new_networks} were new and {no_geolocation_networks} had no geolocation in the local DB ")
-    print("✅Local Geolocate: Finished")
 
-if __name__ == "__main__":
-    main()  # Ensure this is at the end of the script
