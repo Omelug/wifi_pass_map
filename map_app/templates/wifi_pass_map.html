@@ -6,16 +6,54 @@
     <title>wifi_pass_map</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol/dist/L.Control.Locate.min.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
     <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/map.css') }}">
 </head>
 <body>
 
-    <div id="map"></div>
+     <div class="controls">
+        <!-- Network type dropdown -->
+        <label for="networkType">Type:</label>
+        <select id="networkType">
+            <option value="">All</option>
+            <!-- TODO add other sources for bluetooth etc.
+            <option value="BT">Bluetooth</option>
+            <option value="BLE">BLE</option>
+            <option value="WIFI" selected>WIFI</option>
+            <option value="GSM">GSM</option>
+            <option value="LTE">LTE</option>-->
+        </select>
+
+        <!-- Encryption dropdown -->
+        <label for="encryption">🔐:</label>
+        <select id="encryption">
+            <option value="">All</option>
+            <option value="WPA3">WPA3</option>
+            <option value="WPA2">WPA2</option>
+            <option value="WPA">WPA</option>
+            <option value="WEP">WEP</option>
+            <option value="None">None</option>
+        </select>
+
+        <!-- Search fields -->
+        <input type="text" id="searchInputName" placeholder="Name e.g. WiFi 2 Guest">
+        <input type="text" id="searchInputNetworkId" placeholder="MAC e.g. f8:e0:79:af:57:eb">
+        <button id="searchButton">Search</button>
+
+        <!-- Checkbox to exclude networks without SSID -->
+        <input type="checkbox" id="excludeNoSSID" checked />
+        <label for="excludeNoSSID">Exclude "no SSID":</label>
+    </div>
+
+    <div class="map" id="map"></div>
+
 
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol/dist/L.Control.Locate.min.js" charset="utf-8"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+    <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster-src.js"></script>
     <script src="{{ url_for('static', filename='js/wifi_pass_map.js') }}"></script>
 </body>
 </html>

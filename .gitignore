@@ -1,1 +1,7 @@
 data
+.git
+.idea
+map_app/.idea
+map_app/tools/tools_keys.ini
+*iml
+/*ini

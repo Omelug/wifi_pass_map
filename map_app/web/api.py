@@ -81,37 +81,7 @@ def get_street_overlay():
 def pwnapi():
     log.debug(f"Request Path: {request.path} was called")
 
-    SOURCE_DIR = './map_app/sources'
-
-    pwned_data,script_statuses = [],[]
-
-    # Get list of scripts which gives data from various sources
-    source_scripts = [os.path.join(SOURCE_DIR, f) for f in os.listdir(SOURCE_DIR) if f.endswith('.py')]
-    for script_path in source_scripts:
-        print(f"Loading data from {script_path}")
-        script_name = os.path.basename(script_path)
-        try:
-            # Dynamically import the source script
-            spec = importlib.util.spec_from_file_location("source_module", script_path)
-            source_module = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(source_module)
-
-            # Call the get_map_data()
-            if hasattr(source_module, 'get_map_data'):
-                data = source_module.get_map_data()
-                if data:
-                    script_statuses.append({'name': script_name, 'status': 'success'})
-                    pwned_data.extend(data)
-                else:
-                    script_statuses.append({'name': script_name, 'status': 'empty'})
-
-            else:
-                log.warning(f"{script_path} does not have a get_map_data() function")
-        except Exception as e:
-            script_statuses.append({'name': script_name, 'status': 'failed'})
-            log.error(f"Error loading data from {script_path} A: {e}")
-        print(f"{script_path} data loaded A")
-
+    pwned_data,script_statuses = tool_management.get_AP_data()
     return jsonify({
         'data': pwned_data,
         'script_statuses': script_statuses,
@@ -146,3 +116,24 @@ def upload_file():
 
     file.save(file_path)
     return jsonify({'message': 'File uploaded successfully', 'filename': filename}), 200
+
+
+@api_bp.route('/api/explore')
+def exploreapi():
+    log.debug(f"Request Path: {request.path} was called")
+
+    # Extract filters from request parameters, if not None
+    filters = {key: value for key, value in {
+        'essid': request.args.get('name'),
+        'bssid': request.args.get('network_id'),
+        'encryption': request.args.get('encryption'),
+        'network_type': request.args.get('network_type'),
+        #'exclude_no_ssid': request.args.get('exclude_no_ssid', 'false')
+    }.items() if value is not None}
+
+    pwned_data, script_statuses = tool_management.get_AP_data(filters)
+    return jsonify({
+        'data': pwned_data,
+        'script_statuses': script_statuses,
+        'AP_len': len(pwned_data)
+    })

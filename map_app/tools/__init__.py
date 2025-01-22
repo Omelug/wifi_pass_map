@@ -3,8 +3,8 @@ import configparser
 import os
 
 # create default config if not exists
-TOOLS_CONFIG_FILE = "map_app/tools"
-config_file_path = f'{TOOLS_CONFIG_FILE}/tool_parts_config.ini'
+TOOLS_CONFIG_FILE = os.path.join(os.path.dirname(__file__))
+config_file_path = f'{TOOLS_CONFIG_FILE}/tools_keys.ini'
 if not os.path.exists(config_file_path):
     config = configparser.ConfigParser()
 
