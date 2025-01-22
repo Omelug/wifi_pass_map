@@ -1,8 +1,8 @@
 if is module loaded,
 
-it creates new table in database if during import
+it creates new table in database during import
 
-def get_map_data() -> list
+def get_map_data(filters) -> list
 
 set of tools for module
 

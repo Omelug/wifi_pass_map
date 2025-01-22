@@ -41,18 +41,18 @@ body {
     justify-content: center; 
     align-items: center; 
     gap: 10px; 
-    padding: 20px; 
+    padding: 10px;
     color: white;
     position: fixed;
-    top: 60px; 
+    top: 20px;
     left: 0;
     width: 100%; 
 }
 
 
-#map {
+.map {
     position: absolute;
-    top: 1vw;
+    top: 5vw;
     bottom: 1vw;
     left: 1vw;
     right: 1vw;

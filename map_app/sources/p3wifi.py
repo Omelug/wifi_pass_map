@@ -1,25 +1,11 @@
-import csv
-import datetime
 import os
 import sys
-from sqlalchemy import create_engine
-from sqlalchemy import create_engine, exc
-from sqlalchemy import text
-import pandas as pd
-import requests
-from sqlalchemy import Column, String, UniqueConstraint, Table, inspect
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.schema import DDL
-from sqlalchemy import event
+from sqlalchemy import create_engine, exc, text
 import configparser
-from map_app.tools.db import Base, get_db_connection, create_wifi_table
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
-from formator.bssid import format_bssid
+from formator.bssid import format_bssid, dec2mac, mac2dec
 from map_app.tools.db import Session,engine,metadata
-from map_app.tools.wigle_api import wigle_locate
-
 
 # ------------CONFIG----------------
 
@@ -42,7 +28,7 @@ if not os.path.exists(config_file_path):
     print(f"WPASEC configuration created {config_file_path}")
 
 
-def get_map_data():
+def get_map_data(filters=None):
     config = configparser.ConfigParser()
     config.read(config_file_path)
 
@@ -59,7 +45,16 @@ def get_map_data():
         with engine.connect() as connection:
             with open('map_app/sources/get_3wifi_data.sql', 'r') as file:
                 sql_script = file.read()
-            result = connection.execute(text(sql_script))
+            if filters:
+                if 'bssid' in filters:
+                    filters['bssid'] = mac2dec(filters['bssid'])
+                sql_script = sql_script[:-1]  # Remove the trailing semicolon
+                filter_conditions = " AND ".join([f"{key} = :{key}" for key in filters.keys()])
+                sql_script += f" AND {filter_conditions} LIMIT 100;"
+            else:
+                sql_script = sql_script[:-1] + " LIMIT 100;"
+            print(sql_script)
+            result = connection.execute(text(sql_script), filters)
             rows = result.fetchall()
             #print(rows)
     except exc.SQLAlchemyError as e:
@@ -67,7 +62,7 @@ def get_map_data():
         return []
     return [
         {
-            "bssid": row[0],
+            "bssid": dec2mac(row[0]),
             "essid": row[1],
             "password": row[2],
             "latitude": row[3],

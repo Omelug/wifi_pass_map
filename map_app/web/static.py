@@ -17,10 +17,6 @@ def index():
 def wifi_pass_map():
     return render_template('wifi_pass_map.html')
 
-@static_bp.route('/explore')
-def exploremap():
-    return render_template('explore.html')
-
 @static_bp.route('/tools')
 def tools():
     buttons_html = ""
