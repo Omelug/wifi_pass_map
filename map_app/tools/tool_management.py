@@ -29,7 +29,7 @@ def tool_list():
     return tools
 
 
-def get_AP_data(filters=None):
+def get_AP_data(filters=None, center=None, sqare_limit=None):
     pwned_data, script_statuses = [], []
     SOURCE_DIR = './map_app/sources'
 
@@ -46,7 +46,7 @@ def get_AP_data(filters=None):
 
             # Call the get_map_data()
             if hasattr(source_module, 'get_map_data'):
-                data = source_module.get_map_data(filters) # Tell sources to use filters
+                data = source_module.get_map_data(filters.copy() if filters else None) # Tell sources to use filters
                 if data:
                     script_statuses.append({'name': script_name, 'status': 'success'})
                     pwned_data.extend(data)

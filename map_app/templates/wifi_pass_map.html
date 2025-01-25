@@ -14,37 +14,48 @@
 <body>
 
      <div class="controls">
-        <!-- Network type dropdown -->
-        <label for="networkType">Type:</label>
-        <select id="networkType">
-            <option value="">All</option>
-            <!-- TODO add other sources for bluetooth etc.
-            <option value="BT">Bluetooth</option>
-            <option value="BLE">BLE</option>
-            <option value="WIFI" selected>WIFI</option>
-            <option value="GSM">GSM</option>
-            <option value="LTE">LTE</option>-->
-        </select>
+         <div>
+            <!-- Network type dropdown -->
+            <label for="networkType">Type:</label>
+            <select id="networkType">
+                <option value="">All</option>
+                <!-- TODO add other sources for bluetooth etc.
+                <option value="BT">Bluetooth</option>
+                <option value="BLE">BLE</option>
+                <option value="WIFI" selected>WIFI</option>
+                <option value="GSM">GSM</option>
+                <option value="LTE">LTE</option>-->
+            </select>
 
-        <!-- Encryption dropdown -->
-        <label for="encryption">🔐:</label>
-        <select id="encryption">
-            <option value="">All</option>
-            <option value="WPA3">WPA3</option>
-            <option value="WPA2">WPA2</option>
-            <option value="WPA">WPA</option>
-            <option value="WEP">WEP</option>
-            <option value="None">None</option>
-        </select>
+            <!-- Encryption dropdown -->
+            <label for="encryption">🔐:</label>
+            <select id="encryption">
+                <option value="">All</option>
+                <option value="WPA3">WPA3</option>
+                <option value="WPA2">WPA2</option>
+                <option value="WPA">WPA</option>
+                <option value="WEP">WEP</option>
+                <option value="None">None</option>
+            </select>
 
-        <!-- Search fields -->
-        <input type="text" id="searchInputName" placeholder="Name e.g. WiFi 2 Guest">
-        <input type="text" id="searchInputNetworkId" placeholder="MAC e.g. f8:e0:79:af:57:eb">
-        <button id="searchButton">Search</button>
+            <!-- Search fields -->
+            <input type="text" id="searchInputName" placeholder="Name e.g. WiFi 2 Guest">
+            <input type="text" id="searchInputNetworkId" placeholder="MAC e.g. f8:e0:79:af:57:eb">
+            <input type="text" id="searchInputLimit" placeholder="100/source">
+            <button id="searchButton">Search</button>
+        <hr>
+            <label for="center:">Center:</label>
+            <input type="text" id="center_lat">
+            <input type="text" id="center_long">
+            <input type="text" id="searchInputCenterLimit" placeholder="5/source">
+            <button id="loadButton">Load sqare</button>
 
-        <!-- Checkbox to exclude networks without SSID -->
-        <input type="checkbox" id="excludeNoSSID" checked />
-        <label for="excludeNoSSID">Exclude "no SSID":</label>
+
+
+            <!-- Checkbox to exclude networks without SSID
+            <input type="checkbox" id="excludeNoSSID" checked />
+            <label for="excludeNoSSID">Exclude "no SSID":</label>-->
+        </div>
     </div>
 
     <div class="map" id="map"></div>

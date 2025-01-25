@@ -25,11 +25,12 @@ TABLE_NAME = 'wpasec'
 if not inspect(engine).has_table(TABLE_NAME):
     wpasec_table = create_wifi_table(TABLE_NAME)
     metadata.create_all(engine)
+    class Wpasec(Base):
+        __table__ = wpasec_table
 else:
     wpasec_table = Table(TABLE_NAME, metadata, autoload_with=engine)
 
-class Wpasec(Base):
-    __table__ = wpasec_table
+
 
 # ------------CONFIG----------------
 
@@ -126,12 +127,16 @@ def get_map_data(filters=None):
             (table.c.latitude.is_not(None)) | (table.c.longitude.is_not(None))
         )
 
-        if filters:
-            for key, value in filters.items():
-                if hasattr(table.c, key):
-                    query = query.where(getattr(table.c, key) == value)
-                else:
-                    print(f"Column {key} does not exist in the table")
+        # print(filters)
+        if filters is not None and 'center_latitude' in filters and 'center_longitude' in filters:
+            pass
+        else:
+            if filters:
+                for key, value in filters.items():
+                    if hasattr(table.c, key):
+                        query = query.where(getattr(table.c, key) == value)
+                    else:
+                        print(f"Column {key} does not exist in the table")
         #print(query)
         #compiled_query = query.compile(engine, compile_kwargs={"literal_binds": True})
         #print(str(compiled_query))

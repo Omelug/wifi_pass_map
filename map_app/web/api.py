@@ -126,9 +126,29 @@ def exploreapi():
     filters = {key: value for key, value in {
         'essid': request.args.get('name'),
         'bssid': request.args.get('network_id'),
+        'limit': request.args.get('limit'),
         'encryption': request.args.get('encryption'),
         'network_type': request.args.get('network_type'),
         #'exclude_no_ssid': request.args.get('exclude_no_ssid', 'false')
+    }.items() if value is not None}
+
+    pwned_data, script_statuses = tool_management.get_AP_data(filters=filters)
+    return jsonify({
+        'data': pwned_data,
+        'script_statuses': script_statuses,
+        'AP_len': len(pwned_data)
+    })
+
+
+@api_bp.route('/api/load_sqare')
+def load_sqare():
+    log.debug(f"Request Path: {request.path} was called")
+
+    # Extract params from request parameters
+    filters = {key: value for key, value in {
+        'center_latitude': request.args.get('center_latitude'),
+        'center_longitude': request.args.get('center_longitude'),
+        'sqare_limit': request.args.get('sqare_limit'),
     }.items() if value is not None}
 
     pwned_data, script_statuses = tool_management.get_AP_data(filters)

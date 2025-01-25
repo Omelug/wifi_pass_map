@@ -13,6 +13,6 @@ def mac2dec(mac):
 
 
 if __name__ == '__main__':
-    print(format_bssid('001122334455'))
-    print(dec2mac(1122334455))
-    print(mac2dec('00:11:22:33'))
+    m = dec2mac(136606244655)
+    print(m)
+    print(mac2dec(m))

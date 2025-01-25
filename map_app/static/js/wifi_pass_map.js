@@ -13,7 +13,7 @@ function generateQrCode(wifiUri) {
   const qrCodeUrl = qr.createDataURL(10, 0); // size, margin
   window.open(qrCodeUrl, '_blank');
 }
-
+let AP_len_global = 0;
 function createStatsDiv(script_success, script_count_all, AP_len, script_statuses) {
   const statsDiv = document.createElement('div');
   statsDiv.id = 'stats-popup';
@@ -27,6 +27,7 @@ function createStatsDiv(script_success, script_count_all, AP_len, script_statuse
     border-radius: 5px;
     z-index: 1000;
   `;
+  AP_len_global = AP_len;
   statsDiv.innerHTML = `Scripts: ${script_success}/${script_count_all} APs: ${AP_len}<br>`;
 
   script_statuses.forEach(script => {
@@ -38,17 +39,26 @@ function createStatsDiv(script_success, script_count_all, AP_len, script_statuse
 
   document.body.appendChild(statsDiv);
 }
+function updateStatsDiv(script_success, script_count_all, AP_len, script_statuses) {
+  const statsDiv = document.getElementById('stats-popup');
+  if (!statsDiv) {
+    createStatsDiv(script_success, script_count_all, AP_len, script_statuses);
+    return;
+  }
+  AP_len_global += AP_len;
+  statsDiv.innerHTML = `Scripts: ${script_success}/${script_count_all} APs: ${AP_len_global}<br>`;
+
+  script_statuses.forEach(script => {
+    const scriptDiv = document.createElement('div');
+    scriptDiv.textContent = script.name;
+    scriptDiv.style.color = script.status === 'success' ? 'green' : (script.status === 'empty' ? 'orange' : 'red');
+    statsDiv.appendChild(scriptDiv);
+  });
+}
 
 function createMarker(poi) {
   const geoSchemeURL = generateGeoSchemeURL(poi.latitude, poi.longitude);
   poi.wifiUri = generateWifiUriScheme(poi.essid, poi.encryption, poi.password);
-
-  /*const circle = L.circle([poi.latitude, poi.longitude], {
-    radius: 2000,
-    color: '#fc0865',
-    weight: 2,
-    fill: false,
-  });*/
 
   const popupContent = `
     <strong>bssid:</strong> ${poi.bssid}<br>
@@ -59,12 +69,7 @@ function createMarker(poi) {
     <button onclick="generateQrCode('${poi.wifiUri}')">Show QR</button><br>  
   `;
 
-  let marker = L.marker([poi.latitude, poi.longitude]).bindPopup(popupContent);
-
-
-  //marker.on("click", function() { map.addLayer(circle); });
-  //marker.on("popupclose", function() { map.removeLayer(circle); });
-  return marker;
+  return L.marker([poi.latitude, poi.longitude]).bindPopup(popupContent);
 }
 
 //TODO hardcoded to czech republic
@@ -128,7 +133,8 @@ function searchAndRefreshMap() {
     const encryption = document.getElementById('encryption').value;
     const searchQueryName = document.getElementById('searchInputName').value.trim();
     const searchQueryNetworkId = document.getElementById('searchInputNetworkId').value.trim();
-    const excludeNoSSID = document.getElementById('excludeNoSSID').checked;
+    const searchInputLimit = document.getElementById('searchInputLimit').value.trim();
+    //const excludeNoSSID = document.getElementById('excludeNoSSID').checked;
 
     let url = '/api/explore';
     const filters = [];
@@ -137,6 +143,7 @@ function searchAndRefreshMap() {
     if (encryption) filters.push('encryption=' + encryption);
     if (searchQueryName) filters.push('name=' + encodeURIComponent(searchQueryName));
     if (searchQueryNetworkId) filters.push('network_id=' + encodeURIComponent(searchQueryNetworkId));
+    if (searchInputLimit) filters.push('limit=' + encodeURIComponent(searchInputLimit));
     //TODO ignore fot now
     // if (excludeNoSSID) filters.push('exclude_no_ssid=true');
     if (filters.length > 0) url += '?' + filters.join('&');
@@ -176,4 +183,56 @@ document.getElementById('searchInputNetworkId').addEventListener('keypress', eve
 });
 document.getElementById('searchButton').addEventListener('click', searchAndRefreshMap);
 
+map.on('click', function(event) {
+    const latitude = event.latlng.lat;
+    const longitude = event.latlng.lng;
 
+    document.getElementById('center_lat').value = latitude;
+    document.getElementById('center_long').value = longitude;
+});
+
+document.getElementById('loadButton').addEventListener('click', function() {
+    const latitude = document.getElementById('center_lat').value;
+    const longitude = document.getElementById('center_long').value;
+
+    let url = '/api/load_sqare';
+    const filters = [];
+
+    const networkType = document.getElementById('networkType').value;
+    if (networkType) filters.push('network_type=' + networkType);
+    filters.push('center_latitude=' + latitude);
+    filters.push('center_longitude=' + longitude);
+
+    const searchInputCenterLimit = document.getElementById('searchInputCenterLimit').value.trim();
+    if (searchInputCenterLimit) filters.push('center_limit=' + encodeURIComponent(searchInputCenterLimit));
+
+    if (filters.length > 0) url += '?' + filters.join('&');
+
+    fetch(url)
+        .then(response => response.json())
+        .then(result => {
+            //TODO add, not replace
+            markers.clearLayers();
+
+            const {data, script_statuses, AP_len} = result;
+            // Process the result as needed
+
+            const script_success = script_statuses.filter(script => script.status === 'success').length;
+            const script_count_all = script_statuses.length;
+
+            const statsDiv = document.getElementById('stats-popup');
+            statsDiv.remove();
+            createStatsDiv(script_success, script_count_all, AP_len, script_statuses);
+
+            // Create a marker cluster group
+
+            data.forEach(poi => {
+                const marker = createMarker(poi);
+                markers.addLayer(marker);
+            });
+
+            map.addLayer(markers);
+
+        })
+        .catch(error => console.error('Error fetching data:', error));
+});
