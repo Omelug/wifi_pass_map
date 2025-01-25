@@ -28,6 +28,46 @@ if not os.path.exists(config_file_path):
     print(f"WPASEC configuration created {config_file_path}")
 
 
+def load_random_APs_to_limit(filters=None):
+    with open('map_app/sources/get_3wifi_data.sql', 'r') as file:
+        sql_script = file.read()
+    limit = 100
+    # print(filters)
+    if filters:
+        filter_conditions = ""
+        if 'limit' in filters:
+            limit = filters.pop('limit')
+        sql_script = sql_script[:-1]
+        if not filters:
+            sql_script += f" LIMIT {limit};"
+        else:
+            # Remove the trailing semicolon
+            if 'bssid' in filters:
+                filter_conditions += f"nets.BSSID = {mac2dec(filters.pop('bssid'))} "
+            filter_conditions += " AND ".join([f"{key} = :{key}" for key in filters.keys()])
+            sql_script += f" AND {filter_conditions} LIMIT {limit};"
+    else:
+        return sql_script[:-1] + f" LIMIT {limit};"
+    # print(sql_script)
+    return sql_script
+
+
+def load_map_sqare(center_latitude,center_longitude, center_limit=None):
+    if center_limit is None:
+        center_limit = 0.05
+    print(center_latitude,center_longitude,center_limit)
+    print("\n\n")
+    sql_script = f"""
+        SELECT nets.BSSID, ESSID, WifiKey, geo.latitude, geo.longitude
+        FROM nets
+        JOIN geo ON nets.BSSID = geo.BSSID
+        WHERE geo.latitude BETWEEN {center_latitude} - {center_limit} AND {center_latitude} + {center_limit}
+          AND geo.longitude BETWEEN {center_longitude} - {center_limit} AND {center_longitude} + {center_limit}
+        LIMIT 10;
+    """
+    print(sql_script)
+    return sql_script
+
 def get_map_data(filters=None):
     config = configparser.ConfigParser()
     config.read(config_file_path)
@@ -43,17 +83,16 @@ def get_map_data(filters=None):
     )
     try:
         with engine.connect() as connection:
-            with open('map_app/sources/get_3wifi_data.sql', 'r') as file:
-                sql_script = file.read()
-            if filters:
-                if 'bssid' in filters:
-                    filters['bssid'] = mac2dec(filters['bssid'])
-                sql_script = sql_script[:-1]  # Remove the trailing semicolon
-                filter_conditions = " AND ".join([f"{key} = :{key}" for key in filters.keys()])
-                sql_script += f" AND {filter_conditions} LIMIT 100;"
+            print("Center", filters)
+            if filters is not None and 'center_latitude' in filters and 'center_longitude' in filters:
+                sql_script = load_map_sqare(
+                    filters['center_latitude'],
+                    filters['center_longitude'],
+                    filters.get('center_limit')
+                )
             else:
-                sql_script = sql_script[:-1] + " LIMIT 100;"
-            print(sql_script)
+                sql_script = load_random_APs_to_limit(filters)
+
             result = connection.execute(text(sql_script), filters)
             rows = result.fetchall()
             #print(rows)
