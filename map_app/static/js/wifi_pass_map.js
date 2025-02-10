@@ -65,11 +65,19 @@ function createMarker(poi) {
     <strong>essid:</strong> ${poi.essid}<br>
     <strong>encryption:</strong> ${poi.encryption}<br>
     <strong>password:</strong> ${poi.password}<br>
+    <strong>source:</strong> ${poi.source}<br>
     <button onclick="window.open('${geoSchemeURL}', '_blank')">Navigate to</button>
     <button onclick="generateQrCode('${poi.wifiUri}')">Show QR</button><br>  
   `;
 
-  return L.marker([poi.latitude, poi.longitude]).bindPopup(popupContent);
+  const customIcon = L.icon({
+    iconUrl: 'static/images/marker-icon-2x.png',
+    iconSize: [25, 41], // size of the icon
+    iconAnchor: [12, 41], // point of the icon which will correspond to marker's location
+    popupAnchor: [1, -34] // point from which the popup should open relative to the iconAnchor
+  });
+
+  return L.marker([poi.latitude, poi.longitude], { icon: customIcon }).bindPopup(popupContent);
 }
 
 //TODO hardcoded to czech republic
@@ -85,12 +93,13 @@ function checkLocalTiles(url, callback) {
 }
 
 // URLs for local and remote tiles
-let localTileUrl = 'http://localhost:5000/tiles/{z}/{x}/{y}.png';
+let localTileUrl = 'http://localhost:5000/data/tiles/{z}/{x}/{y}.png';
 let remoteTileUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 
 // Check if local tiles are available
 checkLocalTiles(localTileUrl, function(isLocalAvailable) {
     const tileUrl = isLocalAvailable ? localTileUrl : remoteTileUrl;
+    //const tileUrl = localTileUrl;
     L.tileLayer(tileUrl, {
         attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);

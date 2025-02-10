@@ -4,14 +4,14 @@ import requests
 import random
 from requests import ReadTimeout
 from sqlalchemy import select, MetaData, Table, update
-from map_app.tools import config_file_path
+from map_app.tools import global_config_path
 from map_app.tools.db import get_db_connection, engine
-
+from datetime import datetime
 
 # TODO add more keys suport for bypass limits
 def get_api_key():
     config = configparser.ConfigParser()
-    config.read(config_file_path)
+    config.read(global_config_path)
     api_keys = config['WIGLE']['api_keys'].split(',')
     return api_keys[0]
 
@@ -46,6 +46,11 @@ def save_wigle_location(wigle_data, session, table, bssid, password):
 
     else:
         print(f"❌ No geolocation for {bssid} found...")
+        query = update(table).where(table.c.bssid == bssid).values(
+            last_locate_try=datetime.now()
+        )
+        print(query)
+        session.execute(query)
         return False
 
 
@@ -59,7 +64,7 @@ def wigle_locate(table_name):
         try:
             not_localized_q = select(table.c.bssid, table.c.password).distinct().where(
                 (table.c.latitude.is_(None)) | (table.c.longitude.is_(None))
-            )
+            ).order_by(table.c.last_locate_try.is_(None), table.c.last_locate_try)
             wpasec_data = session.execute(not_localized_q).fetchall()
 
             #TODO what limit ?
@@ -76,7 +81,7 @@ def wigle_locate(table_name):
                 response = requests.get(
                     f"https://api.wigle.net/api/v2/network/search?netid={bssid}",
                     headers={"Authorization": f"Basic {api_key}"},
-                    timeout=20
+                    timeout=40
                 )
 
                 if response.status_code == 401:

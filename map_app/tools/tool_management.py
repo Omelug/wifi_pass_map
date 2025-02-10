@@ -7,7 +7,10 @@ log.setLevel(logging.DEBUG)
 
 def tool_list():
     SOURCE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "sources")
-    source_scripts = [os.path.join(SOURCE_DIR, f) for f in os.listdir(SOURCE_DIR) if f.endswith('.py')]
+
+    # get all .py files in sources exclude sources.py
+    source_scripts = [os.path.join(SOURCE_DIR, f) for f in os.listdir(SOURCE_DIR)
+                      if f.endswith('.py') and f != 'sources.py']
 
     tools = {}
     for script_path in source_scripts:
@@ -19,8 +22,9 @@ def tool_list():
 
             if hasattr(source_module, 'get_tools'):
                 module_tools = source_module.get_tools()
-                #print(f"{script_path} has tools: {module_tools}\n\n\n")
-                tools.update(module_tools)
+                script_name = os.path.splitext(os.path.basename(script_path))[0]
+                tools[script_name] = module_tools
+
             else:
                 log.warning(f"{script_path} does not have a get_tools() function")
         except Exception as e:
@@ -48,13 +52,15 @@ def get_AP_data(filters=None, center=None, sqare_limit=None):
             if hasattr(source_module, 'get_map_data'):
                 data = source_module.get_map_data(filters.copy() if filters else None) # Tell sources to use filters
                 if data:
+                    for AP_point in data:
+                        AP_point['source'] = script_name
                     script_statuses.append({'name': script_name, 'status': 'success'})
                     pwned_data.extend(data)
                 else:
                     script_statuses.append({'name': script_name, 'status': 'empty'})
 
             else:
-                log.warning(f"{script_path} does not have a get_map_data() function")
+                log.debug(f"{script_path} does not have a get_map_data() function")
         except Exception as e:
             script_statuses.append({'name': script_name, 'status': 'failed'})
             log.error(f"Error loading data from {script_path} A: {e}")

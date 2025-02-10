@@ -2,18 +2,13 @@ import os
 import sys
 from sqlalchemy import create_engine, exc, text
 import configparser
+from map_app.sources.sources import config_path
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
-from formator.bssid import format_bssid, dec2mac, mac2dec
-from map_app.tools.db import Session,engine,metadata
+from formator.bssid import dec2mac, mac2dec
 
 # ------------CONFIG----------------
-
-# create default config if not exists
-SOURCES_CONFIG_FILE = "map_app/sources/config"
-os.makedirs(SOURCES_CONFIG_FILE, exist_ok=True)
-config_file_path = f'{SOURCES_CONFIG_FILE}/p3wifi.ini'
-if not os.path.exists(config_file_path):
+if not os.path.exists(config_path()):
     config = configparser.ConfigParser()
 
     config['MAIN'] = {
@@ -23,9 +18,9 @@ if not os.path.exists(config_file_path):
         'db_name':"p3wifi"
         }
 
-    with open(config_file_path, 'w') as config_file:
+    with open(config_path(), 'w') as config_file:
         config.write(config_file)
-    print(f"WPASEC configuration created {config_file_path}")
+    print(f"WPASEC configuration created {config_path()}")
 
 
 def load_random_APs_to_limit(filters=None):
@@ -47,7 +42,7 @@ def load_random_APs_to_limit(filters=None):
             filter_conditions += " AND ".join([f"{key} = :{key}" for key in filters.keys()])
             sql_script += f" AND {filter_conditions} LIMIT {limit};"
     else:
-        return sql_script[:-1] + f" LIMIT {limit};"
+        return f"{sql_script[:-1]} LIMIT {limit};"
     # print(sql_script)
     return sql_script
 
@@ -63,14 +58,15 @@ def load_map_sqare(center_latitude,center_longitude, center_limit=None):
         JOIN geo ON nets.BSSID = geo.BSSID
         WHERE geo.latitude BETWEEN {center_latitude} - {center_limit} AND {center_latitude} + {center_limit}
           AND geo.longitude BETWEEN {center_longitude} - {center_limit} AND {center_longitude} + {center_limit}
-        LIMIT 10;
+        LIMIT 10000000;
     """
     print(sql_script)
     return sql_script
 
+# --------------------Map Data --------------------
 def get_map_data(filters=None):
     config = configparser.ConfigParser()
-    config.read(config_file_path)
+    config.read(config_path())
 
     db_user = config['MAIN']['db_user']
     db_pass = config['MAIN']['db_pass']

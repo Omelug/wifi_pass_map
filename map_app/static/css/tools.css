@@ -10,8 +10,26 @@
     overflow-y: scroll;
     border: 1px solid white;
     padding: 10px;
-    margin-top: 20px;
+    margin-top: 10px;
 }
+
+.input-container {
+    background-color: #6c647a;
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.input-container label {
+    margin: 0 10px;
+}
+
+.input-container input {
+    color: black;
+    flex-grow: 1; /* Make the input field take up the remaining space */
+    margin: 0 10px;
+}
+
 .result-text {
     color: white;
     font-family: monospace;
@@ -19,4 +37,46 @@
 }
 .result-text div {
     margin-bottom: 5px;
+}
+
+.tool-container {
+    display: flex;
+    align-items: center;
+}
+
+.tool-container button {
+    margin: 1vw;
+    padding: 1vh 2vw;
+    border: none;
+    border-radius: 0;
+    background-color: #424141;
+    color: #7c7c7c;
+    cursor: pointer;
+}
+
+.tool-container .save-button {
+    width: 20px;
+    height: 20px;
+    margin-left: 5px;
+    padding: 0;
+    text-align: center;
+    font-size: 12px;
+}
+.tool-container button:hover {
+    background-color: #3b3042;
+}
+
+
+.tool-container button:disabled {
+    background-color: grey;
+    cursor: not-allowed;
+}
+
+input{
+    background-color: #6c647a;
+    color: #1C1E21;
+}
+#live-results {
+    height: 300px;
+    overflow-y: auto;
 }

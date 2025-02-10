@@ -4,10 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>wifi_pass_map</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol/dist/L.Control.Locate.min.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='lib/css/leaflet.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='lib/css/L.Control.Locate.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='lib/css/MarkerCluster.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='lib/css/MarkerCluster.Default.css') }}">
+
     <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/map.css') }}">
 </head>
@@ -61,10 +62,12 @@
     <div class="map" id="map"></div>
 
 
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol/dist/L.Control.Locate.min.js" charset="utf-8"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
-    <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster-src.js"></script>
+    <script src="{{ url_for('static', filename='lib/js/leaflet.js') }}"></script>
+    <script src="{{ url_for('static', filename='lib/js/L.Control.Locate.min.js') }}" charset="utf-8"></script>
+    <script src="{{ url_for('static', filename='lib/js/qrcode.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='lib/js/leaflet.markercluster-src.js') }}"></script>
     <script src="{{ url_for('static', filename='js/wifi_pass_map.js') }}"></script>
+
+
 </body>
 </html>
