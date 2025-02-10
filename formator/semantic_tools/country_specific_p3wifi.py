@@ -8,7 +8,11 @@ make small passwords lists for each country
 
 Options:
 A - make country specific database
-B - generate wifi worldlist for country (with count)
+B - generate wifi worldlist for country
+    Ba(with count)
+    Bb(without count)
+C - generate wifi worldlist for all countries
+
 """
 
 """

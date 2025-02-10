@@ -1,8 +1,7 @@
 import os
-
-from flask import render_template, Blueprint, render_template_string
+from flask import render_template, Blueprint
 from flask import session as flask_session
-from werkzeug.utils import send_from_directory
+from flask import send_from_directory
 from flask import current_app
 import map_app.tools.tool_management as tool_management
 
@@ -20,38 +19,30 @@ def wifi_pass_map():
 @static_bp.route('/tools')
 def tools():
     buttons_html = ""
-    for tool in tool_management.tool_list().keys():
-        tool_name = os.path.splitext(tool)[0]
-        buttons_html += f'''
-        <div class="button-container">
-            <button id="{tool_name}_button" onclick="runTool('{tool_name}')">{tool_name.upper()}</button>
-            <div id="{tool_name}_result" class="result"></div>
-        </div>
-        '''
+    for script_name, tool_info in tool_management.tool_list().items():
+        script_name = os.path.splitext(script_name)[0]
+        for tool_name, tool_details in tool_info.items():
+            buttons_html += f'''
+                <div class="tool-container">
+                    <button id="{script_name}_{tool_name}_button" onclick="runTool('{script_name}', '{tool_name}')">{tool_name.upper()}</button>
+                    <button id="{script_name}_{tool_name}_save_button" class="save-button" onclick="saveParams('{script_name}', '{tool_name}')">S</button>
+                    <div id="{script_name}_{tool_name}_result" class="result"></div>
+                </div>
+            '''
 
-    return render_template_string('''
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Tools</title>
-        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/menu.css') }}">
-        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/tools.css') }}">
-        <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
-    </head>
-    <body>
-        {{ buttons_html|safe }}
-        <div class="result-container">
-            <div id="live-results" class="result-text"></div>
-        </div>
-        <button class="clear-button" onclick="clearOutput()">Clear Output</button>
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <script src="{{ url_for('static', filename='js/tools.js') }}"></script>
-    </body>
-    </html>
-    ''', buttons_html=buttons_html)
+            if "params" in tool_details:
+                for param_name, param_type, param_control, param_old_value, param_desc in tool_details["params"]:
+                    buttons_html += f'''
+                      <div class="input-container">
+                          <label for="{script_name}_{tool_name}_{param_name}"> {param_type.__name__} | {param_name}</label>
+                          <input type="text" id="{script_name}_{tool_name}_{param_name}" name="{param_name}" value="{param_old_value}">
+                          <label>{param_desc}</label>
+                      </div>
+                      '''
 
-@static_bp.route('/images/favicon.ico')
-def favicon():
-    return send_from_directory(os.path.join(current_app.root_path, 'map_app/static'), 'favicon.ico', mimetype='image/vnd.microsoft.icon')
+    return render_template('tools.html', buttons_html=buttons_html)
+
+@static_bp.route('/images/<path:filename>')
+def serve_image(filename):
+    print(filename)
+    return send_from_directory(os.path.join(current_app.root_path, 'map_app/static'), filename)

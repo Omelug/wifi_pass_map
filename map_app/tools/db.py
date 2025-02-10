@@ -58,6 +58,7 @@ def create_wifi_table(table_name):
         Column('time', String),
         Column('latitude', String),
         Column('longitude', String),
+        Column('last_locate_try', String),
         UniqueConstraint('bssid', 'essid', name=f'{table_name}_ap_sta_ssid_uc'),
         extend_existing=True
     )

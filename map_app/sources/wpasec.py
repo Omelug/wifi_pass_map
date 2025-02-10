@@ -1,19 +1,12 @@
 import csv
-import datetime
 import os
 import sys
-from select import select
-
 import requests
-from sqlalchemy import Column, String, UniqueConstraint, Table, inspect, MetaData
+from sqlalchemy import Table, inspect, MetaData
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.schema import DDL
-from sqlalchemy import event
 import configparser
-
 from sqlalchemy.sql import expression
-
+from map_app.sources.sources import config_path
 from map_app.tools.db import Base, get_db_connection, create_wifi_table
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
@@ -25,35 +18,26 @@ TABLE_NAME = 'wpasec'
 if not inspect(engine).has_table(TABLE_NAME):
     wpasec_table = create_wifi_table(TABLE_NAME)
     metadata.create_all(engine)
-    class Wpasec(Base):
-        __table__ = wpasec_table
 else:
     wpasec_table = Table(TABLE_NAME, metadata, autoload_with=engine)
 
-
+class Wpasec(Base):
+    __table__ = wpasec_table
 
 # ------------CONFIG----------------
 
-# create default config if not exists
-BASE_FILE = os.path.dirname(os.path.abspath(__file__))
-SOURCES_CONFIG_FILE = os.path.join(BASE_FILE,'..','sources','config')
-os.makedirs(SOURCES_CONFIG_FILE, exist_ok=True)
-
-config_file_path = f'{SOURCES_CONFIG_FILE}/wpasec.ini'
-
-print(f"WPASEC: Config file path: {config_file_path}")
-
-if not os.path.exists(config_file_path):
+#default config values
+if not os.path.exists(config_path()):
     config = configparser.ConfigParser()
-    # WPASEC update
-    config['WPASEC_UPDATE'] = {
+
+    config['wpasec_update'] = {
         'api_keys': '<your_wpasec_api_key_here>',
         'wpasec_link':'https://wpa-sec.stanev.org'
     }
 
-    with open(config_file_path, 'w') as config_file:
+    with open(config_path(), 'w') as config_file:
         config.write(config_file)
-    print(f"WPASEC configuration created {config_file_path}")
+    print(f"WPASEC configuration created {config_path()}")
 
 # ------------SAVE_NETWORK----------------
 def save_network_wpasec(wpasec_row) -> bool: #added new ?
@@ -102,7 +86,7 @@ def csv_to_db(csv_content):
 
 # Return the CSV content for further processing
 def download_potfile(config,api_key):
-    api_url = config['WPASEC_UPDATE']['wpasec_link'] + "/?api&dl=1"
+    api_url = config['wpasec_update']['wpasec_link'] + "/?api&dl=1"
     cookies = {'key': api_key}
     try:
         response = requests.get(api_url, cookies=cookies)
@@ -157,14 +141,17 @@ def get_map_data(filters=None):
 
 def get_wpasec_key():
     config = configparser.ConfigParser()
-    config.read(config_file_path)
-    return config['WPASEC_UPDATE']['api_keys'].split(',')[0]
+    config.read(config_path())
+    return config['wpasec_update']['api_keys'].split(',')[0]
 
-#update data from wp_sec
+
+#-----------------------TOOLS FUNCTIONS-----------------------
+
+#update data from wpa_sec
 def wpasec_update():
     print("WPASEC: Starting data update")
     config = configparser.ConfigParser()
-    config.read(config_file_path)
+    config.read(config_path())
 
     api_key = get_wpasec_key()
     acc_potfile = download_potfile(config,api_key)
@@ -176,8 +163,17 @@ def wpasec_locate():
     print(f"WPASEC: Located {localized_networks} out of {total_networks} networks")
 
 
-def get_tools():
-    return {"wpasec_update": wpasec_update, "wpasec_locate": wpasec_locate}
 
+def get_tools():
+    config = configparser.ConfigParser()
+    config.read(config_path())
+
+    wpasec_update_params = [("api_keys", str, None, config['wpasec_update']['api_keys'], "Key for WPASEC"),
+                            ("wpasec_link", str, None, config['wpasec_update']['wpasec_link'], "Link to wpasec api")]
+    #TODO add special params for tools not in sources
+    return {"wpasec_update":  {"run_fun":wpasec_update, "params":wpasec_update_params},
+            "wpasec_locate":  {"run_fun":wpasec_locate}}
+
+# only for testing purposes, not called by the app
 if __name__ == "__main__":
     wpasec_update(sys.argv[1])
