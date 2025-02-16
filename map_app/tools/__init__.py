@@ -5,6 +5,7 @@ import os
 # create default config if not exists
 TOOLS_CONFIG_FILE = os.path.join(os.path.dirname(__file__))
 global_config_path = f'{TOOLS_CONFIG_FILE}/tools_keys.ini'
+# TODO add special params for tools not in sources
 if not os.path.exists(global_config_path):
     config = configparser.ConfigParser()
 

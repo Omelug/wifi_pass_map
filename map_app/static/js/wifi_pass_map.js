@@ -70,8 +70,10 @@ function createMarker(poi) {
     <button onclick="generateQrCode('${poi.wifiUri}')">Show QR</button><br>  
   `;
 
+  const iconUrl = poi.password ? 'static/images/marker-icon-2x.png' : 'static/images/marker-icon-red.png';
+
   const customIcon = L.icon({
-    iconUrl: 'static/images/marker-icon-2x.png',
+    iconUrl: iconUrl,
     iconSize: [25, 41], // size of the icon
     iconAnchor: [12, 41], // point of the icon which will correspond to marker's location
     popupAnchor: [1, -34] // point from which the popup should open relative to the iconAnchor

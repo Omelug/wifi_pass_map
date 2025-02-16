@@ -1,19 +1,21 @@
 import logging
 import os
 import importlib.util
+import traceback
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
 
-def tool_list():
-    SOURCE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "sources")
 
-    # get all .py files in sources exclude sources.py
-    source_scripts = [os.path.join(SOURCE_DIR, f) for f in os.listdir(SOURCE_DIR)
-                      if f.endswith('.py') and f != 'sources.py']
+# get all .py files in sources exclude sources.py
+def source_scripts():
+    SOURCE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "sources")
+    return [os.path.join(SOURCE_DIR, f) for f in os.listdir(SOURCE_DIR)
+                      if f.endswith('.py') and not f.endswith('sources.py')]
+def tool_list():
 
     tools = {}
-    for script_path in source_scripts:
+    for script_path in source_scripts():
         try:
             # Dynamically import the source script
             spec = importlib.util.spec_from_file_location("source_module", script_path)
@@ -33,14 +35,11 @@ def tool_list():
     return tools
 
 
-def get_AP_data(filters=None, center=None, sqare_limit=None):
+def get_AP_data(filters=None):
     pwned_data, script_statuses = [], []
-    SOURCE_DIR = './map_app/sources'
 
-    # Get list of scripts which gives data from various sources
-    source_scripts = [os.path.join(SOURCE_DIR, f) for f in os.listdir(SOURCE_DIR) if f.endswith('.py')]
-    for script_path in source_scripts:
-        print(f"Loading data from {script_path}")
+    for script_path in source_scripts():
+        #print(f"Loading data from {script_path}")
         script_name = os.path.basename(script_path)
         try:
             #Dynamically import the source scripts
@@ -64,5 +63,6 @@ def get_AP_data(filters=None, center=None, sqare_limit=None):
         except Exception as e:
             script_statuses.append({'name': script_name, 'status': 'failed'})
             log.error(f"Error loading data from {script_path} A: {e}")
-        print(f"{script_path} data loaded A")
+            log.error(traceback.format_exc())
+        #print(f"{script_path} data loaded A")
     return pwned_data, script_statuses
