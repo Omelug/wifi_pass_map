@@ -1,14 +1,11 @@
 import logging
 import os
 from contextlib import contextmanager
-from sqlalchemy import create_engine, MetaData
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy import Column, String, UniqueConstraint, Table, inspect
-from sqlalchemy.exc import IntegrityError
-import importlib.util
 
-Base = declarative_base()
+from sqlalchemy import Column, String, UniqueConstraint, Table
+from sqlalchemy import create_engine
+from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import sessionmaker
 
 # Configure logging
 logging.basicConfig()
@@ -22,12 +19,11 @@ CENTRAL_DB = os.path.join(BASE_DIR,'..','..','data', 'wifi_pass_map.db')
 db_exists = os.path.exists(CENTRAL_DB)
 
 engine = create_engine(f"sqlite:///{CENTRAL_DB}")
+Base = declarative_base()
+metadata = Base.metadata
 Session = sessionmaker(bind=engine)
-metadata = MetaData()
 
 if not db_exists:
-    # Reflect the metadata only if the database does not exist
-    metadata.reflect(bind=engine)
     metadata.create_all(engine)
     print("CENTRAL database created.")
 
@@ -44,13 +40,15 @@ def get_db_connection():
         session.close()
 
 
+#---------------------Table_v0----------------------
+# Table_v0 is typical table to make some functions more generic
+# This is definition, in sources.py are some functions to work with this table
 def create_wifi_table(table_name):
     """
     Create a table for storing wifi data (same format for all sources)
     Table will be created in CENTRAL_DB
     """
-    metadata = MetaData()
-    return Table(table_name, metadata,
+    return Table(table_name, Base.metadata,
         Column('bssid', String, primary_key=True),
         Column('encryption', String),
         Column('essid', String),

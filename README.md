@@ -43,3 +43,13 @@ But I WILL aslo added some feature~~s~~! xd<br>
 
 It would be nice have integraded cracking tools for it, but I am honestly not sure 
 how time consuming it can be.
+
+
+Sources:
+handshakes: 
+    requirements: hcxpcaptool
+    
+    git clone https://github.com/ZerBea/hcxtools.git
+    cd hcxtools
+    make
+    sudo make install
