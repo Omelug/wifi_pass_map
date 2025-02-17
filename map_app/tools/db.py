@@ -43,7 +43,7 @@ def get_db_connection():
 #---------------------Table_v0----------------------
 # Table_v0 is typical table to make some functions more generic
 # This is definition, in sources.py are some functions to work with this table
-def create_wifi_table(table_name):
+def create_table_v0_table(table_name):
     """
     Create a table for storing wifi data (same format for all sources)
     Table will be created in CENTRAL_DB
