@@ -16,10 +16,9 @@ def config_path():
     script_name = os.path.splitext(os.path.basename(calling_script))[0]
     return f'{sources_config_file}/{script_name}.ini'
 
-#TODO
+
 #---------------------Table_v0----------------------
 #Table_v0: Typycal table and help functions for sources
-
 
 def get_map_data(TABLE_NAME,filters=None):
     with get_db_connection() as session:

@@ -8,7 +8,7 @@ from sqlalchemy import Table, inspect
 from sqlalchemy.exc import IntegrityError
 from map_app.sources import sources
 from map_app.sources.sources import config_path
-from map_app.tools.db import Base, create_wifi_table
+from map_app.tools.db import Base, create_table_v0_table
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 from formator.bssid import format_bssid
@@ -23,7 +23,7 @@ if TABLE_NAME in metadata.tables:
     table = metadata.tables[TABLE_NAME]
 else:
     if not inspect(engine).has_table(TABLE_NAME):
-        table = create_wifi_table(TABLE_NAME)
+        table = create_table_v0_table(TABLE_NAME)
         metadata.create_all(engine)
     else:
         table = Table(TABLE_NAME, metadata, autoload_with=engine)
