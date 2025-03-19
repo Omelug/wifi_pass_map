@@ -104,6 +104,7 @@ def upload_pot():
         return {"status": "error", "message": "File type not allowed"}, 400
 
 # ------------MAPS--------------
+"""
 @api_bp.route('/api/wardrive', methods=['GET'])
 def get_street_overlay():
     log.info(f"Current working directory: {os.getcwd()}")
@@ -116,6 +117,7 @@ def get_street_overlay():
         return send_file(geojson_file, as_attachment=False, download_name="wardrive_overlay")
     else:
         return {"error": "GeoJSON wardrive overlay not found"}, 404
+"""
 
 @api_bp.route('/api/wifi_pass_map')
 def pwnapi():

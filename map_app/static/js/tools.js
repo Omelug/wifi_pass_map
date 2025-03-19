@@ -45,6 +45,7 @@ function runTool(scriptName, toolName) {
             scrollToBottom(liveResults);
             enableAllButtons();
         },
+
         error: function (xhr, status, error) {
             console.error('Error sending request:', error);
             liveResults.html('Error sending request. Please try again.');

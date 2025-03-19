@@ -28,3 +28,4 @@ if __name__ == "__main__":
     if args.tile_server:
         tile_server_thread.join()
     main_app_thread.join()
+

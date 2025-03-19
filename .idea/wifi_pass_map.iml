@@ -7,6 +7,7 @@
     <content url="file://$MODULE_DIR$">
       <excludeFolder url="file://$MODULE_DIR$/.idea/dataSources" />
       <excludeFolder url="file://$MODULE_DIR$/data" />
+      <excludeFolder url="file://$MODULE_DIR$/map_app/sources/config" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.12 (datova_analyza)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
