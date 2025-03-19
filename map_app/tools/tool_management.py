@@ -47,13 +47,13 @@ def get_AP_data(filters=None):
             source_module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(source_module)
 
-            # Call the get_map_data()
+            # Call the get_map_data() on sources
             if hasattr(source_module, 'get_map_data'):
                 data = source_module.get_map_data(filters.copy() if filters else None) # Tell sources to use filters
                 if data:
                     for AP_point in data:
                         AP_point['source'] = script_name
-                    script_statuses.append({'name': script_name, 'status': 'success'})
+                    script_statuses.append({'name': script_name, 'status': 'success', 'len': len(data)})
                     pwned_data.extend(data)
                 else:
                     script_statuses.append({'name': script_name, 'status': 'empty'})

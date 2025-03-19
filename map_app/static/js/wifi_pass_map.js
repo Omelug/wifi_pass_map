@@ -32,7 +32,10 @@ function createStatsDiv(script_success, script_count_all, AP_len, script_statuse
 
   script_statuses.forEach(script => {
     const scriptDiv = document.createElement('div');
-    scriptDiv.textContent = script.name;
+    scriptDiv.textContent = script.name
+    if(script.status === 'success' && script.len !== undefined) {
+        scriptDiv.textContent += " (" + script.len + ")";
+    }
     scriptDiv.style.color = script.status === 'success' ? 'green' : (script.status === 'empty' ? 'orange' : 'red');
     statsDiv.appendChild(scriptDiv);
   });
