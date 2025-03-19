@@ -41,8 +41,9 @@ def get_map_data(TABLE_NAME,filters=None):
         else:
             if filters:
                 for key, value in filters.items():
-                    if hasattr(table.c, key):
-                        table_v0_query = table_v0_query.where(getattr(table.c, key) == value)
+                    column = hasattr(table.c, key)
+                    if column:
+                        table_v0_query = table_v0_query.where(column == value)
                     else:
                         print(f"Column {key} does not exist in the table")
         table_v0_data = session.execute(table_v0_query).fetchall()

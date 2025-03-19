@@ -115,7 +115,7 @@ const markers = L.markerClusterGroup();
 fetch('/api/wifi_pass_map')
   .then(response => response.json())
   .then(result => {
-    console.log('Result:', result);
+    console.debug('Result:', result);
     const {data, script_statuses, AP_len} = result;
 
     const script_success = script_statuses.filter(script => script.status === 'success').length;
