@@ -2,7 +2,7 @@ import configparser
 import os
 import subprocess
 import sys
-
+from pathlib import Path
 from sqlalchemy import Table, inspect
 from sqlalchemy.exc import IntegrityError
 
@@ -12,11 +12,10 @@ from map_app.sources.sources import config_path
 from map_app.tools.db import create_table_v0_table, Base, Session
 from map_app.tools.wigle_api import wigle_locate
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
-from map_app.tools.db import engine,metadata
+sys.path.append(str(Path(__file__).resolve().parents[2]))
+from map_app.tools.db import engine, metadata
 
 __description__ = "Source for manipulation with raw handshake files"
-
 
 TABLE_NAME = 'handshakes'
 if TABLE_NAME in metadata.tables:
@@ -28,10 +27,10 @@ else:
     else:
         table = Table(TABLE_NAME, metadata, autoload_with=engine)
 
-
-class Handshake(Base):
-    __tablename__ = TABLE_NAME
-    __table__ = table
+if TABLE_NAME not in Base.metadata.tables:
+    class Handshake(Base):
+        __tablename__ = TABLE_NAME
+        __table__ = table
 
 # ------------CONFIG----------------
 if not os.path.exists(config_path()):

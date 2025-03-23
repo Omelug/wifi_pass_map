@@ -6,9 +6,9 @@ Motivation:
     (Ok, maybe better term would be that half of this projet was stolen) from pwnmap projekt:
     (https://github.com/JAKAMI99/pwnamap/tree/main) project.
 
-Why dont use pwnmap?
+Why dont use pwnmap for this?
     pwnmap is great tool for display pwnogotchi data sources during wardriving, but this tool is for different purpose.
-    I want simple way to add new data sources, display it on map and make tools for get more info from/abput them.
+    I want simple way to add new data sources, display it on map and make tools for get more info from/aboput them.
 
 So what is different?
     I deleted some features, because I don't need them:

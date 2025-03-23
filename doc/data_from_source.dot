@@ -1,0 +1,33 @@
+digraph G {
+
+    bgcolor="gray";
+
+    labelloc="t";
+    label="/wifi_pass_map";
+
+    node [shape=none]
+    FROM_CLIENT [label="/api/wifi_pass_map", fontsize=9]
+    TO_CLIENT [fontsize=9]
+
+    node [shape=box, style=filled, penwidth=2, color=cyan];
+    source1
+    source2
+    source3
+
+    node [shape=oval, style=filled, color=green];
+    get_map_data [label="get_map_data()"];
+
+
+    //realitions
+    FROM_CLIENT -> get_map_data
+
+    get_map_data -> source1
+    get_map_data -> source2
+    get_map_data -> source3
+
+    source1 -> filter;
+    source2 -> filter;
+    source3 -> filter;
+
+    filter -> TO_CLIENT
+}
