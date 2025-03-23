@@ -62,12 +62,11 @@ def save_params():
     if not script_name or not tool_name or not params:
         return {"status": "error", "message": "Script name or tool name or parameters missing"}, 400
 
-    config_file_path = os.path.join(os.path.dirname(__file__), '..', 'sources', f'config/{script_name}.ini')
+    config_file = os.path.join(os.path.dirname(__file__), '..', 'sources', f'config/{script_name}.ini')
     config = configparser.ConfigParser()
 
-    # Read the existing config file
-    if os.path.exists(config_file_path):
-        config.read(config_file_path)
+    if os.path.exists(config_file):
+        config.read(config_file)
     else:
         return {"status": "error", "message": f"Config file for {script_name} not found"}, 404
 
@@ -85,42 +84,10 @@ def save_params():
 
     return {"status": "success", "message": "Parameters saved successfully"}, 200
 
-# ------------UPLOAD--------------
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-@api_bp.route('/api/pot_upload', methods=['POST'])
-def upload_pot():
-    if 'file' not in request.files:
-        return {"status": "error", "message": "No file part"}, 400
-    file = request.files['file']
-    if file.filename == '':
-        return {"status": "error", "message": "No selected file"}, 400
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        file.save(os.path.join(POT_UPLOAD_FOLDER, filename))
-        return {"status": "success", "message": "File uploaded successfully"}, 200
-    else:
-        return {"status": "error", "message": "File type not allowed"}, 400
-
 # ------------MAPS--------------
-"""
-@api_bp.route('/api/wardrive', methods=['GET'])
-def get_street_overlay():
-    log.info(f"Current working directory: {os.getcwd()}")
-
-    geojson_file = "app/data/wardrive/wardrive_overlay.json"
-    log.debug(f"GeoJSON file path: {geojson_file}")
-
-    # Check if the file exists before attempting to serve it
-    if os.path.exists(geojson_file):
-        return send_file(geojson_file, as_attachment=False, download_name="wardrive_overlay")
-    else:
-        return {"error": "GeoJSON wardrive overlay not found"}, 404
-"""
-
 @api_bp.route('/api/wifi_pass_map')
 def pwnapi():
+    """Load first data to map"""
     log.debug(f"Request Path: {request.path} was called")
 
     pwned_data,script_statuses = tool_management.get_AP_data()
@@ -129,36 +96,6 @@ def pwnapi():
         'script_statuses': script_statuses,
         'AP_len': len(pwned_data)
     })
-
-@api_bp.route('/api/upload', methods=['POST'])
-def upload_file():
-
-    # Check for file in request
-    if 'file' not in request.files:
-        log.warning("Request Path: {request.path} - No file in request ")
-        return jsonify({'error': 'No file part in the request'}), 400
-
-    file = request.files['file']
-
-    # Check if file name is empty
-    if file.filename == '':
-        log.warning("Request Path: {request.path} - No filename in request ")
-        return jsonify({'error': 'No file selected for uploading'}), 400
-
-    filename = sanitize_filename(file.filename)
-
-    # Directory where files are stored
-    data_dir = "map_app/data/handshakes/"
-    file_path = os.path.join(data_dir, filename)
-
-    # Check if file already exists
-    if os.path.exists(file_path):
-        log.info("Request Path: {request.path} - File already submitted ")
-        return jsonify({'message': 'Already submitted'}), 200
-
-    file.save(file_path)
-    return jsonify({'message': 'File uploaded successfully', 'filename': filename}), 200
-
 
 @api_bp.route('/api/explore')
 def exploreapi():

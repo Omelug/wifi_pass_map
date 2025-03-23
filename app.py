@@ -21,11 +21,10 @@ if __name__ == "__main__":
     if args.tile_server:
         tile_server_thread = threading.Thread(target=run_tile_server)
         tile_server_thread.start()
+        tile_server_thread.join()
 
     main_app_thread = threading.Thread(target=run_main_app)
     main_app_thread.start()
-
-    if args.tile_server:
-        tile_server_thread.join()
     main_app_thread.join()
+
 
