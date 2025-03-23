@@ -23,5 +23,4 @@ def tools():
 
 @static_bp.route('/images/<path:filename>')
 def serve_image(filename):
-    print(filename)
     return send_from_directory(os.path.join(current_app.root_path, 'map_app/static'), filename)
