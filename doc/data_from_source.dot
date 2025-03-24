@@ -16,7 +16,12 @@ digraph G {
 
     node [shape=oval, style=filled, color=green];
     get_map_data [label="get_map_data()"];
+    filter
 
+    subgraph cluster_1{
+       label = "/static/"
+       filter
+    }
 
     //realitions
     FROM_CLIENT -> get_map_data
