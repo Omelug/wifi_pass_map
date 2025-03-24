@@ -1,12 +1,8 @@
 import configparser
-import importlib.util
-
-from flask import jsonify, request, Response, stream_with_context, Blueprint, session, send_file
-import sqlite3, os, subprocess, re, logging
-from werkzeug.utils import secure_filename
-
-from formator.files import sanitize_filename
-import map_app.tools.tool_management as tool_management
+import logging
+import os
+from flask import jsonify, request, Response, stream_with_context, Blueprint
+from map_app import sources
 
 api_bp = Blueprint('api', __name__)
 log = logging.getLogger(__name__)
@@ -15,10 +11,64 @@ log.setLevel(logging.DEBUG)
 POT_UPLOAD_FOLDER = 'app/data/potfile'
 ALLOWED_EXTENSIONS = {'pot', '22000', 'potfile'}
 
+# ------------MAPS--------------
+@api_bp.route('/api/wifi_pass_map')
+def pwnapi():
+    """Load first data to map"""
+    log.debug(f"Request Path: {request.path} was called")
+
+    pwned_data,script_statuses = sources.get_AP_data()
+    return jsonify({
+        'data': pwned_data,
+        'script_statuses': script_statuses,
+        'AP_len': len(pwned_data)
+    })
+
+@api_bp.route('/api/explore')
+def exploreapi():
+    log.debug(f"Request Path: {request.path} was called")
+
+    # Extract filters from request parameters, if not None
+    filters = {key: value for key, value in {
+        'essid': request.args.get('name'),
+        'bssid': request.args.get('network_id'),
+        'limit': request.args.get('limit'),
+        'encryption': request.args.get('encryption'),
+        'network_type': request.args.get('network_type'),
+        #'exclude_no_ssid': request.args.get('exclude_no_ssid', 'false')
+    }.items() if value is not None}
+
+    pwned_data, script_statuses = sources.get_AP_data(filters=filters)
+    return jsonify({
+        'data': pwned_data,
+        'script_statuses': script_statuses,
+        'AP_len': len(pwned_data)
+    })
+
+
+@api_bp.route('/api/load_sqare')
+def load_sqare():
+    log.debug(f"Request Path: {request.path} was called")
+
+    # Extract params from request parameters
+    filters = {key: value for key, value in {
+        'center_latitude': request.args.get('center_latitude'),
+        'center_longitude': request.args.get('center_longitude'),
+        'sqare_limit': request.args.get('sqare_limit'),
+    }.items() if value is not None}
+
+    pwned_data, script_statuses = sources.get_AP_data(filters)
+    return jsonify({
+        'data': pwned_data,
+        'script_statuses': script_statuses,
+        'AP_len': len(pwned_data)
+    })
+
+
 # ------------TOOLS--------------
-tools = tool_management.tool_list()
 @api_bp.route('/api/tools', methods=['POST'])
 def run_script():
+    tools = sources.tool_list()
     # Get script name and optional arguments from the POST request
     script_name = request.json.get('script_name')
     tool_name = request.json.get('tool_name')
@@ -79,60 +129,7 @@ def save_params():
         #TODO check param control function from tools list
         config[tool_name][param_name] = str(param_value)
 
-    with open(config_file_path, 'w') as configfile:
-        config.write(configfile)
+    with open(config_file, 'w') as cf:
+        config.write(cf)
 
     return {"status": "success", "message": "Parameters saved successfully"}, 200
-
-# ------------MAPS--------------
-@api_bp.route('/api/wifi_pass_map')
-def pwnapi():
-    """Load first data to map"""
-    log.debug(f"Request Path: {request.path} was called")
-
-    pwned_data,script_statuses = tool_management.get_AP_data()
-    return jsonify({
-        'data': pwned_data,
-        'script_statuses': script_statuses,
-        'AP_len': len(pwned_data)
-    })
-
-@api_bp.route('/api/explore')
-def exploreapi():
-    log.debug(f"Request Path: {request.path} was called")
-
-    # Extract filters from request parameters, if not None
-    filters = {key: value for key, value in {
-        'essid': request.args.get('name'),
-        'bssid': request.args.get('network_id'),
-        'limit': request.args.get('limit'),
-        'encryption': request.args.get('encryption'),
-        'network_type': request.args.get('network_type'),
-        #'exclude_no_ssid': request.args.get('exclude_no_ssid', 'false')
-    }.items() if value is not None}
-
-    pwned_data, script_statuses = tool_management.get_AP_data(filters=filters)
-    return jsonify({
-        'data': pwned_data,
-        'script_statuses': script_statuses,
-        'AP_len': len(pwned_data)
-    })
-
-
-@api_bp.route('/api/load_sqare')
-def load_sqare():
-    log.debug(f"Request Path: {request.path} was called")
-
-    # Extract params from request parameters
-    filters = {key: value for key, value in {
-        'center_latitude': request.args.get('center_latitude'),
-        'center_longitude': request.args.get('center_longitude'),
-        'sqare_limit': request.args.get('sqare_limit'),
-    }.items() if value is not None}
-
-    pwned_data, script_statuses = tool_management.get_AP_data(filters)
-    return jsonify({
-        'data': pwned_data,
-        'script_statuses': script_statuses,
-        'AP_len': len(pwned_data)
-    })

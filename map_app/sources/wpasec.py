@@ -6,8 +6,8 @@ import sys
 import requests
 from sqlalchemy import Table, inspect
 from sqlalchemy.exc import IntegrityError
-from map_app.sources import sources
-from map_app.sources.sources import config_path
+from map_app import sources
+from map_app.sources import config_path
 from map_app.tools.db import Base, create_table_v0_table
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
@@ -53,7 +53,7 @@ if not os.path.exists(config_path()):
 # ------------FUNCTIONS----------------
 
 def get_map_data(filters=None):
-    return sources.get_map_data(TABLE_NAME,filters)
+    return sources.Table_v0_get_map_data(TABLE_NAME, filters)
 
 def get_wpasec_key():
     config = configparser.ConfigParser()

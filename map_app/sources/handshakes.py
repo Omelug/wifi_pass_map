@@ -7,8 +7,8 @@ from sqlalchemy import Table, inspect
 from sqlalchemy.exc import IntegrityError
 
 from formator.bssid import extract_essid_bssid
-from map_app.sources import sources
-from map_app.sources.sources import config_path
+from map_app import sources
+from map_app.sources import config_path
 from map_app.tools.db import create_table_v0_table, Base, Session
 from map_app.tools.wigle_api import wigle_locate
 
@@ -50,8 +50,7 @@ if not os.path.exists(config_path()):
 # ------------FUNCTIONS----------------
 
 def get_map_data(filters=None):
-    return sources.get_map_data(TABLE_NAME, filters)
-
+    return sources.Table_v0_get_map_data(TABLE_NAME, filters)
 
 def create_hash_file(config):
     HS_DIR = config['handshake_scan']['handshakes_dir']
