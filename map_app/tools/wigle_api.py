@@ -35,7 +35,8 @@ def save_wigle_location(wigle_data, session, table, bssid, password):
                 latitude=latitude,
                 longitude=longitude,
                 time=time,
-                essid=essid
+                essid=essid,
+                password=password
             )
             print(query)
             session.execute(query)
