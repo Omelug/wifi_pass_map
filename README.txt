@@ -62,3 +62,27 @@ File system:
                 cd hcxtools
                 make
                 sudo make install
+
+TODO Roadmap
+
+Add to
+
+- add pwncrack compatibility
+- different colors for diferent sources
+    - and different object for not pwned
+- show cracked in statDiv
+- fix header foot vompabiliti with window resizing
+- add visibility buttonin meto to enable/disble
+- add help small windows if i focus on button in tools (or just add icons)
+- add reset default values in tools
+- refactor external libraries to be sure not sendind data to fucking gooogle etc...
+- add _ to private metdhods
+
+- more wa sec keys
+
+Country specific p3wifi:
+ - add tool to
+    - ownload database
+    - cut only one database
+    - add warning messages - database not accesible etc.
+    - add manual to this
