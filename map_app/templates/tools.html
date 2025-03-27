@@ -10,24 +10,24 @@
     <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
 </head>
 <body>
-    {% for script_name, tool_info in tools.items() %}
-        {% set script_name = script_name.split('.')[0] %}
+    {% for object_name, tool_info in tools.items() %}
+        {% set object_name = object_name.split('.')[0] %}
         {% for tool_name, tool_details in tool_info.items() %}
             <div class="tool-container">
-                <button id="{{ script_name }}_{{ tool_name }}_button" onclick="runTool('{{ script_name }}', '{{ tool_name }}')">
+                <button id="{{ object_name }}_{{ tool_name }}_button" onclick="runTool('{{ object_name }}', '{{ tool_name }}')">
                     {{ tool_name.upper() }}
                 </button>
-                <button id="{{ script_name }}_{{ tool_name }}_save_button" class="save-button" onclick="saveParams('{{ script_name }}', '{{ tool_name }}')">
+                <button id="{{ object_name }}_{{ tool_name }}_save_button" class="save-button" onclick="saveParams('{{ object_name }}', '{{ tool_name }}')">
                     <i class="fas fa-save"></i>
                 </button>
-                <div id="{{ script_name }}_{{ tool_name }}_result" class="result"></div>
+                <div id="{{ object_name }}_{{ tool_name }}_result" class="result"></div>
             </div>
 
             {% if "params" in tool_details %}
                 {% for param in tool_details["params"] %}
                     <div class="input-container">
-                        <label for="{{ script_name }}_{{ tool_name }}_{{ param[0] }}"> {{ param[1].__name__ }} | {{ param[0] }}</label>
-                        <input type="text" id="{{ script_name }}_{{ tool_name }}_{{ param[0] }}" name="{{ param[0] }}" value="{{ param[3] }}">
+                        <label for="{{ object_name }}_{{ tool_name }}_{{ param[0] }}"> {{ param[1].__name__ }} | {{ param[0] }}</label>
+                        <input type="text" id="{{ object_name }}_{{ tool_name }}_{{ param[0] }}" name="{{ param[0] }}" value="{{ param[3] }}">
                         <label>{{ param[4] }}</label>
                     </div>
                 {% endfor %}

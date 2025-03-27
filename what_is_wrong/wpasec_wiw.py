@@ -1,8 +1,8 @@
 import os
 import re
 
-from map_app.sources.wpasec import get_wpasec_key
-from map_app.tools.db import CENTRAL_DB
+from map_app.source_core.db import CENTRAL_DB
+from map_app.sources.wpasec import Wpasec
 from what_is_wrong import wigle_wiw
 from what_is_wrong.wiw import print_o, print_rg
 
@@ -17,7 +17,7 @@ def is_hex_key(key):
 
 
 def wiw_wpa_sec_local():
-    key = get_wpasec_key()
+    key = Wpasec.__get_wpasec_key()
     print_rg(f"wpasec api key is: {key}", is_hex_key(key), "Key not in hex format")
     print_rg(f"Central database exists {CENTRAL_DB} ", os.path.exists(CENTRAL_DB))
 

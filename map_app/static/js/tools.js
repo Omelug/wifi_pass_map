@@ -26,7 +26,7 @@ function runTool(scriptName, toolName) {
         type: 'POST',
         url: '/api/tools',
         contentType: 'application/json',
-        data: JSON.stringify({ script_name: scriptName, tool_name: toolName }),
+        data: JSON.stringify({ object_name: scriptName, tool_name: toolName }),
         xhrFields: {
             onprogress: (e) => {
                 // Append the entire response text to the liveResults div
@@ -54,7 +54,7 @@ function saveParams(scriptName, toolName) {
     fetch('/api/save_params', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ script_name: scriptName, tool_name: toolName, params: params })
+        body: JSON.stringify({ object_name: scriptName, tool_name: toolName, params: params })
     })
     .then(response => response.json())
     .then(({ status, message }) => status === 'success' ? console.log('Parameters saved successfully') : alert(`Error saving parameters: ${message}`))
