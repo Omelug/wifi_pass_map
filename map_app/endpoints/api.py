@@ -1,8 +1,10 @@
 import configparser
 import logging
 import os
+import sys
+from io import StringIO
+
 from flask import jsonify, request, Response, stream_with_context, Blueprint
-from formator.files import source_script_name
 from map_app import sources
 
 api_bp = Blueprint('api', __name__)
@@ -54,30 +56,27 @@ def load_sqare():
 
 # ------------TOOLS--------------
 @api_bp.route('/api/tools', methods=['POST'])
-def run_script():
+def run_tool():
     """Run specified tool script, stream its output."""
-    tools = sources.tool_list()
+    tools = sources.tool_list(add_class=True)
 
     # Get script name and optional arguments from the POST request
-    script_name = request.json.get('script_name')
+    object_name = request.json.get('object_name')
     tool_name = request.json.get('tool_name')
 
-    if not script_name or not tool_name:
+    if not object_name or not tool_name:
         log.warning(f"Request Path: {request.path} - Script name or tool name not provided")
         return {"status": "error", "message": "Script name or tool name not provided."}, 400
 
-    if script_name not in tools.keys():
-        log.error(f"Request Path: {request.path} - The script {script_name} was not found")
+    if object_name not in tools.keys():
+        log.error(f"Request Path: {request.path} - The script {object_name} was not found")
         return {"status": "error", "message": f"Script not found, available options are {', '.join(tools.keys())}"}, 404
 
-    if tool_name not in tools[script_name].keys():
-        log.error(f"Request Path: {request.path} - The tool {tool_name} was not found in script {script_name}")
-        return {"status": "error", "message": f"Tool not found in script {script_name}"}, 404
+    if tool_name not in tools[object_name].keys():
+        log.error(f"Request Path: {request.path} - The tool {tool_name} was not found in script {object_name}")
+        return {"status": "error", "message": f"Tool not found in script {object_name}"}, 404
 
-    def generate_output(func):
-        from io import StringIO
-        import sys
-
+    def generate_output(instance, func):
         old_stdout = sys.stdout
         sys.stdout = mystdout = StringIO()
         try:
@@ -88,33 +87,37 @@ def run_script():
         finally:
             sys.stdout = old_stdout
 
-    func = tools[script_name][tool_name]["run_fun"]
-    return Response(stream_with_context(generate_output(func)), content_type='text/plain')
+    # Instantiate the object
+    object_class = tools[object_name]["class"]
+    instance = object_class()
+
+    func = tools[object_name][tool_name]["run_fun"]
+    return Response(stream_with_context(generate_output(instance, func)), content_type='text/plain')
 
 @api_bp.route('/api/save_params', methods=['POST'])
 def save_params():
     """Save user-defined parameters for a given source script and tool."""
     data = request.json or {}
-    script_name = data.get('script_name')
+    object_name = data.get('object_name')
     tool_name = data.get('tool_name')
     params = data.get('params')
 
-    if not script_name or not tool_name or not params:
+    if not object_name or not tool_name or not params:
         return {"status": "error", "message": "Script name or tool name or parameters missing"}, 400
 
     #secure input
-    config_file = os.path.join(SAFE_CONFIG_DIR, f"{script_name}.ini")
-    if not config_file.startswith(SAFE_CONFIG_DIR) or not source_script_name(script_name):
+    config_file = os.path.join(SAFE_CONFIG_DIR, f"{object_name}.ini")
+    if not config_file.startswith(SAFE_CONFIG_DIR) or not source_object_name(object_name):
         return {"status": "error", "message": "Invalid script name."}, 400
 
     config = configparser.ConfigParser()
     if os.path.exists(config_file):
         config.read(config_file)
     else:
-        return {"status": "error", "message": f"Config file for {script_name} not found"}, 404
+        return {"status": "error", "message": f"Config file for {object_name} not found"}, 404
 
 
-    #TODO  Update the tool section with the new parameters
+    #TODO  Update the tool section on page with the new parameters
     if tool_name not in config:
         config[tool_name] = {}
 

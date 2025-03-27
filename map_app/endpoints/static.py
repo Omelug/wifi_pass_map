@@ -18,8 +18,7 @@ def wifi_pass_map():
 
 @static_bp.route('/tools')
 def tools():
-    tool_data = sources.tool_list()
-    return render_template('tools.html', tools=tool_data)
+    return render_template('tools.html', tools=sources.tool_list())
 
 
 # --------------GENERIC --------------------------

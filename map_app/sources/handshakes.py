@@ -3,121 +3,76 @@ import os
 import subprocess
 import sys
 from pathlib import Path
-from sqlalchemy import Table, inspect
-from sqlalchemy.exc import IntegrityError
 
 from formator.bssid import extract_essid_bssid
-from map_app import sources
+from map_app.source_core.Table_v0 import Table_v0
 from map_app.sources import config_path
-from map_app.tools.db import create_table_v0_table, Base, Session
-from map_app.tools.wigle_api import wigle_locate
 
 sys.path.append(str(Path(__file__).resolve().parents[2]))
-from map_app.tools.db import engine, metadata
 
-__description__ = "Source for manipulation with raw handshake files"
+class Handshake(Table_v0):
+    __description__ = "Source for manipulation with raw handshake files"
+    TABLE_NAME = 'handshakes'
 
-TABLE_NAME = 'handshakes'
-if TABLE_NAME in metadata.tables:
-    table = metadata.tables[TABLE_NAME]
-else:
-    if not inspect(engine).has_table(TABLE_NAME):
-        table = create_table_v0_table(TABLE_NAME)
-        metadata.create_all(engine)
-    else:
-        table = Table(TABLE_NAME, metadata, autoload_with=engine)
+    def __init__(self):
+        default_config = configparser.ConfigParser()
+        default_config['handshake_scan'] = {
+            'rescan_days': '7',
+            'handshakes_dir' : 'data/raw/handshakes',
+            'handshake_22000_file': 'data/raw/hash.hc22000',
+        }
+        super().__init__(self.TABLE_NAME, default_config)
 
-if TABLE_NAME not in Base.metadata.tables:
-    class Handshake(Base):
-        __tablename__ = TABLE_NAME
-        __table__ = table
+    # ------------FUNCTIONS----------------
+    @staticmethod
+    def __create_hash_file(config):
+        HS_DIR = config['handshake_scan']['handshakes_dir']
+        FILE_22000 = config['handshake_scan']['handshake_22000_file']
 
-# ------------CONFIG----------------
-if not os.path.exists(config_path()):
-    config = configparser.ConfigParser()
-    config['handshake_scan'] = {
-        'rescan_days': '7',
-        'handshakes_dir' : 'data/raw/handshakes',
-        'handshake_22000_file': 'data/raw/hash.hc22000',
-    }
+        print(f"HANDSHAKE: Creating hash file {FILE_22000}")
 
-    with open(config_path(), 'w') as config_file:
-        config.write(config_file)
+        hcxpcapngtool_cmd = ['hcxpcapngtool', '-o', os.path.abspath(FILE_22000), os.path.join(os.path.abspath(HS_DIR), '*.pcap')]
+        print(f"Executing: {' '.join(hcxpcapngtool_cmd)}")
 
-    print(f"Handsakes configuration created {config_path()}")
-    #TODO maybe database of tried discts and table to tried discts
+        try:
+            result = subprocess.run(hcxpcapngtool_cmd, capture_output=True, text=True)
+            if result.returncode != 0:
+                print(f"Error processing files: {result.returncode} {result.stderr}")
+            else:
+                print(f"Hash file created at {FILE_22000}")
+        except Exception as e:
+            print(f"Failed to process files: {e}")
 
-# ------------FUNCTIONS----------------
 
-def get_map_data(filters=None):
-    return sources.Table_v0_get_map_data(TABLE_NAME, filters)
+    def __load_hashes_to_db(self,config):
+        FILE_22000 = config['handshake_scan']['handshake_22000_file']
+        print(f"HANDSHAKE: Loading data from {FILE_22000} to database...")
+        new_handshakes = 0
 
-def create_hash_file(config):
-    HS_DIR = config['handshake_scan']['handshakes_dir']
-    FILE_22000 = config['handshake_scan']['handshake_22000_file']
+        if not os.path.exists(FILE_22000):
+            print(f"Hash file {FILE_22000} does not exist.")
+            return
 
-    print(f"HANDSHAKE: Creating hash file {FILE_22000}")
-
-    command = ['hcxpcapngtool', '-o', os.path.abspath(FILE_22000), os.path.join(os.path.abspath(HS_DIR), '*.pcap')]
-    print(f"Executing: {' '.join(command)}")
-
-    try:
-        result = subprocess.run(command, capture_output=True, text=True)
-        if result.returncode != 0:
-            print(f"Error processing files: {result.returncode} {result.stderr}")
-        else:
-            print(f"Hash file created at {FILE_22000}")
-    except Exception as e:
-        print(f"Failed to process files: {e}")
-
-def load_hashes_to_db(config):
-    FILE_22000 = config['handshake_scan']['handshake_22000_file']
-    print(f"HANDSHAKE: Loading data from {FILE_22000} to database...")
-    new_handshakes = 0
-
-    if not os.path.exists(FILE_22000):
-        print(f"Hash file {FILE_22000} does not exist.")
-        return
-
-    with open(FILE_22000, 'r') as hash_file:
-        for line in hash_file:
-            if line.startswith('WPA'):
-
-                essid, bssid = extract_essid_bssid(line)
-
-                password = None  # TODO Extract password if available
-
-                with Session() as session:
-                    try:
-                        new_handshake_entry = Handshake(
-                            bssid=bssid,
-                            essid=essid,
-                            password=password
-                        )
-                        session.add(new_handshake_entry)
-                        session.commit()
+        with open(FILE_22000, 'r') as hash_file:
+            for line in hash_file:
+                if line.startswith('WPA'):
+                    essid, bssid, password = extract_essid_bssid(line)
+                    if self._save_AP_to_db(bssid, essid, password):
                         new_handshakes += 1
-                    except IntegrityError:
-                        session.rollback()
-                        #print(f"Duplicate entry for {bssid} - {essid}")
-    print(f"Handshakes loading done, {new_handshakes} new handshakes added")
+                else:
+                    print("Invalid handsake format")
+        print(f"Handshakes loading done, {new_handshakes} new handshakes added")
 
 
-#-----------------------TOOLS FUNCTIONS-----------------------
+    #-----------------------TOOLS FUNCTIONS-----------------------
+    def __handshake_reload(self):
+        config = configparser.ConfigParser()
+        config.read(config_path())
+        Handshake.__create_hash_file(config)
+        self.__load_hashes_to_db(config)
 
-def handshake_reload():
-    config = configparser.ConfigParser()
-    config.read(config_path())
 
-    create_hash_file(config)
-    load_hashes_to_db(config)
-
-def handshake_locate():
-    print("HANDSHAKE: Starting data localization")
-    localized_networks, total_networks = wigle_locate(TABLE_NAME)
-    print(f"HANDSHAKE: Located {localized_networks} out of {total_networks} networks")
-
-def get_tools():
-    config = configparser.ConfigParser()
-    config.read(config_path())
-    return {"handshake_reload": {"run_fun": handshake_reload},"handshake_locate": {"run_fun": handshake_locate}}
+    def get_tools(self):
+        config = configparser.ConfigParser()
+        config.read(config_path())
+        return {"handshake_reload": {"run_fun": self.__handshake_reload},"handshake_locate": {"run_fun": self.table_v0_locate}}

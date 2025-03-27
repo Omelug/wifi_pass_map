@@ -15,7 +15,7 @@ So what is different?
         - multiple users/user security
         - separated map/exprorer map (I am thinking about different separation, but there is one map for now)
         - api key input form users
-        - stats (This is feature I would like to add in future, but differently)
+        - stats (This is feature I would like to add in the future, but differently)
 
 What I changed:
     * refactored some parts of code and deleted redundant code
@@ -65,24 +65,28 @@ File system:
 
 TODO Roadmap
 
-Add to
 
-- add pwncrack compatibility
-- different colors for diferent sources
++ = new feature, b = bug, r = refactoring
+
+r: change print to logging
+r: change ssources to classes
+
++: add pwncrack compatibility
++: visibility button in menu to enable/disble scripts
++: different colors for diferent sources
     - and different object for not pwned
-- show cracked in statDiv
-- fix header foot vompabiliti with window resizing
-- add visibility buttonin meto to enable/disble
-- add help small windows if i focus on button in tools (or just add icons)
-- add reset default values in tools
-- refactor external libraries to be sure not sendind data to fucking gooogle etc...
-- add _ to private metdhods
++: show cracked count in statDiv
+b: fix headercompability with window resizing
++: add help small windows if i focus on button in tools (or just add icons)
++: add reset default values in tools
+r: refactor external libraries to be sure not sending data to fucking gooogle etc...
+r: add _ to private metdhods
 
-- more wa sec keys
++: more wpa sec keys
 
-Country specific p3wifi:
- - add tool to
-    - ownload database
-    - cut only one database
-    - add warning messages - database not accesible etc.
-    - add manual to this
++:Country specific p3wifi:
+     - add tool to
+        - downloadn and load database
+        - cut only one database
+        - add warning messages - database not accesible etc.
+        - add manual to this

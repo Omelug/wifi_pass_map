@@ -5,7 +5,7 @@ import random
 from requests import ReadTimeout
 from sqlalchemy import select, MetaData, Table, update
 from map_app.tools import global_config_path
-from map_app.tools.db import get_db_connection, engine
+from map_app.source_core.db import get_db_connection, engine
 from datetime import datetime
 
 # TODO add more keys suport for bypass limits
