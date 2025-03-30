@@ -67,22 +67,33 @@ TODO Roadmap
 
 
 + = new feature, b = bug, r = refactoring
+v = visual
+
+---------TODO NOW
+r: change all sources to classes
+b: read tools termianl line by line (now it print only at the end)
 
 r: change print to logging
-r: change ssources to classes
 
-+: add pwncrack compatibility
+-------CREATE RELEASE
+
++: wigle - add time, nd chek only older_than
++: add pwncrack source
+    - more pwncrack keys
++: more wpa_sec keys
++: wigle - add multiple keys
++: create UML diagram (find way to auto documenting?)
+
+
 +: visibility button in menu to enable/disble scripts
-+: different colors for diferent sources
+v+: different colors for diferent sources
     - and different object for not pwned
 +: show cracked count in statDiv
-b: fix headercompability with window resizing
+b: fix header compability with window resizing
 +: add help small windows if i focus on button in tools (or just add icons)
 +: add reset default values in tools
 r: refactor external libraries to be sure not sending data to fucking gooogle etc...
 r: add _ to private metdhods
-
-+: more wpa sec keys
 
 +:Country specific p3wifi:
      - add tool to

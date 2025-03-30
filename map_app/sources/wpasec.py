@@ -14,7 +14,6 @@ class Wpasec(Table_v0):
 
     def __init__(self):
 
-        #default config
         default_config = configparser.ConfigParser()
         default_config['wpasec_update'] = {
             'api_keys': '<your_wpasec_api_key_here>',
