@@ -5,7 +5,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql import expression
 
 from formator.bssid import format_bssid
-from map_app.source_core.DBSource import DBSource
+from map_app.source_core.Source import Source
 from map_app.source_core.db import Base, get_db_connection, engine, metadata, Session
 from map_app.sources import config_path
 from map_app.tools.wigle_api import wigle_locate
@@ -13,7 +13,7 @@ from map_app.tools.wigle_api import wigle_locate
 
 #---------------------Table_v0----------------------
 # Table_v0 is typical table to make some sources more generic
-class Table_v0(DBSource):
+class Table_v0(Source):
 
     @property
     @abstractmethod

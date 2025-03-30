@@ -4,7 +4,7 @@ import logging
 import os
 import traceback
 from typing import Dict, List, Any, Optional, Tuple
-from map_app.source_core.DBSource import DBSource
+from map_app.source_core.Source import Source
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
@@ -23,7 +23,8 @@ def load_source_objects() -> List[Any]:
     """Dynamically load source classes and create instances if they are children of DBSource."""
     source_objects = []
     SOURCE_DIR = os.path.join(BASE_FILE, "sources")
-    for script_path in [os.path.join(SOURCE_DIR, f) for f in os.listdir(SOURCE_DIR) if f.endswith('.py')]:
+    script_paths = [os.path.join(root, f) for root, _, files in os.walk(SOURCE_DIR) for f in files if f.endswith('.py')]
+    for script_path in script_paths:
         try:
             spec = importlib.util.spec_from_file_location("source_module", script_path)
             if spec and spec.loader:
@@ -31,7 +32,7 @@ def load_source_objects() -> List[Any]:
                 spec.loader.exec_module(module)
 
                 for name, obj in inspect.getmembers(module, inspect.isclass):
-                    if issubclass(obj, DBSource) and obj.__module__ == module.__name__:
+                    if issubclass(obj, Source) and obj.__module__ == module.__name__:
                         source_objects.append(obj())
         except Exception as e:
             log.error(f"Error loading module from {script_path}: {e}")

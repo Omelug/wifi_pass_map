@@ -5,3 +5,6 @@ map_app/.idea
 map_app/tools/tools_keys.ini
 *iml
 /*ini
+/map_app/sources/config/*.ini
+/map_app/static/lib/css/*
+/map_app/static/lib/js/*

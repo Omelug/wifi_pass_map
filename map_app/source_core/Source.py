@@ -10,10 +10,10 @@ class SingletonMeta(type):
             cls._instances[cls] = instance
         return cls._instances[cls]
 
-class DBSource(metaclass=SingletonMeta):
-    def __init__(self, table_name):
+class Source(metaclass=SingletonMeta):
+    def __init__(self, source_name):
         super().__init__()
-        self.name = table_name
+        self.name = source_name
     """
     "run_fun": function_to_run
     "params": List[tuple[str, type,None,Any]]
