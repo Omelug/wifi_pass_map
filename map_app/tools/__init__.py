@@ -1,5 +1,6 @@
 # ------------CONFIG----------------
 import configparser
+import logging
 import os
 
 # create default config if not exists
@@ -13,4 +14,4 @@ if not os.path.exists(global_config_path):
 
     with open(global_config_path, 'w') as config_file:
         config.write(config_file)
-    print(f"{os.path.basename(__file__)} configuration created {global_config_path}")
+    logging.info(f"{os.path.basename(__file__)} configuration created {global_config_path}")

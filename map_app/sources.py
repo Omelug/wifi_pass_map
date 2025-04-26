@@ -3,7 +3,7 @@ import inspect
 import logging
 import os
 import traceback
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, List, Any, Tuple
 from map_app.source_core.Source import Source
 
 log = logging.getLogger(__name__)

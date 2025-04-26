@@ -1,4 +1,5 @@
 import configparser
+import logging
 import sqlite3
 import requests
 import random
@@ -17,9 +18,9 @@ def get_api_key():
 
 # table_name - in this table shoud be bssid, password,
 def save_wigle_location(wigle_data, session, table, bssid, password):
-    print(wigle_data)
+    logging.info(wigle_data)
     if 'results' in wigle_data and len(wigle_data['results']) > 0:
-        print("results found")
+        logging.info("results found")
 
         result = wigle_data['results'][0]
         essid = result.get('ssid')
@@ -28,7 +29,7 @@ def save_wigle_location(wigle_data, session, table, bssid, password):
         longitude = result.get('trilong')
         # network_type = "WIFI"
         time = result.get('lasttime')
-        print(f"✅📌 Found geolocation for {essid}({bssid}) - {latitude}, {longitude}")
+        logging.info(f"✅📌 Found geolocation for {essid}({bssid}) - {latitude}, {longitude}")
         try:
             query = update(table).where(table.c.bssid == bssid).values(
                 encryption=encryption,
@@ -38,19 +39,19 @@ def save_wigle_location(wigle_data, session, table, bssid, password):
                 essid=essid,
                 password=password
             )
-            print(query)
+            logging.info(query)
             session.execute(query)
             return True
         except sqlite3.Error as e:
-            print(f"[WIGLE] Got error {e} when inserting entry for network_id: {bssid}")
+            logging.info(f"[WIGLE] Got error {e} when inserting entry for network_id: {bssid}")
             return False
 
     else:
-        print(f"❌ No geolocation for {bssid} found...")
+        logging.info(f"❌ No geolocation for {bssid} found...")
         query = update(table).where(table.c.bssid == bssid).values(
             last_locate_try=datetime.now()
         )
-        print(query)
+        logging.info(query)
         session.execute(query)
         return False
 
@@ -72,7 +73,7 @@ def wigle_locate(table_name):
             #shuffle data to increase chance for hits for the next day when running into the API Limit
             random.shuffle(wpasec_data)
             api_key = get_api_key()
-            print(f"Wigle API key loaded, try check {len(wpasec_data)} networks")
+            logging.info(f"Wigle API key loaded, try check {len(wpasec_data)} networks")
 
             for row in wpasec_data:
                 bssid, password = row
@@ -86,10 +87,10 @@ def wigle_locate(table_name):
                 )
 
                 if response.status_code == 401:
-                    print(f"The Wigle API {api_key} Key is not authorized. Validate it in the Settings")
+                    logging.info(f"The Wigle API {api_key} Key is not authorized. Validate it in the Settings")
                     break
                 elif response.status_code == 429:
-                    print("❌ Received status code 429: API Limit reached.")
+                    logging.info("❌ Received status code 429: API Limit reached.")
                     break
                 elif response.status_code == 200:
                     try:
@@ -97,13 +98,13 @@ def wigle_locate(table_name):
                         localized_networks = +save_wigle_location(wigle_data, session, table, bssid, password)
                         session.commit()
                     except ValueError as e:
-                        print(f"Error parsing JSON response: {e}")
+                        logging.info(f"Error parsing JSON response: {e}")
                         break
                 else:
-                    print(f"Error retrieving data for {bssid}. Status code: {response.status_code}")
+                    logging.info(f"Error retrieving data for {bssid}. Status code: {response.status_code}")
                     break
         except ReadTimeout as  e:
-            print(f"Timeout error: {e}")
+            logging.info(f"Timeout error: {e}")
         finally:
             session.commit()
     return localized_networks, total_networks

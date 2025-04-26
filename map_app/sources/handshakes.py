@@ -1,4 +1,5 @@
 import configparser
+import logging
 import os
 import subprocess
 import sys
@@ -29,28 +30,28 @@ class Handshake(Table_v0):
         HS_DIR = config['handshake_scan']['handshakes_dir']
         FILE_22000 = config['handshake_scan']['handshake_22000_file']
 
-        print(f"HANDSHAKE: Creating hash file {FILE_22000}")
+        logging.info(f"HANDSHAKE: Creating hash file {FILE_22000}")
 
         hcxpcapngtool_cmd = ['hcxpcapngtool', '-o', os.path.abspath(FILE_22000), os.path.join(os.path.abspath(HS_DIR), '*.pcap')]
-        print(f"Executing: {' '.join(hcxpcapngtool_cmd)}")
+        logging.info(f"Executing: {' '.join(hcxpcapngtool_cmd)}")
 
         try:
             result = subprocess.run(hcxpcapngtool_cmd, capture_output=True, text=True)
             if result.returncode != 0:
-                print(f"Error processing files: {result.returncode} {result.stderr}")
+                logging.error(f"Error processing files: {result.returncode} {result.stderr}")
             else:
-                print(f"Hash file created at {FILE_22000}")
+                logging.info(f"Hash file created at {FILE_22000}")
         except Exception as e:
-            print(f"Failed to process files: {e}")
+            logging.error(f"Failed to process files: {e}")
 
 
     def __load_hashes_to_db(self,config):
         FILE_22000 = config['handshake_scan']['handshake_22000_file']
-        print(f"HANDSHAKE: Loading data from {FILE_22000} to database...")
+        logging.info(f"HANDSHAKE: Loading data from {FILE_22000} to database...")
         new_handshakes = 0
 
         if not os.path.exists(FILE_22000):
-            print(f"Hash file {FILE_22000} does not exist.")
+            logging.error(f"Hash file {FILE_22000} does not exist.")
             return
 
         with open(FILE_22000, 'r') as hash_file:
@@ -60,8 +61,8 @@ class Handshake(Table_v0):
                     if self._save_AP_to_db(bssid, essid, password):
                         new_handshakes += 1
                 else:
-                    print("Invalid handsake format")
-        print(f"Handshakes loading done, {new_handshakes} new handshakes added")
+                    logging.error("Invalid handsake format")
+        logging.info(f"Handshakes loading done, {new_handshakes} new handshakes added")
 
 
     #-----------------------TOOLS FUNCTIONS-----------------------

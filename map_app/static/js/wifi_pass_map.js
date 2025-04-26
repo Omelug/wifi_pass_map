@@ -23,12 +23,16 @@ function updateStatsDiv(script_statuses, AP_len) {
   if (!statsDiv) {
       statsDiv = document.createElement('div');
       statsDiv.id = 'stats-popup';
-      statsDiv.style = `
-        position: fixed; top: 10px; right: 10px;
-        background-color: rgba(0, 0, 0, 0.7);
-        color: white; padding: 10px; border-radius: 5px;
-        z-index: 1000;
-      `;
+      statsDiv.style.position = "fixed";
+
+      statsDiv.style.top = "10px";
+      statsDiv.style.right = "10px";
+      statsDiv.style.backgroundColor = "rgba(0, 0, 0, 0.7)";
+      statsDiv.style.color = "white";
+      statsDiv.style.padding = "10px";
+      statsDiv.style.borderRadius = "5px";
+      statsDiv.style.zIndex = "1000";
+
       document.body.appendChild(statsDiv);
   }
 

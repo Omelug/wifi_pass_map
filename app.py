@@ -1,7 +1,11 @@
 import argparse
+import logging
+import sys
+
 from map_app import create_app
 from flask import Flask, send_from_directory
 import threading
+
 
 def run_tile_server():
     tile_app = Flask(__name__)
@@ -17,6 +21,8 @@ parser = argparse.ArgumentParser(description='Check for --tile_server argument')
 parser.add_argument('--tile_server', action='store_true', help='Enable tile server')
 args = parser.parse_args()
 
+
+logging.basicConfig(level=logging.INFO, stream=sys.stdout)
 if __name__ == "__main__":
     if args.tile_server:
         tile_server_thread = threading.Thread(target=run_tile_server)

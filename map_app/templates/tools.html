@@ -34,10 +34,23 @@
             {% endif %}
         {% endfor %}
     {% endfor %}
+
     <div class="result-container">
         <div id="live-results" class="result-text"></div>
     </div>
+
     <button class="clear-button" onclick="clearOutput()">Clear Output</button>
+    <div class="selection-container">
+        <label for="log-level-select">Log Level:</label>
+        <select id="log-level-select" onchange="updateLogLevel()">
+            <option value="DEBUG">DEBUG</option>
+            <option value="INFO" selected>INFO</option>
+            <option value="WARNING">WARNING</option>
+            <option value="ERROR">ERROR</option>
+            <option value="CRITICAL">CRITICAL</option>
+        </select>
+    </div>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="{{ url_for('static', filename='js/tools.js') }}"></script>
 </body>

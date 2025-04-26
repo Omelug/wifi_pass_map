@@ -1,17 +1,18 @@
 import configparser
 from map_app.source_core.Source import Source
 from map_app.sources import config_path
+import logging
 
 def param_control(string):
     return string[0] == "e"
 
 
 def print_example():
-    print("Example text for debugging...")
+    logging.info("Example text for debugging...")
     config = configparser.ConfigParser()
     config.read(config_path())
     custom_text = config['example_tool']['custom_text']
-    print(f"{custom_text}")
+    logging.info(f"{custom_text}")
 
 
 class Example(Source):

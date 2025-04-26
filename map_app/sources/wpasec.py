@@ -1,5 +1,6 @@
 import configparser
 import csv
+import logging
 import os
 import sys
 import requests
@@ -53,7 +54,7 @@ class Wpasec(Table_v0):
             else:
                 raise ValueError(f"Invalid CSV row lenght: {row}")
 
-        print(f"Processed a total of {new_networks+duplicate_networks} networks, "
+        logging.info(f"Processed a total of {new_networks+duplicate_networks} networks, "
               f"{new_networks} new APs,"
               f"{duplicate_networks} already known or duplicates")
 
@@ -66,7 +67,7 @@ class Wpasec(Table_v0):
 
     #update data from wpa_sec
     def __wpasec_update(self):
-        print("WPASEC: Starting data update")
+        logging.info("WPASEC: Starting data update")
         config = configparser.ConfigParser()
         config.read(config_path())
 
@@ -83,3 +84,8 @@ class Wpasec(Table_v0):
         return {"wpasec_update":  {"run_fun": self.__wpasec_update, "params":wpasec_update_params},
                 "table_v0_locate":  {"run_fun": self.table_v0_locate}}
 
+
+#logging.basicConfig(level=logging.INFO, stream=sys.stdout)
+if __name__ == '__main__':
+    print("awdawwa")
+    logging.info("WPASEC: Starting data update")

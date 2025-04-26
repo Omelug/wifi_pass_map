@@ -60,3 +60,22 @@ function saveParams(scriptName, toolName) {
     .then(({ status, message }) => status === 'success' ? console.log('Parameters saved successfully') : alert(`Error saving parameters: ${message}`))
     .catch(() => alert('Error saving parameters'));
 }
+
+function updateLogLevel() {
+    const logLevel = document.getElementById('log-level-select').value;
+
+    fetch('/api/set_log_level', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ log_level: logLevel })
+    })
+    .then(response => response.json())
+    .then(({ status, message }) => {
+        if (status === 'success') {
+            console.log(`Log level updated to ${logLevel}`);
+        } else {
+            alert(`Error: ${message}`);
+        }
+    })
+    .catch(() => alert('Failed to update log level.'));
+}

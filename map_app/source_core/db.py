@@ -6,11 +6,6 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-# Configure logging
-logging.basicConfig()
-log = logging.getLogger(__name__)
-log.setLevel(logging.WARNING)
-
 #logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -24,7 +19,7 @@ Session = sessionmaker(bind=engine)
 
 if not db_exists:
     metadata.create_all(engine)
-    print("CENTRAL database created.")
+    logging.info("CENTRAL database created.")
 
 @contextmanager
 def get_db_connection():

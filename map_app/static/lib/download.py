@@ -1,3 +1,4 @@
+import logging
 import os
 import requests
 
@@ -45,6 +46,6 @@ for resource in resources:
         response.raise_for_status()  # Raise an error for HTTP issues
         with open(file_path, "wb") as file:
             file.write(response.content)
-        print(f"Downloaded: {resource['url']} -> {file_path}")
+        logging.info(f"Downloaded: {resource['url']} -> {file_path}")
     except requests.RequestException as e:
-        print(f"Failed to download {resource['url']}: {e}")
+        logging.info(f"Failed to download {resource['url']}: {e}")

@@ -22,7 +22,7 @@ What I changed:
     * sources are now .py files with dynamic data loading
 
 But I have added some features! :O
-    + few info for better debugging
+    + little info for better debugging
     + new data sources like p3wifi
 
 

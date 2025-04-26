@@ -1,4 +1,4 @@
-import sqlite3, logging
+import logging
 from app.tools.db import get_db_connection
 
 log = logging.getLogger(__name__)
@@ -46,7 +46,7 @@ def populate_pwned_data():
                 no_geolocation_networks += 1
 
     except Exception as e:
-        print("An error occurred:", str(e))
+        logging.error("An error occurred:", str(e))
     finally:
         # Commit changes and close the connection
         conn.commit()

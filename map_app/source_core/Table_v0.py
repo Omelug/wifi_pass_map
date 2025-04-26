@@ -1,3 +1,4 @@
+import logging
 import os
 from abc import abstractmethod
 from sqlalchemy import Column, Table, UniqueConstraint, String, MetaData, inspect
@@ -47,7 +48,7 @@ class Table_v0(Source):
         if not os.path.exists(conf_path):
             with open(conf_path, 'w') as config_file:
                 config.write(config_file)
-            print(f"{self.TABLE_NAME} configuration created {conf_path}")
+            logging.info(f"{self.TABLE_NAME} configuration created {conf_path}")
 
     @staticmethod
     def create_table(table_name):
@@ -93,7 +94,7 @@ class Table_v0(Source):
                         if column:
                             table_v0_query = table_v0_query.where(column == value)
                         else:
-                            print(f"Column {key} does not exist in the table")
+                            logging.error(f"Column {key} does not exist in the table")
             table_v0_data = session.execute(table_v0_query).fetchall()
 
             return [
@@ -109,9 +110,9 @@ class Table_v0(Source):
             ]
 
     def table_v0_locate(self):
-        print(f"{self.TABLE_NAME}: Starting data localization")
+        logging.info(f"{self.TABLE_NAME}: Starting data localization")
         localized_networks, total_networks = wigle_locate(self.TABLE_NAME)
-        print(f"{self.TABLE_NAME}: Located {localized_networks} out of {total_networks} networks")
+        logging.info(f"{self.TABLE_NAME}: Located {localized_networks} out of {total_networks} networks")
 
     def _save_AP_to_db(self, bssid=None, essid=None, password=None, time=None,
                        bssid_format=False) -> bool:
@@ -130,7 +131,7 @@ class Table_v0(Source):
             try:
                 session.execute(self.table.insert().values(new_tablev0_entry))
                 session.commit()
-                print(f"New network: {essid}")
+                logging.info(f"New network: {essid}")
                 return True
             except IntegrityError:
                 session.rollback()

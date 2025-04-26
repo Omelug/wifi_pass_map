@@ -3,7 +3,7 @@ import sys
 from sqlalchemy import create_engine, exc, text
 import configparser
 from map_app.sources import config_path
-
+import logging
 
 from map_app.source_core.MySQL_Source import MySQL_Source
 
@@ -61,8 +61,8 @@ class p3wifi(MySQL_Source):
 
     @staticmethod
     def __load_map_square(center_latitude, center_longitude, center_limit=0.05):
-        print(center_latitude,center_longitude,center_limit)
-        print("\n\n")
+        logging.info(center_latitude,center_longitude,center_limit)
+        logging.info("\n\n")
         sql_query = f"""
             SELECT nets.BSSID, ESSID, WifiKey, geo.latitude, geo.longitude
             FROM nets
@@ -89,7 +89,7 @@ class p3wifi(MySQL_Source):
                 rows = connection.execute(text(sql_script), filters).fetchall()
 
         except exc.SQLAlchemyError as e:
-            print(f"An error occurred: {e}")
+            logging.error(f"An error occurred: {e}")
             return []
 
         return [

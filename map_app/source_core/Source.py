@@ -1,4 +1,3 @@
-from abc import ABC
 from typing import Dict, Any
 
 class SingletonMeta(type):

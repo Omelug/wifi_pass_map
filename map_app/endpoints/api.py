@@ -1,4 +1,5 @@
 import configparser
+import io
 import logging
 import os
 import sys
@@ -11,11 +12,12 @@ from map_app import sources
 
 api_bp = Blueprint('api', __name__)
 
-log = logging.getLogger(__name__)
-log.setLevel(logging.DEBUG)
+#log = logging.getLogger(__name__)
+#log.setLevel(logging.DEBUG)
 
 SAFE_CONFIG_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "config"))
 
+logging.basicConfig(level=logging.DEBUG, stream=sys.stderr)
 
 # ------------MAPS--------------
 @api_bp.route('/api/wifi_pass_map')
@@ -55,7 +57,6 @@ def load_sqare():
     ap_data, script_statuses = sources.get_AP_data(filters)
     return jsonify({'data': ap_data,'script_statuses': script_statuses,'AP_len': len(ap_data)})
 
-
 # ------------TOOLS--------------
 @api_bp.route('/api/tools', methods=['POST'])
 def run_tool():
@@ -67,29 +68,55 @@ def run_tool():
     tool_name = request.json.get('tool_name')
 
     if not object_name or not tool_name:
-        log.warning(f"Request Path: {request.path} - Script name or tool name not provided")
+        logging.warning(f"Request Path: {request.path} - Script name or tool name not provided")
         return {"status": "error", "message": "Script name or tool name not provided."}, 400
 
     if object_name not in tools.keys():
-        log.error(f"Request Path: {request.path} - The script {object_name} was not found")
+        logging.error(f"Request Path: {request.path} - The script {object_name} was not found")
         return {"status": "error", "message": f"Script not found, available options are {', '.join(tools.keys())}"}, 404
 
     if tool_name not in tools[object_name].keys():
-        log.error(f"Request Path: {request.path} - The tool {tool_name} was not found in script {object_name}")
+        logging.error(f"Request Path: {request.path} - The tool {tool_name} was not found in script {object_name}")
         return {"status": "error", "message": f"Tool not found in script {object_name}"}, 404
+
+    class Tee:
+        def __init__(self, *streams):
+            self.streams = streams
+
+        def write(self, data):
+            for s in self.streams:
+                s.write(data)
+                s.flush()
+
+        def flush(self):
+            for s in self.streams:
+                s.flush()
 
     def generate_output(func):
         old_stdout = sys.stdout
-        sys.stdout = mystdout = StringIO()
+        old_stderr = sys.stderr
+        mystdout = io.BytesIO()
+
+        # Wrap the BytesIO with TextIOWrapper to treat it as text
+        mystdout_wrapper = io.TextIOWrapper(mystdout, encoding='utf-8', line_buffering=True)
+
+        tee = Tee(old_stdout, mystdout_wrapper)
+        sys.stdout = sys.stderr = tee
+
+        logging.basicConfig(level=logging.INFO, stream=sys.stderr, force=True)
+
         try:
             func()
+            mystdout_wrapper.flush()
             mystdout.seek(0)
-            for line in mystdout:
+            new_wrapper = io.TextIOWrapper(mystdout, encoding='utf-8')
+            for line in new_wrapper:
                 yield line
         finally:
             sys.stdout = old_stdout
+            sys.stderr = old_stderr
 
-    print(tools[object_name][tool_name])
+
     func = tools[object_name][tool_name]["run_fun"]
     return Response(stream_with_context(generate_output(func)), content_type='text/plain')
 
@@ -125,3 +152,19 @@ def save_params():
         config.write(cf)
 
     return {"status": "success", "message": "Parameters saved successfully"}, 200
+
+
+"""@api_bp.route('/api/set_log_level', methods=['POST'])
+def set_log_level():
+    data = request.json or {}
+    log_level = data.get('log_level', '').upper()
+
+    valid_levels = ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']
+    if log_level not in valid_levels:
+        return {"status": "error", "message": f"Invalid log level. Valid levels are: {', '.join(valid_levels)}"}, 400
+
+    logging.getLogger().setLevel(log_level)
+    logging.info(f"Log level changed to {log_level}")
+    return {"status": "success", "message": f"Log level set to {log_level}"}, 200
+
+"""
