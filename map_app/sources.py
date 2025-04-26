@@ -14,11 +14,6 @@ sources_config_file = os.path.join(BASE_FILE,'sources','config')
 os.makedirs(sources_config_file, exist_ok=True)
 
 
-#def source_scripts() -> List[str]:
-#    """Get .py source files in /sources"""
-#    SOURCE_DIR = os.path.join(BASE_FILE, "sources")
-#    return [os.path.join(SOURCE_DIR, f) for f in os.listdir(SOURCE_DIR) if f.endswith('.py')]
-
 def load_source_objects() -> List[Any]:
     """Dynamically load source classes and create instances if they are children of DBSource."""
     source_objects = []

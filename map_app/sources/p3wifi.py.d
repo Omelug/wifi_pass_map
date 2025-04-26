@@ -25,8 +25,16 @@ class p3wifi(MySQL_Source):
             'db_pass':"new_password",
             'db_name':"p3wifi"
             }
+
         super().__init__(self.MYSQL_NAME, default_config)
 
+        #check requiered tables
+        self.check_db_connection_and_tables(
+            {
+                'nets': ['BSSID', 'ESSID', 'WiFiKey'],
+                'geo': ['BSSID', 'latitude', 'longitude']
+            }
+        )
 
     @staticmethod
     def __load_random_APs_to_limit(filters=None):
@@ -51,10 +59,11 @@ class p3wifi(MySQL_Source):
         return sql_script
 
 
-    def __load_map_sqare(self,center_latitude, center_longitude, center_limit=0.05):
+    @staticmethod
+    def __load_map_square(center_latitude, center_longitude, center_limit=0.05):
         print(center_latitude,center_longitude,center_limit)
         print("\n\n")
-        sql_script = f"""
+        sql_query = f"""
             SELECT nets.BSSID, ESSID, WifiKey, geo.latitude, geo.longitude
             FROM nets
             JOIN geo ON nets.BSSID = geo.BSSID
@@ -62,30 +71,17 @@ class p3wifi(MySQL_Source):
               AND geo.longitude BETWEEN {center_longitude} - {center_limit} AND {center_longitude} + {center_limit}
             LIMIT 10000000;
         """
-        return sql_script
+        return sql_query
 
     # --------------------Map Data --------------------
-    def get_map_data(self,filters=None):
-        config = configparser.ConfigParser()
-        config.read(config_path())
-
-        db_user = config['MAIN']['db_user']
-        db_pass = config['MAIN']['db_pass']
-        db_ip = config['MAIN']['db_ip']
-        db_name = config['MAIN']['db_name']
-
-        engine = create_engine(
-            f'mysql+mysqlconnector://{db_user}:{db_pass}@{db_ip}/{db_name}',
-            connect_args={'charset': 'utf8', 'collation': 'utf8mb4_general_ci'}
-        )
+    def get_map_data(self, filters=None):
         try:
-            with engine.connect() as connection:
-                print("Center", filters)
-                if filters is not None and 'center_latitude' in filters and 'center_longitude' in filters:
+            with self._get_db_connection() as connection:
+                if filters and 'center_latitude' in filters and 'center_longitude' in filters:
                     sql_script = self.__load_map_square(
                         filters['center_latitude'],
                         filters['center_longitude'],
-                        filters.get('center_limit')
+                        filters.get('center_limit', 0.05)
                     )
                 else:
                     sql_script = self.__load_random_APs_to_limit(filters)

@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='lib/css/L.Control.Locate.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='lib/css/MarkerCluster.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='lib/css/MarkerCluster.Default.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='lib/css/leaflet.awesome-markers.css') }}">
+
 
     <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/map.css') }}">
@@ -49,13 +51,14 @@
 
     <div class="map" id="map"></div>
 
-
     <script src="{{ url_for('static', filename='lib/js/leaflet.js') }}"></script>
     <script src="{{ url_for('static', filename='lib/js/L.Control.Locate.min.js') }}" charset="utf-8"></script>
     <script src="{{ url_for('static', filename='lib/js/qrcode.min.js') }}"></script>
     <script src="{{ url_for('static', filename='lib/js/leaflet.markercluster-src.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/wifi_pass_map.js') }}"></script>
+    <script src="{{ url_for('static', filename='lib/js/leaflet.awesome-markers.min.js') }}"></script>
 
+
+    <script src="{{ url_for('static', filename='js/wifi_pass_map.js') }}"></script>
 
 </body>
 </html>

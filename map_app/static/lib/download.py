@@ -1,7 +1,8 @@
 import os
 import requests
 
-# List of resources to download
+# List of resources to downloadhttps://cdnjs.com/libraries/Leaflet.awesome-markers
+#
 resources = [
     # JavaScript files
     {"url": "https://unpkg.com/leaflet/dist/leaflet.js", "filename": "js/leaflet.js"},
@@ -11,12 +12,21 @@ resources = [
     {"url": "https://unpkg.com/leaflet/dist/leaflet.js.map", "filename": "js/leaflet.js.map"},
     {"url": "https://cdn.jsdelivr.net/npm/leaflet.locatecontrol/dist/L.Control.Locate.min.js.map", "filename": "js/L.Control.Locate.min.js.map"},
     {"url": "https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster-src.js.map", "filename": "js/leaflet.markercluster-src.js.map"},
+    {"url": "https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.min.js", "filename": "js/leaflet.awesome-markers.min.js"},
 
     # CSS files
     {"url": "https://unpkg.com/leaflet/dist/leaflet.css", "filename": "css/leaflet.css"},
     {"url": "https://cdn.jsdelivr.net/npm/leaflet.locatecontrol/dist/L.Control.Locate.min.css", "filename": "css/L.Control.Locate.min.css"},
     {"url": "https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css", "filename": "css/MarkerCluster.css"},
-    {"url": "https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css", "filename": "css/MarkerCluster.Default.css"}
+    {"url": "https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css", "filename": "css/MarkerCluster.Default.css"},
+    {"url": "https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css", "filename": "css/leaflet.awesome-markers.css"},
+
+
+    # Image files
+    {"url": "https://unpkg.com/leaflet/dist/images/marker-shadow.png", "filename": "css/images/markers-shadow.png"},
+    {"url": "https://unpkg.com/leaflet/dist/images/marker-icon.png", "filename": "css/images/markers-icon.png"},
+    {"url": "https://unpkg.com/leaflet/dist/images/marker-icon-2x.png", "filename": "css/images/markers-icon-2x.png"},
+    {"url":"https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/images/markers-soft.png", "filename":"css/images/markers-soft.png"}
 ]
 
 # Base directory for saving files

@@ -5,6 +5,8 @@ import sys
 from io import StringIO
 
 from flask import jsonify, request, Response, stream_with_context, Blueprint
+
+from formator.files import source_object_name
 from map_app import sources
 
 api_bp = Blueprint('api', __name__)
@@ -76,7 +78,7 @@ def run_tool():
         log.error(f"Request Path: {request.path} - The tool {tool_name} was not found in script {object_name}")
         return {"status": "error", "message": f"Tool not found in script {object_name}"}, 404
 
-    def generate_output(instance, func):
+    def generate_output(func):
         old_stdout = sys.stdout
         sys.stdout = mystdout = StringIO()
         try:
@@ -87,12 +89,9 @@ def run_tool():
         finally:
             sys.stdout = old_stdout
 
-    # Instantiate the object
-    object_class = tools[object_name]["class"]
-    instance = object_class()
-
+    print(tools[object_name][tool_name])
     func = tools[object_name][tool_name]["run_fun"]
-    return Response(stream_with_context(generate_output(instance, func)), content_type='text/plain')
+    return Response(stream_with_context(generate_output(func)), content_type='text/plain')
 
 @api_bp.route('/api/save_params', methods=['POST'])
 def save_params():
@@ -116,8 +115,6 @@ def save_params():
     else:
         return {"status": "error", "message": f"Config file for {object_name} not found"}, 404
 
-
-    #TODO  Update the tool section on page with the new parameters
     if tool_name not in config:
         config[tool_name] = {}
 

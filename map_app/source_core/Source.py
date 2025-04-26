@@ -13,7 +13,7 @@ class SingletonMeta(type):
 class Source(metaclass=SingletonMeta):
     def __init__(self, source_name):
         super().__init__()
-        self.name = source_name
+        self.SOURCE_NAME = source_name
     """
     "run_fun": function_to_run
     "params": List[tuple[str, type,None,Any]]

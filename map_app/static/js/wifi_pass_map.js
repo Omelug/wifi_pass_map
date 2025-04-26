@@ -57,14 +57,15 @@ function createMarker(poi) {
         <button onclick="generateQrCode('${generateWifiUriScheme(poi.essid, poi.encryption, poi.password)}')">Show QR</button><br>  
     `;
 
-    return L.marker([poi.latitude, poi.longitude], {
-        icon: L.icon({
-            iconUrl: poi.password ? 'static/images/marker-icon-2x.png' : 'static/images/m.png',
-            iconSize: [25, 41],
-            iconAnchor: [12, 41],
-            popupAnchor: [1, -34]
-        })
-    }).bindPopup(popupContent);
+    const markerColor = poi.password ? 'blue' : 'red'; // Change colors as needed
+
+    const icon = L.AwesomeMarkers.icon({
+        icon: 'info-sign',
+        markerColor: markerColor,
+        prefix: 'glyphicon',
+    });
+
+    return L.marker([poi.latitude, poi.longitude], { icon: icon }).bindPopup(popupContent);
 }
 
 

@@ -65,29 +65,35 @@ File system:
 
 TODO Roadmap
 
-
 + = new feature, b = bug, r = refactoring
-v = visual
+v = visual, d = documentation
 
 ---------TODO NOW
-r: change all sources to classes
 b: read tools termianl line by line (now it print only at the end)
 
 r: change print to logging
 
+v: add custom icons (wifi icon?)
+    - and different object for not pwned
+d: add test section with download.py descrption
+
 -------CREATE RELEASE
 
+v+: different colors for diferent sources
+d: diagramy, ispirovat se tady https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/CREATE-TABLE.html
+
+b: repait dynamiccaly loading ( Load square button)
 +: wigle - add time, nd chek only older_than
 +: add pwncrack source
     - more pwncrack keys
 +: more wpa_sec keys
 +: wigle - add multiple keys
 +: create UML diagram (find way to auto documenting?)
-
+d: documentation
 
 +: visibility button in menu to enable/disble scripts
-v+: different colors for diferent sources
-    - and different object for not pwned
+
+
 +: show cracked count in statDiv
 b: fix header compability with window resizing
 +: add help small windows if i focus on button in tools (or just add icons)
@@ -101,3 +107,8 @@ r: add _ to private metdhods
         - cut only one database
         - add warning messages - database not accesible etc.
         - add manual to this
+
+
+
+DONE:
+r: change all sources to classes
