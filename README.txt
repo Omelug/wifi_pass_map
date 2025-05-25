@@ -69,7 +69,6 @@ TODO Roadmap
 v = visual, d = documentation
 
 ---------TODO NOW
-b: table_v0 on wpa-sec buttons
 b: handshake reload dont work from app, but command works
 b: read tools termianl line by line (now it print only at the end)
 
