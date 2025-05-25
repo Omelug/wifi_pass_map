@@ -1,6 +1,5 @@
 import mercantile
 import pandas as pd
-from sqlalchemy import create_engine
 from math import sin, radians, atanh
 from math import pi, atan, sinh, degrees
 MAX_ZOOM_LEVEL=23

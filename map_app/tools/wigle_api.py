@@ -95,7 +95,7 @@ def wigle_locate(table_name):
                 elif response.status_code == 200:
                     try:
                         wigle_data = response.json()
-                        localized_networks = +save_wigle_location(wigle_data, session, table, bssid, password)
+                        localized_networks += save_wigle_location(wigle_data, session, table, bssid, password)
                         session.commit()
                     except ValueError as e:
                         logging.info(f"Error parsing JSON response: {e}")

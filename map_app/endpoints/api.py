@@ -23,14 +23,14 @@ logging.basicConfig(level=logging.DEBUG, stream=sys.stderr)
 @api_bp.route('/api/wifi_pass_map')
 def pwnapi():
     """Load first data to map"""
-    log.debug(f"Request Path: {request.path} was called")
+    logging.debug(f"Request Path: {request.path} was called")
     pwned_data,script_statuses = sources.get_AP_data()
     return jsonify({'data': pwned_data,'script_statuses': script_statuses,'AP_len': len(pwned_data)})
 
 @api_bp.route('/api/explore')
 def exploreapi():
     """Load filtered AP data"""
-    log.debug(f"Request Path: {request.path} was called")
+    logging.debug(f"Request Path: {request.path} was called")
 
     filters = {k:v for k,v in {
         'essid': request.args.get('name'),
@@ -46,7 +46,7 @@ def exploreapi():
 
 @api_bp.route('/api/load_sqare', methods=["POST"])
 def load_sqare():
-    log.debug(f"Request Path: {request.path} was called")
+    logging.debug(f"Request Path: {request.path} was called")
 
     filters = {k: v for k, v in {
         "center_latitude": request.args.get("center_latitude"),

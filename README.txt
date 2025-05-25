@@ -42,7 +42,7 @@ File system:
         - to make config file, just allow plugin (add it or rename it - delete .d at the end) and refresh map to reload
          plugins, it creates default config files
 
-        sources.py:
+            sources.py:
             - help function for more generic functions
 
         p3wifi.py:
@@ -69,6 +69,8 @@ TODO Roadmap
 v = visual, d = documentation
 
 ---------TODO NOW
+b: table_v0 on wpa-sec buttons
+b: handshake reload dont work from app, but command works
 b: read tools termianl line by line (now it print only at the end)
 
 r: change print to logging
@@ -76,13 +78,17 @@ r: change print to logging
 v: add custom icons (wifi icon?)
     - and different object for not pwned
 d: add test section with download.py descrption
+v: for same wifi with changed password are generated multiple points
+b: czech characters are saved to database badly
+
+
 
 -------CREATE RELEASE
-
-v+: different colors for diferent sources
++ pwncrack
+v+: different colors for different sources
 d: diagramy, ispirovat se tady https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/CREATE-TABLE.html
 
-b: repait dynamiccaly loading ( Load square button)
+b: repait dynamiccaly loading (Load square button)
 +: wigle - add time, nd chek only older_than
 +: add pwncrack source
     - more pwncrack keys

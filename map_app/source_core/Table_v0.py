@@ -43,7 +43,7 @@ class Table_v0(Source):
                 '__table__': self.table
             })
 
-        #default config values
+        #default config
         conf_path = config_path(self.TABLE_NAME)
         if not os.path.exists(conf_path):
             with open(conf_path, 'w') as config_file:
@@ -68,7 +68,6 @@ class Table_v0(Source):
             extend_existing=True
         )
 
-    # Typycal table and help functions for sources
     def get_map_data(self,filters=None):
         with get_db_connection() as session:
             metadata = MetaData()

@@ -38,7 +38,13 @@ class Handshake(Table_v0):
         try:
             result = subprocess.run(hcxpcapngtool_cmd, capture_output=True, text=True)
             if result.returncode != 0:
-                logging.error(f"Error processing files: {result.returncode} {result.stderr}")
+                logging.error(f"Error processing files: {result.returncode}")
+                logging.error(f"hcxpcapngtool STDOUT: {result.stdout.strip()}")
+                logging.error(f"hcxpcapngtool STDERR: {result.stderr.strip()}")
+
+                parent_dir = os.path.dirname(os.path.abspath(FILE_22000))
+                if not os.access(parent_dir, os.W_OK):
+                    print(f"ERROR: No write permissions for directory '{parent_dir}'. Cannot create '{os.path.dirname(os.path.abspath(FILE_22000))}.")
             else:
                 logging.info(f"Hash file created at {FILE_22000}")
         except Exception as e:
@@ -76,4 +82,7 @@ class Handshake(Table_v0):
     def get_tools(self):
         config = configparser.ConfigParser()
         config.read(config_path())
-        return {"handshake_reload": {"run_fun": self.__handshake_reload},"handshake_locate": {"run_fun": self.table_v0_locate}}
+        hs_reload = [("hs_path", str, None, config['handshake_scan']['handshakes_dir'], "Path to the directory with handshakes"),]
+        return {"handshake_reload": {"run_fun": self.__handshake_reload,
+                                     "params":hs_reload},
+                "handshake_locate": {"run_fun": self.table_v0_locate}}

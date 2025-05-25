@@ -47,16 +47,16 @@ class Wpasec(Table_v0):
         for row in csv_reader:
             if len(row) == 4:
                 bssid, _, essid, password = row
-                if self._save_AP_to_db(bssid, essid,password):
+                if self._save_AP_to_db(bssid, essid,password, bssid_format=True):
                     new_networks += 1
                 else:
                     duplicate_networks += 1
             else:
-                raise ValueError(f"Invalid CSV row lenght: {row}")
+                logging.error(f"Cantparse line in potfile: {row}")
 
         logging.info(f"Processed a total of {new_networks+duplicate_networks} networks, "
               f"{new_networks} new APs,"
-              f"{duplicate_networks} already known or duplicates")
+              f" {duplicate_networks} already known or duplicates")
 
 
     @staticmethod
@@ -83,9 +83,3 @@ class Wpasec(Table_v0):
                                 ("wpasec_link", str, None, config['wpasec_update']['wpasec_link'], "Link to wpasec api")]
         return {"wpasec_update":  {"run_fun": self.__wpasec_update, "params":wpasec_update_params},
                 "table_v0_locate":  {"run_fun": self.table_v0_locate}}
-
-
-#logging.basicConfig(level=logging.INFO, stream=sys.stdout)
-if __name__ == '__main__':
-    print("awdawwa")
-    logging.info("WPASEC: Starting data update")
