@@ -11,7 +11,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '.
 
 
 class Wpasec(Table_v0):
-    TABLE_NAME = 'wpasec'
+    TABLE_NAME = __qualname__.lower()
 
     def __init__(self):
 
@@ -21,7 +21,6 @@ class Wpasec(Table_v0):
             'wpasec_link': 'https://wpa-sec.stanev.org'
         }
         super().__init__(self.TABLE_NAME, default_config)
-
 
     # ------------FUNCTIONS----------------
 
@@ -79,6 +78,8 @@ class Wpasec(Table_v0):
         config = configparser.ConfigParser()
         config.read(config_path())
 
+        print(config_path())
+        print(config)
         wpasec_update_params = [("api_keys", str, None, config['wpasec_update']['api_keys'], "Key for WPASEC"),
                                 ("wpasec_link", str, None, config['wpasec_update']['wpasec_link'], "Link to wpasec api")]
         return {"wpasec_update":  {"run_fun": self.__wpasec_update, "params":wpasec_update_params},

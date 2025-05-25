@@ -30,7 +30,13 @@ def extract_essid_bssid(hash_line) -> tuple[str, str, str]:
             logging.error(f"Failed to decode ESSID from hex: {e}")
             essid = ''
 
-    bssid = format_bssid(bssid)
+    if len(parts) > 4:
+        password = parts[4] if parts[4] else None
+
+    if len(parts) > 3:
+        apmac = parts[3]
+        if len(apmac) == 12:
+            bssid = ':'.join(apmac[i:i + 2] for i in range(0, 12, 2))
 
     if bssid == '00:00:00:00:00:00':
         logging.error(f"Failed to extract BSSID from hash -> {hash_line}")

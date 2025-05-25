@@ -8,7 +8,7 @@ from sqlalchemy.sql import expression
 from formator.bssid import format_bssid
 from map_app.source_core.Source import Source
 from map_app.source_core.db import Base, get_db_connection, engine, metadata, Session
-from map_app.sources import config_path
+from map_app.sources import config_path as sources_config_path
 from map_app.tools.wigle_api import wigle_locate
 
 
@@ -42,13 +42,16 @@ class Table_v0(Source):
                 '__tablename__': self.TABLE_NAME,
                 '__table__': self.table
             })
-
-        #default config
-        conf_path = config_path(self.TABLE_NAME)
+        conf_path = self.config_path()
         if not os.path.exists(conf_path):
             with open(conf_path, 'w') as config_file:
                 config.write(config_file)
             logging.info(f"{self.TABLE_NAME} configuration created {conf_path}")
+
+    def config_path(self, c_name = None):
+        if c_name is None:
+            return sources_config_path(self.TABLE_NAME)
+        return sources_config_path(c_name)
 
     @staticmethod
     def create_table(table_name):
@@ -132,6 +135,9 @@ class Table_v0(Source):
                 session.commit()
                 logging.info(f"New network: {essid}")
                 return True
-            except IntegrityError:
+            except IntegrityError as e:
                 session.rollback()
-                return False
+                if "UNIQUE constraint failed" in str(e.orig):
+                    return False
+                else:
+                    raise

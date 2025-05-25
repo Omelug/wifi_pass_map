@@ -4,6 +4,7 @@ import os
 import subprocess
 import sys
 from pathlib import Path
+import glob
 
 from formator.bssid import extract_essid_bssid
 from map_app.source_core.Table_v0 import Table_v0
@@ -11,9 +12,9 @@ from map_app.sources import config_path
 
 sys.path.append(str(Path(__file__).resolve().parents[2]))
 
-class Handshake(Table_v0):
+class Handshakes(Table_v0):
     __description__ = "Source for manipulation with raw handshake files"
-    TABLE_NAME = 'handshakes'
+    TABLE_NAME = __qualname__.lower()
 
     def __init__(self):
         default_config = configparser.ConfigParser()
@@ -32,16 +33,14 @@ class Handshake(Table_v0):
 
         logging.info(f"HANDSHAKE: Creating hash file {FILE_22000}")
 
-        hcxpcapngtool_cmd = ['hcxpcapngtool', '-o', os.path.abspath(FILE_22000), os.path.join(os.path.abspath(HS_DIR), '*.pcap')]
+        pcap_files = glob.glob(os.path.join(os.path.abspath(HS_DIR), '*.pcap'))
+        hcxpcapngtool_cmd = ['hcxpcapngtool', '-o', os.path.abspath(FILE_22000)] + pcap_files
+
         logging.info(f"Executing: {' '.join(hcxpcapngtool_cmd)}")
 
         try:
             result = subprocess.run(hcxpcapngtool_cmd, capture_output=True, text=True)
             if result.returncode != 0:
-                logging.error(f"Error processing files: {result.returncode}")
-                logging.error(f"hcxpcapngtool STDOUT: {result.stdout.strip()}")
-                logging.error(f"hcxpcapngtool STDERR: {result.stderr.strip()}")
-
                 parent_dir = os.path.dirname(os.path.abspath(FILE_22000))
                 if not os.access(parent_dir, os.W_OK):
                     print(f"ERROR: No write permissions for directory '{parent_dir}'. Cannot create '{os.path.dirname(os.path.abspath(FILE_22000))}.")
@@ -75,13 +74,14 @@ class Handshake(Table_v0):
     def __handshake_reload(self):
         config = configparser.ConfigParser()
         config.read(config_path())
-        Handshake.__create_hash_file(config)
+        Handshakes.__create_hash_file(config)
         self.__load_hashes_to_db(config)
 
 
     def get_tools(self):
         config = configparser.ConfigParser()
         config.read(config_path())
+        print(config_path())
         hs_reload = [("hs_path", str, None, config['handshake_scan']['handshakes_dir'], "Path to the directory with handshakes"),]
         return {"handshake_reload": {"run_fun": self.__handshake_reload,
                                      "params":hs_reload},

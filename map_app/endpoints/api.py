@@ -15,7 +15,7 @@ api_bp = Blueprint('api', __name__)
 #log = logging.getLogger(__name__)
 #log.setLevel(logging.DEBUG)
 
-SAFE_CONFIG_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "config"))
+SAFE_CONFIG_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..","sources","config"))
 
 logging.basicConfig(level=logging.DEBUG, stream=sys.stderr)
 
@@ -140,7 +140,7 @@ def save_params():
     if os.path.exists(config_file):
         config.read(config_file)
     else:
-        return {"status": "error", "message": f"Config file for {object_name} not found"}, 404
+        return {"status": "error", "message": f"Config file for {config_file} not found"}, 404
 
     if tool_name not in config:
         config[tool_name] = {}

@@ -40,7 +40,7 @@ def tool_list(add_class=False) -> Dict[str, Any]:
     source_objects = load_source_objects()
     for source_obj in source_objects:
         if hasattr(source_obj, 'get_tools'):
-            object_name = type(source_obj).__name__
+            object_name = type(source_obj).__name__.lower()
             tools[object_name] = source_obj.get_tools()
             if add_class:
                 tools[object_name]["class"] = type(source_obj)

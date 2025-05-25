@@ -69,7 +69,7 @@ TODO Roadmap
 v = visual, d = documentation
 
 ---------TODO NOW
-b: handshake reload dont work from app, but command works
+
 b: read tools termianl line by line (now it print only at the end)
 
 r: change print to logging
