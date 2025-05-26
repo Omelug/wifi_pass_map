@@ -82,8 +82,6 @@ class Wpasec(Table_v0):
         config = configparser.ConfigParser()
         config.read(config_path())
 
-        print(config_path())
-        print(config)
         wpasec_update_params = [("api_keys", str, None, config['wpasec_update']['api_keys'], "Key for WPASEC"),
                                 ("wpasec_link", str, None, config['wpasec_update']['wpasec_link'], "Link to wpasec api")]
         return {"wpasec_update":  {"run_fun": self.__wpasec_update, "params":wpasec_update_params},

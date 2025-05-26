@@ -44,7 +44,7 @@ class Handshakes(Table_v0):
             if result.returncode != 0:
                 parent_dir = os.path.dirname(os.path.abspath(FILE_22000))
                 if not os.access(parent_dir, os.W_OK):
-                    print(f"ERROR: No write permissions for directory '{parent_dir}'. Cannot create '{os.path.dirname(os.path.abspath(FILE_22000))}.")
+                    logging.error(f"No write permissions for directory '{parent_dir}'. Cannot create '{os.path.dirname(os.path.abspath(FILE_22000))}.")
             else:
                 logging.info(f"Hash file created at {FILE_22000}")
         except Exception as e:
@@ -83,7 +83,6 @@ class Handshakes(Table_v0):
     def get_tools(self):
         config = configparser.ConfigParser()
         config.read(config_path())
-        print(config_path())
         hs_reload = [("hs_path", str, None, config['handshake_scan']['handshakes_dir'], "Path to the directory with handshakes"),]
         return {"handshake_reload": {"run_fun": self.__handshake_reload,
                                      "params":hs_reload},

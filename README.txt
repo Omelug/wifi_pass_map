@@ -72,8 +72,6 @@ v = visual, d = documentation
 
 b: read tools termianl line by line (now it print only at the end)
 
-r: change print to logging
-
 v: add custom icons (wifi icon?)
     - and different object for not pwned
 
