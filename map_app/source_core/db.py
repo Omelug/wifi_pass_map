@@ -3,7 +3,7 @@ import os
 from contextlib import contextmanager
 
 from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 #logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
@@ -23,12 +23,12 @@ if not db_exists:
 
 @contextmanager
 def get_db_connection():
-    """
-    Context manager for database connection
-    -> manual closing not needed
-    """
     session = Session()
     try:
         yield session
+        session.commit()
+    except Exception:
+        session.rollback()
+        raise
     finally:
         session.close()

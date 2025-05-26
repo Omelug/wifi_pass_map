@@ -6,6 +6,7 @@ import sys
 import requests
 from map_app.source_core.Table_v0 import Table_v0
 from map_app.sources import config_path
+from map_app.source_core.db import get_db_connection
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
@@ -40,18 +41,21 @@ class Wpasec(Table_v0):
     #Save csv content to wpasec table in database
     def __csv_to_db(self,csv_content):
         new_networks, duplicate_networks = 0,0
-
         csv_reader = csv.reader(csv_content.decode('utf-8').splitlines(), delimiter=':')
 
-        for row in csv_reader:
-            if len(row) == 4:
-                bssid, _, essid, password = row
-                if self._save_AP_to_db(bssid, essid,password, bssid_format=True):
-                    new_networks += 1
+        with get_db_connection() as session:
+            for row in csv_reader:
+                if len(row) == 4:
+                    bssid, _, essid, password = row
+                    result = self._save_AP_to_db(
+                        bssid, essid,password, bssid_format=True, session=session
+                    )
+                    if result:
+                        new_networks += 1
+                    else:
+                        duplicate_networks += 1
                 else:
-                    duplicate_networks += 1
-            else:
-                logging.error(f"Cantparse line in potfile: {row}")
+                    logging.error(f"Cantparse line in potfile: {row}")
 
         logging.info(f"Processed a total of {new_networks+duplicate_networks} networks, "
               f"{new_networks} new APs,"

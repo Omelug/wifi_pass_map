@@ -8,6 +8,7 @@ import glob
 
 from formator.bssid import extract_essid_bssid
 from map_app.source_core.Table_v0 import Table_v0
+from map_app.source_core.db import get_db_connection
 from map_app.sources import config_path
 
 sys.path.append(str(Path(__file__).resolve().parents[2]))
@@ -63,8 +64,9 @@ class Handshakes(Table_v0):
             for line in hash_file:
                 if line.startswith('WPA'):
                     essid, bssid, password = extract_essid_bssid(line)
-                    if self._save_AP_to_db(bssid, essid, password):
-                        new_handshakes += 1
+                    with get_db_connection() as session:
+                        if self._save_AP_to_db(bssid, essid, password, session=session):
+                            new_handshakes += 1
                 else:
                     logging.error("Invalid handsake format")
         logging.info(f"Handshakes loading done, {new_handshakes} new handshakes added")

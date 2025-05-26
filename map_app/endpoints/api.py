@@ -3,7 +3,6 @@ import io
 import logging
 import os
 import sys
-from io import StringIO
 
 from flask import jsonify, request, Response, stream_with_context, Blueprint
 

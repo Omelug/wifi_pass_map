@@ -117,7 +117,7 @@ class Table_v0(Source):
         logging.info(f"{self.TABLE_NAME}: Located {localized_networks} out of {total_networks} networks")
 
     def _save_AP_to_db(self, bssid=None, essid=None, password=None, time=None,
-                       bssid_format=False) -> bool:
+                       bssid_format=False, session= None) -> bool:
 
         if bssid_format:
             bssid=format_bssid(bssid)
@@ -129,15 +129,12 @@ class Table_v0(Source):
             'time': time
         }
 
-        with Session() as session:
-            try:
-                session.execute(self.table.insert().values(new_tablev0_entry))
-                session.commit()
-                logging.info(f"New network: {essid}")
-                return True
-            except IntegrityError as e:
-                session.rollback()
-                if "UNIQUE constraint failed" in str(e.orig):
-                    return False
-                else:
-                    raise
+        try:
+            session.execute(self.table.insert().values(new_tablev0_entry))
+            logging.info(f"New network: {essid}")
+            return True
+        except IntegrityError as e:
+            if "UNIQUE constraint failed" in str(e.orig):
+                return False
+            else:
+                raise

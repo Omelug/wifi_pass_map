@@ -148,7 +148,7 @@ function generateWifiUriScheme(ssid, encryption, password) {
 }
 
 function generateQrCode(wifiUri) {
-    const qr = qrcode(0, 'M'); // Error correction level
+    const qr = qrcode(0, 'M');
     qr.addData(wifiUri);
     qr.make();
     window.open(qr.createDataURL(10, 0), '_blank');

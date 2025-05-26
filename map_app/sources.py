@@ -79,9 +79,9 @@ def get_AP_data(filters=None) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]
     return pwned_data, script_statuses
 
 
-def config_path(object_name=None)->str:
-    if object_name is None:
+def config_path(config_name=None)->str:
+    if config_name is None:
         frame = inspect.stack()[1]
         calling_script = frame[1]
-        object_name = os.path.splitext(os.path.basename(calling_script))[0]
-    return f'{sources_config_file}/{object_name}.ini'
+        config_name = os.path.splitext(os.path.basename(calling_script))[0]
+    return f'{sources_config_file}/{config_name}.ini'
