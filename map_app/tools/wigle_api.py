@@ -77,6 +77,7 @@ def wigle_locate(table_name):
 
             for row in wpasec_data:
                 bssid, password = row
+                bssid = bssid.lower()
 
                 total_networks += 1
 
@@ -96,7 +97,7 @@ def wigle_locate(table_name):
                     try:
                         wigle_data = response.json()
                         localized_networks += save_wigle_location(wigle_data, session, table, bssid, password)
-                        session.commit()
+                        session.commit() # update after eah request, because main limit is wigle API limit
                     except ValueError as e:
                         logging.info(f"Error parsing JSON response: {e}")
                         break
@@ -105,8 +106,6 @@ def wigle_locate(table_name):
                     break
         except ReadTimeout as  e:
             logging.info(f"Timeout error: {e}")
-        finally:
-            session.commit()
     return localized_networks, total_networks
 
 

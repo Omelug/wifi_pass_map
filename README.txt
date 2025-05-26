@@ -76,17 +76,18 @@ r: change print to logging
 
 v: add custom icons (wifi icon?)
     - and different object for not pwned
+
 d: add test section with download.py descrption
 v: for same wifi with changed password are generated multiple points
 b: czech characters are saved to database badly
 
-
-
 -------CREATE RELEASE
++ connect and share info between sources
 + pwncrack
++ create pwncrack-wpa-sec/potfile change
 v+: different colors for different sources
 d: diagramy, ispirovat se tady https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/CREATE-TABLE.html
-
+b: handshakes - fix loading from pcapng files - dont work ncryption
 b: repait dynamiccaly loading (Load square button)
 +: wigle - add time, nd chek only older_than
 +: add pwncrack source

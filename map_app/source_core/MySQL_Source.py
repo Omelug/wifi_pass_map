@@ -42,7 +42,6 @@ class MySQL_Source(Source):
         try:
             with self._get_db_connection() as connection:
                 inspector = inspect(connection)
-                #logging.error(inspector.get_columns('nets'))
                 for table_name, columns in tables_and_columns.items():
                     if not inspector.has_table(table_name):
                         logging.error(f"Error: Required table '{table_name}' does not exist in the database {self.SOURCE_NAME}")

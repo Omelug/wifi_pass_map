@@ -40,35 +40,34 @@ def test_mac2dec_invalid():
 
 # ------- extract_essid_bssid -------
 def test_extract_essid_bssid_valid():
-    # ESSID: "test" -> hex: 74657374, BSSID: aabbccddeeff, password: pass
+    # ESSID: "test" -> hex: 74657374, BSSID: aabbccddeeff
     line = "x*x*x*aabbccddeeff*pass*74657374"
-    essid, bssid_val, password = bssid.extract_essid_bssid(line)
+    essid, bssid_val = bssid.extract_essid_bssid(line)
     assert essid == "test"
     assert bssid_val == "aa:bb:cc:dd:ee:ff"
-    assert password == "pass"
 
 def test_extract_essid_bssid_missing_fields():
     # Not enough parts, should return defaults
     line = "x*x*x"
-    essid, bssid_val, password = bssid.extract_essid_bssid(line)
+    essid, bssid_val = bssid.extract_essid_bssid(line)
     assert essid == ""
     assert bssid_val == "00:00:00:00:00:00"
-    assert password is None
 
 def test_extract_essid_bssid_invalid_bssid():
     # BSSID part not 12 chars
-    line = "x*x*x*short*pass*74657374"
-    essid, bssid_val, password = bssid.extract_essid_bssid(line)
+    line = "x*x*x*short*client_mac*74657374"
+    essid, bssid_val = bssid.extract_essid_bssid(line)
     assert bssid_val == "00:00:00:00:00:00"
 
 def test_extract_essid_bssid_invalid_essid_hex():
     # Invalid ESSID hex
-    line = "x*x*x*aabbccddeeff*pass*nothex"
-    essid, bssid_val, password = bssid.extract_essid_bssid(line)
+    line = "x*x*x*aabbccddeeff*client_mac*nothex"
+    essid, bssid_val = bssid.extract_essid_bssid(line)
     assert essid == ""  # Should fall back to empty string
 
 def test_extract_essid_bssid_empty_password():
     # Password field empty
-    line = "x*x*x*aabbccddeeff**74657374"
-    essid, bssid_val, password = bssid.extract_essid_bssid(line)
-    assert password is None
+    line = "x*x*x*aabbccddeeff*client_mac*74657374"
+    essid, bssid_val = bssid.extract_essid_bssid(line)
+    assert isinstance(essid, str)
+    assert isinstance(bssid_val, str)

@@ -63,9 +63,9 @@ class Handshakes(Table_v0):
         with open(FILE_22000, 'r') as hash_file:
             for line in hash_file:
                 if line.startswith('WPA'):
-                    essid, bssid, password = extract_essid_bssid(line)
+                    essid, bssid= extract_essid_bssid(line)
                     with get_db_connection() as session:
-                        if self._save_AP_to_db(bssid, essid, password, session=session):
+                        if self._save_AP_to_db(bssid, essid, None, session=session):
                             new_handshakes += 1
                 else:
                     logging.error("Invalid handsake format")

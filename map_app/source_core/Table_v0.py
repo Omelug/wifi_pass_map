@@ -14,6 +14,7 @@ from map_app.tools.wigle_api import wigle_locate
 
 #---------------------Table_v0----------------------
 # Table_v0 is typical table to make some sources more generic
+# check create_table to see table format
 class Table_v0(Source):
 
     @property
@@ -55,9 +56,6 @@ class Table_v0(Source):
 
     @staticmethod
     def create_table(table_name):
-        """
-        Create a table for storing wifi data (same format for all sources)
-        """
         return Table(table_name, Base.metadata,
             Column('bssid', String, primary_key=True),
             Column('encryption', String),

@@ -153,7 +153,7 @@ def save_params():
     return {"status": "success", "message": "Parameters saved successfully"}, 200
 
 
-"""@api_bp.route('/api/set_log_level', methods=['POST'])
+@api_bp.route('/api/set_log_level', methods=['POST'])
 def set_log_level():
     data = request.json or {}
     log_level = data.get('log_level', '').upper()
@@ -165,5 +165,3 @@ def set_log_level():
     logging.getLogger().setLevel(log_level)
     logging.info(f"Log level changed to {log_level}")
     return {"status": "success", "message": f"Log level set to {log_level}"}, 200
-
-"""
