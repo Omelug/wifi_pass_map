@@ -1,4 +1,6 @@
 Run:
+   make install (to download external libraries)
+   make run (You should see link to your instance in console)
 
 Disclamer:
     Project in under development and is not well documented.
