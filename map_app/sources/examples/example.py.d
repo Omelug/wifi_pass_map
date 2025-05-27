@@ -16,7 +16,7 @@ def print_example():
 
 
 class Example(Source):
-
+    __description__ = "example source "
     def __init__(self):
 
         default_config = configparser.ConfigParser()

@@ -12,6 +12,8 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '.
 
 
 class Wpasec(Table_v0):
+    __description__ = "Source to get potfile from wpasec (https://github.com/RealEnder/dwpa)"
+
     TABLE_NAME = __qualname__.lower()
 
     def __init__(self):

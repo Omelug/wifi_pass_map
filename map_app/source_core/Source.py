@@ -13,10 +13,7 @@ class Source(metaclass=SingletonMeta):
     def __init__(self, source_name):
         super().__init__()
         self.SOURCE_NAME = source_name
-    """
-    "run_fun": function_to_run
-    "params": List[tuple[str, type,None,Any]]
-    """
+
     def get_tools(self) -> Dict[str, Dict[str, Any]]:
         pass
 

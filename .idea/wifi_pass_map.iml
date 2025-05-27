@@ -5,9 +5,12 @@
   </component>
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/tests" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/.idea/dataSources" />
       <excludeFolder url="file://$MODULE_DIR$/data" />
       <excludeFolder url="file://$MODULE_DIR$/map_app/sources/config" />
+      <excludeFolder url="file://$MODULE_DIR$/map_app/static/lib/css" />
+      <excludeFolder url="file://$MODULE_DIR$/map_app/static/lib/js" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.12 (datova_analyza)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />

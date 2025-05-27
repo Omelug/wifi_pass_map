@@ -15,6 +15,7 @@ sys.path.append(str(Path(__file__).resolve().parents[2]))
 
 class Handshakes(Table_v0):
     __description__ = "Source for manipulation with raw handshake files"
+    __requirement__ = ['hcxpcapngtool']
     TABLE_NAME = __qualname__.lower()
 
     def __init__(self):
@@ -37,7 +38,8 @@ class Handshakes(Table_v0):
         pcap_files = glob.glob(os.path.join(os.path.abspath(HS_DIR), '*.pcap'))
         hcxpcapngtool_cmd = ['hcxpcapngtool', '-o', os.path.abspath(FILE_22000)] + pcap_files
 
-        logging.info(f"Executing: {' '.join(hcxpcapngtool_cmd)}")
+        logging.debug(f"Executing: {' '.join(hcxpcapngtool_cmd)}")
+
 
         try:
             result = subprocess.run(hcxpcapngtool_cmd, capture_output=True, text=True)

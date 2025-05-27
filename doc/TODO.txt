@@ -1,0 +1,52 @@
+TODO Roadmap
+
++ = new feature, b = bug, r = refactoring
+v = visual, d = documentation
+
+---------TODO NOW
+
+b: logging change level dont work
+b: read tools termianl line by line (now it print only at the end)
+
+v: add custom icons (wifi icon?)
+    - and different object for not pwned
+
+d: add test section with download.py descrption
+v: for same wifi with changed password are generated multiple points
+b: czech characters are saved to database badly
+
+-------CREATE RELEASE
++ add deinfo button tnext to tun tools button
++ connect and share info between sources
++ pwncrack
++ create pwncrack-wpa-sec/potfile change
+v+: different colors for different sources
+d: diagramy, ispirovat se tady https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/CREATE-TABLE.html
+b: handshakes - fix loading from pcapng files - dont work ncryption
+b: repait dynamiccaly loading (Load square button)
++: wigle - add time, nd chek only older_than
++: add pwncrack source
+    - more pwncrack keys
++: more wpa_sec keys
++: wigle - add multiple keys
++: create UML diagram (find way to auto documenting?)
+d: documentation
+
++: visibility button in menu to enable/disble scripts
+
+
++: show cracked count in statDiv
+b: fix header compability with window resizing
++: add help small windows if i focus on button in tools (or just add icons)
++: add reset default values in tools
+r: refactor external libraries to be sure not sending data to fucking gooogle etc...
+r: add _ to private metdhods
+
++:Country specific p3wifi:
+     - add tool to
+        - downloadn and load database
+        - cut only one database
+        - add warning messages - database not accesible etc.
+        - add manual to this
+
+
