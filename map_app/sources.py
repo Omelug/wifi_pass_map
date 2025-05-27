@@ -6,9 +6,6 @@ import traceback
 from typing import Dict, List, Any, Tuple
 from map_app.source_core.Source import Source
 
-log = logging.getLogger(__name__)
-log.setLevel(logging.DEBUG)
-
 BASE_FILE = os.path.dirname(os.path.abspath(__file__))
 sources_config_file = os.path.join(BASE_FILE,'sources','config')
 os.makedirs(sources_config_file, exist_ok=True)
@@ -30,8 +27,9 @@ def load_source_objects() -> List[Any]:
                     if issubclass(obj, Source) and obj.__module__ == module.__name__:
                         source_objects.append(obj())
         except Exception as e:
-            log.error(f"Error loading module from {script_path}: {e}")
-            log.error(traceback.format_exc())
+            logging.error(f"Error loading module from {script_path}: {e}")
+
+            logging.error(traceback.format_exc())
     return source_objects
 
 def tool_list(add_class=False) -> Dict[str, Any]:
@@ -45,7 +43,7 @@ def tool_list(add_class=False) -> Dict[str, Any]:
             if add_class:
                 tools[object_name]["class"] = type(source_obj)
         else:
-            log.warning(f"{type(source_obj).__name__} does not have a get_tools() function")
+            logging.warning(f"{type(source_obj).__name__} does not have a get_tools() function")
     return tools
 
 
@@ -70,10 +68,10 @@ def get_AP_data(filters=None) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]
                     script_statuses.append({'name': object_name, 'status': 'empty'})
             except Exception as e:
                 script_statuses.append({'name': object_name, 'status': 'failed'})
-                log.error(f"Error processing data from {object_name}: {e}")
-                log.error(traceback.format_exc())
+                logging.error(f"Error processing data from {object_name}: {e}")
+                logging.error(traceback.format_exc())
         else:
-            log.debug(f"{object_name} does not have a get_map_data() function")
+            logging.debug(f"{object_name} does not have a get_map_data() function")
             script_statuses.append({'name': object_name, 'status': 'missing_function'})
 
     return pwned_data, script_statuses

@@ -1,8 +1,6 @@
 import logging
 from app.tools.db import get_db_connection
 
-log = logging.getLogger(__name__)
-
 def populate_pwned_data():
     new_networks = 0  # Counter for new networks with geolocation
     no_geolocation_networks = 0  # Counter for networks with no geolocation

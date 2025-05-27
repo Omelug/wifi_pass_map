@@ -5,8 +5,6 @@ v = visual, d = documentation
 
 ---------TODO NOW
 
-b: logging change level dont work
-
 v: add custom icons (wifi icon?)
     - and different object for not pwned
 

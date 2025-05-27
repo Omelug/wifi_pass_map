@@ -15,12 +15,7 @@ from map_app import sources
 
 api_bp = Blueprint('api', __name__)
 
-#log = logging.getLogger(__name__)
-#log.setLevel(logging.DEBUG)
-
 SAFE_CONFIG_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..","sources","config"))
-
-logging.basicConfig(level=logging.DEBUG, stream=sys.stderr)
 
 # ------------MAPS--------------
 @api_bp.route('/api/wifi_pass_map')
