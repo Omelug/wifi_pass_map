@@ -1,8 +1,12 @@
 import configparser
 import io
 import logging
+import math
 import os
 import sys
+import time
+import threading
+import queue
 
 from flask import jsonify, request, Response, stream_with_context, Blueprint
 
@@ -91,33 +95,42 @@ def run_tool():
             for s in self.streams:
                 s.flush()
 
-    def generate_output(func):
-        old_stdout = sys.stdout
-        old_stderr = sys.stderr
-        mystdout = io.BytesIO()
+    class QueueHandler(logging.Handler):
+        def __init__(self, q):
+            super().__init__()
+            self.q = q
 
-        # Wrap the BytesIO with TextIOWrapper to treat it as text
-        mystdout_wrapper = io.TextIOWrapper(mystdout, encoding='utf-8', line_buffering=True)
-
-        tee = Tee(old_stdout, mystdout_wrapper)
-        sys.stdout = sys.stderr = tee
-
-        logging.basicConfig(level=logging.INFO, stream=sys.stderr, force=True)
-
-        try:
-            func()
-            mystdout_wrapper.flush()
-            mystdout.seek(0)
-            new_wrapper = io.TextIOWrapper(mystdout, encoding='utf-8')
-            for line in new_wrapper:
-                yield line
-        finally:
-            sys.stdout = old_stdout
-            sys.stderr = old_stderr
-
+        def emit(self, record):
+            msg = self.format(record)
+            self.q.put(msg + '\n')
 
     func = tools[object_name][tool_name]["run_fun"]
-    return Response(stream_with_context(generate_output(func)), content_type='text/plain')
+
+    def generate_log_output(func):
+        """ Run the function and capture its logging output"""
+        q = queue.Queue()
+
+        def run_and_capture():
+            handler = QueueHandler(q)
+            handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s: %(message)s'))
+            root_logger = logging.getLogger()
+            root_logger.addHandler(handler)
+            try:
+                func()
+            finally:
+                root_logger.removeHandler(handler)
+                q.put(None)  # to stop thread
+
+        thread = threading.Thread(target=run_and_capture)
+        thread.start()
+
+        while True:
+            msg = q.get()
+            if msg is None:
+                break
+            yield msg
+
+    return Response(generate_log_output(func), content_type='text/plain')
 
 @api_bp.route('/api/save_params', methods=['POST'])
 def save_params():
