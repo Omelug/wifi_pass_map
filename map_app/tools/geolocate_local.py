@@ -23,22 +23,22 @@ def populate_pwned_data():
             total_networks += 1 # Counter for total proccessed Networks
 
             # Convert bssid to the format used in the wigle table
-            # Query wigle table for the corresponding network_id (case-insensitive matching)
-            cursor.execute('SELECT name, network_id, encryption, accuracy, latitude, longitude FROM wigle WHERE lower(network_id) = lower(?)', (bssid,))
+            # Query wigle table for the corresponding bssid (case-insensitive matching)
+            cursor.execute('SELECT name, bssid, encryption, accuracy, latitude, longitude FROM wigle WHERE lower(bssid) = lower(?)', (bssid,))
             wigle_data = cursor.fetchone()
 
             # If data is found in the wigle table, insert into pwned table
             if wigle_data:
-                name, network_id, encryption, accuracy, latitude, longitude = wigle_data
+                name, bssid, encryption, accuracy, latitude, longitude = wigle_data
                 # Check if the name already exists in pwned table (to avoid duplicates based on 'name')
                 cursor.execute('SELECT name FROM pwned WHERE name = ?', (name,))
                 existing_record = cursor.fetchone()
                 if not existing_record:
                     new_networks += 1
                     cursor.execute('''
-                        INSERT INTO pwned (name, network_id, encryption, accuracy, latitude, longitude, password)
+                        INSERT INTO pwned (name, bssid, encryption, accuracy, latitude, longitude, password)
                         VALUES (?, ?, ?, ?, ?, ?, ?)
-                    ''', (name, network_id, encryption, accuracy, latitude, longitude, password))
+                    ''', (name, bssid, encryption, accuracy, latitude, longitude, password))
             else:
                 no_geolocation_networks += 1
 

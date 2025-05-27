@@ -1,8 +1,7 @@
 import os
 import sys
-from sqlalchemy import create_engine, exc, text
+from sqlalchemy import exc, text
 import configparser
-from map_app.sources import config_path
 import logging
 
 from map_app.source_core.MySQL_Source import MySQL_Source

@@ -43,7 +43,7 @@ def save_wigle_location(wigle_data, session, table, bssid, password):
             session.execute(query)
             return True
         except sqlite3.Error as e:
-            logging.info(f"[WIGLE] Got error {e} when inserting entry for network_id: {bssid}")
+            logging.info(f"[WIGLE] Got error {e} when inserting entry for bssid: {bssid}")
             return False
 
     else:

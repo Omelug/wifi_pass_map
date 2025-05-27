@@ -1,6 +1,19 @@
 //TODO hardcoded to czech republic
 const map = L.map('map').setView([49.8175, 15.4730], 7);
-const markers = L.markerClusterGroup();
+
+const notPwnedMarkers = L.markerClusterGroup({
+   maxClusterRadius: 30,
+  iconCreateFunction: function(cluster) {
+        const count = cluster.getChildCount();
+        return L.divIcon({
+            html: `<div style="background: #888; color: white; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 18px;">${count}</div>`,
+            className: 'custom-gray-cluster',
+            iconSize: [40, 40]
+        });
+    }
+});
+const pwnedMarkers = L.markerClusterGroup({ maxClusterRadius: 30 });
+
 const apiBaseUrl = '/api';
 let AP_len_global = 0;
 const getElementValue = (id) => document.getElementById(id)?.value.trim();
@@ -13,39 +26,33 @@ L.tileLayer(remoteTileUrl, {
     attribution: '&copy; OpenStreetMap contributors'
 }).addTo(map);
 
-
 fetchDataAndUpdateMap(`${apiBaseUrl}/wifi_pass_map`);
-
 
 // ----------------------------STATUS ---------------------------
 function updateStatsDiv(script_statuses, AP_len) {
-  let statsDiv = document.getElementById('stats-popup');
-  if (!statsDiv) {
-      statsDiv = document.createElement('div');
-      statsDiv.id = 'stats-popup';
-      statsDiv.style.position = "fixed";
+    const sidebar = document.querySelector('.sidebar');
+    if (!sidebar) return;
 
-      statsDiv.style.top = "10px";
-      statsDiv.style.right = "10px";
-      statsDiv.style.backgroundColor = "rgba(0, 0, 0, 0.7)";
-      statsDiv.style.color = "white";
-      statsDiv.style.padding = "10px";
-      statsDiv.style.borderRadius = "5px";
-      statsDiv.style.zIndex = "1000";
+    // Remove previous stats div if exists
+    let statsDiv = sidebar.querySelector('#source-stats');
+    if (statsDiv) {
+        statsDiv.remove();
+    }
 
-      document.body.appendChild(statsDiv);
-  }
+    // Create new stats div
+    statsDiv = document.createElement('div');
+    statsDiv.id = 'source-stats';
 
-  AP_len_global = AP_len;
+    AP_len_global = AP_len;
 
-  script_statuses.forEach(script => {
+    script_statuses.forEach(script => {
         const scriptDiv = document.createElement('div');
         scriptDiv.textContent = `${script.name} ${script.len !== undefined ? `(${script.len})` : ''}`;
         scriptDiv.style.color = script.status === 'success' ? 'green' : script.status === 'empty' ? 'orange' : 'red';
         statsDiv.appendChild(scriptDiv);
     });
 
-  document.body.appendChild(statsDiv);
+    sidebar.appendChild(statsDiv);
 }
 
 //-------------------------MARKERS---------------------------------
@@ -61,22 +68,36 @@ function createMarker(poi) {
         <button onclick="generateQrCode('${generateWifiUriScheme(poi.essid, poi.encryption, poi.password)}')">Show QR</button><br>  
     `;
 
-    const markerColor = poi.password ? 'blue' : 'red'; // Change colors as needed
+   const iconUrl = poi.password
+    ? '/static/images/wifi-pwned.svg'
+    : '/static/images/wifi-null-pass.svg';
 
-    const icon = L.AwesomeMarkers.icon({
-        icon: 'info-sign',
-        markerColor: markerColor,
-        prefix: 'glyphicon',
-    });
+   const icon = L.icon({
+       iconUrl: iconUrl,
+       iconSize: [32, 32], // adjust as needed
+       iconAnchor: [16, 32],
+       popupAnchor: [0, -32]
+   });
 
-    return L.marker([poi.latitude, poi.longitude], { icon: icon }).bindPopup(popupContent);
+   return L.marker([poi.latitude, poi.longitude], { icon: icon }).bindPopup(popupContent);
 }
 
 
 function updateMarkers(data, append = true) {
-    if (!append) markers.clearLayers(); // Clear markers unless appending
-    data.forEach(poi => markers.addLayer(createMarker(poi)));
-    map.addLayer(markers);
+    if (!append) {
+        pwnedMarkers.clearLayers();
+        notPwnedMarkers.clearLayers();
+    }
+    data.forEach(poi => {
+        const marker = createMarker(poi);
+        if (poi.password) {
+            pwnedMarkers.addLayer(marker);
+        } else {
+            notPwnedMarkers.addLayer(marker);
+        }
+    });
+    map.addLayer(pwnedMarkers);
+    map.addLayer(notPwnedMarkers);
 }
 
 //-------------FETCH DATA -------------------
@@ -86,8 +107,7 @@ function fetchDataAndUpdateMap(url) {
         .then(({data, script_statuses, AP_len}) => {
             console.debug('Result:', data);
             updateStatsDiv(script_statuses, AP_len);
-            updateMarkers(data);
-
+            updateMarkers(data, false);
         })
         .catch(error => console.error("Error fetching data:", error));
 }
@@ -97,7 +117,7 @@ function searchAndRefreshMap() {
         network_type: getElementValue('networkType'),
         encryption: getElementValue('encryption'),
         name: getElementValue('searchInputName'),
-        network_id: getElementValue('searchInputNetworkId'),
+        bssid: getElementValue('searchInputNetworkId'),
         limit: getElementValue('searchInputLimit')
     });
 
@@ -105,6 +125,7 @@ function searchAndRefreshMap() {
     fetchDataAndUpdateMap(`${apiBaseUrl}/explore${query}`);
 }
 
+/* TODO
 document.getElementById('loadButton').addEventListener('click', () => {
     const filters = [
         `center_latitude=${getElementValue('center_lat')}`,
@@ -117,10 +138,11 @@ document.getElementById('loadButton').addEventListener('click', () => {
         .then(response => response.json())
         .then(({ data, script_statuses, AP_len }) => {
             updateStatsDiv(script_statuses, AP_len);
+            console.debug('Result:', data);
             updateMarkers(data, true); // Append markers
         })
         .catch(error => console.error('Error fetching data:', error));
-});
+});*/
 
 
 

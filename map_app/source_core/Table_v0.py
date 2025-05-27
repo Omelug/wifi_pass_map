@@ -82,19 +82,32 @@ class Table_v0(Source):
                 table.c.latitude,
                 table.c.longitude
             ).distinct().where(
-                (table.c.latitude.is_not(None)) | (table.c.longitude.is_not(None))
+                (table.c.latitude.is_not(None)) & (table.c.longitude.is_not(None))
             )
+
+            limit = None
+            if filters:
+                limit = filters.pop('limit', None)
+                if limit is not None:
+                    try:
+                        limit = int(limit)
+                    except ValueError:
+                        limit = None
 
             if filters is not None and 'center_latitude' in filters and 'center_longitude' in filters:
                 pass
             else:
                 if filters:
+                    print("Filters:", filters)
                     for key, value in filters.items():
-                        column = hasattr(table.c, key)
-                        if column:
+                        column = getattr(table.c, key, None)
+                        print(column, value)
+                        if column is not None:
                             table_v0_query = table_v0_query.where(column == value)
                         else:
                             logging.error(f"Column {key} does not exist in the table")
+            if limit is not None:
+                table_v0_query = table_v0_query.limit(limit)
             table_v0_data = session.execute(table_v0_query).fetchall()
 
             return [

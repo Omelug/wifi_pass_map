@@ -14,6 +14,7 @@ resources = [
     {"url": "https://cdn.jsdelivr.net/npm/leaflet.locatecontrol/dist/L.Control.Locate.min.js.map", "filename": "js/L.Control.Locate.min.js.map"},
     {"url": "https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster-src.js.map", "filename": "js/leaflet.markercluster-src.js.map"},
     {"url": "https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.min.js", "filename": "js/leaflet.awesome-markers.min.js"},
+    {"url": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css", "filename": "css/all.min.css"},
 
     # CSS files
     {"url": "https://unpkg.com/leaflet/dist/leaflet.css", "filename": "css/leaflet.css"},
@@ -24,10 +25,10 @@ resources = [
 
 
     # Image files
-    {"url": "https://unpkg.com/leaflet/dist/images/marker-shadow.png", "filename": "css/images/markers-shadow.png"},
-    {"url": "https://unpkg.com/leaflet/dist/images/marker-icon.png", "filename": "css/images/markers-icon.png"},
-    {"url": "https://unpkg.com/leaflet/dist/images/marker-icon-2x.png", "filename": "css/images/markers-icon-2x.png"},
-    {"url":"https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/images/markers-soft.png", "filename":"css/images/markers-soft.png"}
+    #{"url": "https://unpkg.com/leaflet/dist/images/marker-shadow.png", "filename": "css/images/markers-shadow.png"},
+    #{"url": "https://unpkg.com/leaflet/dist/images/marker-icon.png", "filename": "css/images/markers-icon.png"},
+    #{"url": "https://unpkg.com/leaflet/dist/images/marker-icon-2x.png", "filename": "css/images/markers-icon-2x.png"},
+    #{"url":"https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/images/markers-soft.png", "filename":"css/images/markers-soft.png"}
 ]
 
 # Base directory for saving files

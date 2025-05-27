@@ -30,13 +30,13 @@ def exploreapi():
     """Load filtered AP data"""
     logging.debug(f"Request Path: {request.path} was called")
 
-    filters = {k:v for k,v in {
+    filters = {k: v for k, v in {
         'essid': request.args.get('name'),
-        'bssid': request.args.get('network_id'),
+        'bssid': request.args.get('bssid'),
         'limit': request.args.get('limit'),
         'encryption': request.args.get('encryption'),
         'network_type': request.args.get('network_type'),
-    }.items() if v is not None}
+    }.items() if v not in (None, '')}
 
     ap_data, script_statuses = sources.get_AP_data(filters=filters)
     return jsonify({'data': ap_data, 'script_statuses': script_statuses, 'AP_len': len(ap_data) })

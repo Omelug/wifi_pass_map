@@ -10,8 +10,9 @@ v: add custom icons (wifi icon?)
 
 v: for same wifi with changed password are generated multiple points
 b: czech characters are saved to database badly
-
+b:search dont work
 -------CREATE RELEASE
++ add source on/off and source order in menu
 + add deinfo button tnext to tun tools button
 + connect and share info between sources
 + pwncrack
