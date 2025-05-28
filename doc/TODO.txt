@@ -3,15 +3,13 @@ TODO Roadmap
 + = new feature, b = bug, r = refactoring
 v = visual, d = documentation
 
----------TODO NOW
+---------TODO IN NEXT REALEASE (shoud be clean in realease commits)
 
-v: add custom icons (wifi icon?)
-    - and different object for not pwned
-
-v: for same wifi with changed password are generated multiple points
-b: czech characters are saved to database badly
-b:search dont work
 -------CREATE RELEASE
+
+b: czech characters are saved to database badly
+v: for same wifi with changed passwords/multiple sources are generated multiple points
++ add gi hooks
 + add source on/off and source order in menu
 + add deinfo button tnext to tun tools button
 + connect and share info between sources
