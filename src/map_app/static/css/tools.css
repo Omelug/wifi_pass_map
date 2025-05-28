@@ -1,0 +1,89 @@
+.clear-button {
+    margin-top: 10px;
+    padding: 5px 10px;
+    font-size: 14px;
+}
+.result-container {
+    width: 80%;
+    height: 300px;
+    background-color: black;
+    overflow-y: scroll;
+    padding: 10px;
+    margin-top: 10px;
+}
+
+.input-container {
+    background-color: #6c647a;
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.input-container label {
+    border: none;
+}
+
+.input-container input {
+    color: black;
+    flex-grow: 1;
+    border: 1px solid black;
+    margin: 0 10px;
+    outline: none;
+    border-radius: 2px;
+}
+
+.input-container input:focus {
+    border-color: gray;
+    background-color: gray;
+}
+
+.result-text {
+    color: white;
+    font-family: monospace;
+    white-space: pre-wrap;
+}
+.result-text div {
+    margin-bottom: 5px;
+}
+
+.tool-container {
+    display: flex;
+    align-items: center;
+}
+
+.tool-container button {
+    margin: 2px;
+    padding: 1vh 2vw;
+    border: none;
+    border-radius: 0;
+    background-color: #424141;
+    color: #7c7c7c;
+    cursor: pointer;
+}
+
+.tool-container .save-button {
+    width: 20px;
+    height: 20px;
+    margin-left: 5px;
+    padding: 0;
+    text-align: center;
+    font-size: 12px;
+}
+.tool-container button:hover {
+    background-color: #3b3042;
+}
+
+
+.tool-container button:disabled {
+    background-color: grey;
+    cursor: not-allowed;
+}
+
+input{
+    background-color: #6c647a;
+    color: #1C1E21;
+}
+#live-results {
+    height: 300px;
+    overflow-y: auto;
+}

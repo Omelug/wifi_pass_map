@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tools</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/menu.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/tools.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
+</head>
+<body>
+    {% for object_name, tool_info in tools.items() %}
+        {% set object_name = object_name.split('.')[0] %}
+        {% for tool_name, tool_details in tool_info.items() %}
+            <div class="tool-container">
+                <button id="{{ object_name }}_{{ tool_name }}_button" onclick="runTool('{{ object_name }}', '{{ tool_name }}')">
+                    {{ tool_name.upper() }}
+                </button>
+                <button id="{{ object_name }}_{{ tool_name }}_save_button" class="save-button" onclick="saveParams('{{ object_name }}', '{{ tool_name }}')">
+                    <i class="fas fa-save"></i>
+                </button>
+                <div id="{{ object_name }}_{{ tool_name }}_result" class="result"></div>
+            </div>
+
+            {% if "params" in tool_details %}
+                {% for param in tool_details["params"] %}
+                    <div class="input-container">
+                        <label for="{{ object_name }}_{{ tool_name }}_{{ param[0] }}"> {{ param[1].__name__ }} | {{ param[0] }}</label>
+                        <input type="text" id="{{ object_name }}_{{ tool_name }}_{{ param[0] }}" name="{{ param[0] }}" value="{{ param[3] }}">
+                        <label>{{ param[4] }}</label>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+
+    <div class="result-container">
+        <div id="live-results" class="result-text"></div>
+    </div>
+
+    <button class="clear-button" onclick="clearOutput()">Clear Output</button>
+    <div class="selection-container">
+        <label for="log-level-select">Log Level:</label>
+        <select id="log-level-select" onchange="updateLogLevel()">
+            <option value="DEBUG">DEBUG</option>
+            <option value="INFO" selected>INFO</option>
+            <option value="WARNING">WARNING</option>
+            <option value="ERROR">ERROR</option>
+            <option value="CRITICAL">CRITICAL</option>
+        </select>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{{ url_for('static', filename='js/tools.js') }}"></script>
+</body>
+</html>
