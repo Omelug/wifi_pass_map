@@ -4,7 +4,7 @@ import logging
 import os
 import traceback
 from typing import Dict, List, Any, Tuple
-from map_app.source_core.Source import Source
+from src.map_app.source_core.Source import Source
 
 BASE_FILE = os.path.dirname(os.path.abspath(__file__))
 sources_config_file = os.path.join(BASE_FILE,'sources','config')

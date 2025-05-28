@@ -1,11 +1,19 @@
 import argparse
 import logging
+import os
 import sys
-
-from map_app import create_app
-from flask import Flask, send_from_directory
 import threading
+from pathlib import Path
+from flask import Flask, send_from_directory
 
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from src.map_app.source_core import db
+
+db_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'data', 'wifi_pass_map.db'))
+print(f"Database path: {db_path}")
+print(f"Exists: {os.path.exists(os.path.dirname(db_path))}, Writable: {os.access(os.path.dirname(db_path), os.W_OK)}")
+
+from src.map_app import create_app
 
 def run_tile_server():
     tile_app = Flask(__name__)
@@ -15,6 +23,7 @@ def run_tile_server():
     tile_app.run(host='0.0.0.0', port=5000)
 
 def run_main_app():
+    db.db_init()
     create_app().run(host='0.0.0.0', port=1337, debug=False)
 
 parser = argparse.ArgumentParser(description='Check for --tile_server argument')

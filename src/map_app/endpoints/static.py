@@ -3,7 +3,7 @@ from flask import render_template, Blueprint
 from flask import session as flask_session
 from flask import send_from_directory
 from flask import current_app
-from map_app import sources
+from src.map_app import sources
 
 static_bp = Blueprint('static', __name__)
 

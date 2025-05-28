@@ -154,10 +154,10 @@ document.querySelectorAll('#searchInputName, #searchInputNetworkId').forEach(inp
 });
 document.getElementById('searchButton').addEventListener('click', searchAndRefreshMap);
 
-map.on('click', event => {
+/**map.on('click', event => {
     document.getElementById('center_lat').value = event.latlng.lat;
     document.getElementById('center_long').value = event.latlng.lng;
-});
+});**/
 
 
 //----------------------HELP STRING FUNCTIONS-------------------------

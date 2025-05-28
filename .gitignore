@@ -8,3 +8,4 @@ src/map_app/tools/tools_keys.ini
 src/map_app/sources/config/*.ini
 src/map_app/static/lib/css/*
 src/map_app/static/lib/js/*
+src/map_app/sources/config

@@ -4,9 +4,9 @@ import logging
 import os
 import sys
 import requests
-from map_app.source_core.Table_v0 import Table_v0
-from map_app.sources import config_path
-from map_app.source_core.db import get_db_connection
+from src.map_app.source_core.Table_v0 import Table_v0
+from src.map_app.sources import config_path
+from src.map_app.source_core.db import get_db_connection
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 

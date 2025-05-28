@@ -1,8 +1,8 @@
 import os
 import re
 
-from map_app.source_core.db import CENTRAL_DB
-from map_app.sources.wpasec import Wpasec
+from src.map_app.source_core.db import CENTRAL_DB
+from src.map_app.sources.wpasec import Wpasec
 from what_is_wrong import wigle_wiw
 from what_is_wrong.wiw import print_o, print_rg
 

@@ -3,7 +3,7 @@ import tempfile
 import pytest
 from sqlalchemy import Column, Integer, String, create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
-from map_app.source_core import db
+from src.map_app.source_core import db
 
 Base = declarative_base()
 

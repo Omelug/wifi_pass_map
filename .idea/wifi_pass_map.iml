@@ -8,11 +8,13 @@
       <sourceFolder url="file://$MODULE_DIR$/tests" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/.idea/dataSources" />
       <excludeFolder url="file://$MODULE_DIR$/data" />
-      <excludeFolder url="file://$MODULE_DIR$/map_app/sources/config" />
-      <excludeFolder url="file://$MODULE_DIR$/map_app/static/lib/css" />
-      <excludeFolder url="file://$MODULE_DIR$/map_app/static/lib/js" />
+      <excludeFolder url="file://$MODULE_DIR$/src/map_app/sources/config" />
+      <excludeFolder url="file://$MODULE_DIR$/src/map_app/static/lib/css" />
+      <excludeFolder url="file://$MODULE_DIR$/src/map_app/static/lib/js" />
+      <excludeFolder url="file://$MODULE_DIR$/.venv" />
+      <excludeFolder url="file://$MODULE_DIR$/src/data" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.12 (datova_analyza)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.13 virtualenv at ~/PycharmProjects/wifi_pass_map/.venv" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="leaflet.locatecontrol" level="application" />
     <orderEntry type="library" name="leaflet" level="application" />

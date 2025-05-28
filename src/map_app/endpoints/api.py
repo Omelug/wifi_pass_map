@@ -1,17 +1,13 @@
 import configparser
-import io
 import logging
-import math
 import os
-import sys
-import time
 import threading
 import queue
 
-from flask import jsonify, request, Response, stream_with_context, Blueprint
+from flask import jsonify, request, Response, Blueprint
 
-from formator.files import source_object_name
-from map_app import sources
+from src.formator.files import source_object_name
+from src.map_app import sources
 
 api_bp = Blueprint('api', __name__)
 

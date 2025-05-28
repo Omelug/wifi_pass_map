@@ -1,6 +1,6 @@
 import configparser
-from map_app.source_core.Source import Source
-from map_app.sources import config_path
+from src.map_app.source_core.Source import Source
+from src.map_app.sources import config_path
 import logging
 
 def param_control(string):

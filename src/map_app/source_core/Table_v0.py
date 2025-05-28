@@ -5,11 +5,11 @@ from sqlalchemy import Column, Table, UniqueConstraint, String, MetaData, inspec
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql import expression
 
-from formator.bssid import format_bssid
-from map_app.source_core.Source import Source
-from map_app.source_core.db import Base, get_db_connection, engine, metadata, Session
-from map_app.sources import config_path as sources_config_path
-from map_app.tools.wigle_api import wigle_locate
+from src.formator.bssid import format_bssid
+from src.map_app.source_core.Source import Source
+from src.map_app.source_core.db import Base, get_db_connection, engine, metadata
+from src.map_app.sources import config_path as sources_config_path
+from src.map_app.tools.wigle_api import wigle_locate
 
 
 #---------------------Table_v0----------------------
@@ -71,7 +71,6 @@ class Table_v0(Source):
 
     def get_map_data(self,filters=None):
         with get_db_connection() as session:
-            metadata = MetaData()
             table = Table(self.TABLE_NAME, metadata, autoload_with=engine)
 
             table_v0_query = expression.select(
