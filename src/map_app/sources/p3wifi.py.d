@@ -4,7 +4,7 @@ from sqlalchemy import exc, text
 import configparser
 import logging
 
-from map_app.source_core.MySQL_Source import MySQL_Source
+from src.map_app.source_core.MySQL_Source import MySQL_Source
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 from formator.bssid import dec2mac, mac2dec

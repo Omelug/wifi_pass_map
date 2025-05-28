@@ -5,8 +5,8 @@ import warnings
 
 from sqlalchemy import inspect, create_engine, exc
 
-from map_app.source_core.Source import Source
-from map_app.sources import config_path
+from src.map_app.source_core.Source import Source
+from src.map_app.sources import config_path
 
 
 #---------------------MySQL_Source----------------------

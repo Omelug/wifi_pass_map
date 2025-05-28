@@ -6,10 +6,10 @@ import sys
 from pathlib import Path
 import glob
 
-from formator.bssid import extract_essid_bssid
-from map_app.source_core.Table_v0 import Table_v0
-from map_app.source_core.db import get_db_connection
-from map_app.sources import config_path
+from src.formator.bssid import extract_essid_bssid
+from src.map_app.source_core.Table_v0 import Table_v0
+from src.map_app.source_core.db import get_db_connection
+from src.map_app.sources import config_path
 
 sys.path.append(str(Path(__file__).resolve().parents[2]))
 
