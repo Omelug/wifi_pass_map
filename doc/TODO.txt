@@ -6,10 +6,10 @@ v = visual, d = documentation
 ---------TODO IN NEXT REALEASE (shoud be clean in realease commits)
 
 -------CREATE RELEASE
-
+b: add to global config  to change init map ords
 b: czech characters are saved to database badly
 v: for same wifi with changed passwords/multiple sources are generated multiple points
-+ add gi hooks
++ add git hooks
 + add source on/off and source order in menu
 + add deinfo button tnext to tun tools button
 + connect and share info between sources
@@ -22,12 +22,11 @@ b: repait dynamiccaly loading (Load square button)
 +: wigle - add time, nd chek only older_than
 +: add pwncrack source
     - more pwncrack keys
-+: more wpa_sec keys
-+: wigle - add multiple keys
++: more wpa_sec/pwncrack/wogle keys
 +: create UML diagram (find way to auto documenting?)
 d: documentation
 
-+: visibility button in menu to enable/disble scripts
++: button in menu to enable/disble scripts
 
 
 +: show cracked count in statDiv

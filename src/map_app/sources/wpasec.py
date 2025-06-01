@@ -33,16 +33,14 @@ class Wpasec(Table_v0):
         api_url = config['wpasec_update']['wpasec_link'] + "/?api&dl=1"
         cookies = {'key': api_key}
         try:
-            response = requests.get(api_url, cookies=cookies)
-            response.raise_for_status()
-            return response.content
-        except requests.exceptions.RequestException as e:
+            return requests.get(api_url, cookies=cookies).content
+        except requests.RequestException as e:
             raise Exception(f"HTTP Error: {e}")
 
     #-----------------------TOOLS FUNCTIONS-----------------------
     #Save csv content to wpasec table in database
     def __csv_to_db(self,csv_content):
-        new_networks, duplicate_networks = 0,0
+        new_networks, duplicate_networks, invalid = 0,0,0
         csv_reader = csv.reader(csv_content.decode('utf-8').splitlines(), delimiter=':')
 
         with get_db_connection() as session:
@@ -50,29 +48,32 @@ class Wpasec(Table_v0):
                 if len(row) == 4:
                     bssid, _, essid, password = row
                     result = self._save_AP_to_db(
-                        bssid, essid,password, bssid_format=True, session=session
+                        bssid, essid, password, bssid_format=True, session=session
                     )
                     if result:
                         new_networks += 1
                     else:
                         duplicate_networks += 1
                 else:
+                    invalid += 1
                     logging.error(f"Cantparse line in potfile: {row}")
 
         logging.info(f"Processed a total of {new_networks+duplicate_networks} networks, "
-              f"{new_networks} new APs,"
-              f" {duplicate_networks} already known or duplicates")
+              f"{new_networks} new APs\n"
+              f"{duplicate_networks} already known or duplicates\n",
+              f"{invalid} invalid networks")
 
 
     @staticmethod
     def __get_wpasec_key():
         config = configparser.ConfigParser()
         config.read(config_path())
+        # TODO here add some system to rotate keys
         return config['wpasec_update']['api_keys'].split(',')[0]
 
     #update data from wpa_sec
     def __wpasec_update(self):
-        logging.info("WPASEC: Starting data update")
+        logging.info(f"{self.TABLE_NAME}: Starting data update")
         config = configparser.ConfigParser()
         config.read(config_path())
 
