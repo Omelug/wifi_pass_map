@@ -1,6 +1,8 @@
 import logging
 import os
 from abc import abstractmethod
+from typing import Any, Dict, Optional
+
 from sqlalchemy import Column, Table, UniqueConstraint, String, inspect
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql import expression
@@ -24,7 +26,7 @@ class Table_v0(MapSource):
         pass
 
     # ------------CONFIG----------------
-    def __init__(self, table_name, config):
+    def __init__(self, table_name: str, config: Optional[Dict[str, Any]] = None):
         super().__init__(table_name)
 
         # create table if not exists
@@ -49,13 +51,13 @@ class Table_v0(MapSource):
                 config.write(config_file)
             logging.info(f"{self.TABLE_NAME} configuration created {conf_path}")
 
-    def config_path(self, c_name = None):
+    def config_path(self, c_name = None) -> str:
         if c_name is None:
             return sources_config_path(self.TABLE_NAME)
         return sources_config_path(c_name)
 
     @staticmethod
-    def create_table(table_name):
+    def create_table(table_name) -> Table:
         return Table(table_name, Base.metadata,
             Column('bssid', String, primary_key=True),
             Column('encryption', String),
@@ -69,7 +71,7 @@ class Table_v0(MapSource):
             extend_existing=True
         )
 
-    def get_map_data(self,filters=None):
+    def get_map_data(self,filters: Optional[Dict[str, Any]]=None):
         with get_db_connection() as session:
             table = Table(self.TABLE_NAME, metadata, autoload_with=engine)
 
@@ -85,13 +87,10 @@ class Table_v0(MapSource):
             )
 
             limit = None
-            if filters:
+            if filters is not None:
                 limit = filters.pop('limit', None)
                 if limit is not None:
-                    try:
-                        limit = int(limit)
-                    except ValueError:
-                        limit = None
+                    limit = int(limit)
 
             if filters is not None and 'center_latitude' in filters and 'center_longitude' in filters:
                 pass
@@ -121,7 +120,7 @@ class Table_v0(MapSource):
                 for row in table_v0_data
             ]
 
-    def table_v0_locate(self):
+    def table_v0_locate(self) -> None:
         logging.info(f"{self.TABLE_NAME}: Starting data localization")
         localized_networks, total_networks = Wigle().wigle_locate(self.TABLE_NAME)
         logging.info(f"{self.TABLE_NAME}: Located {localized_networks} out of {total_networks} networks")

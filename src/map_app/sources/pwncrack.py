@@ -66,13 +66,13 @@ class Pwncrack(Table_v0):
 
 
     @staticmethod
-    def __get_pwncrack_key():
+    def __get_pwncrack_key() -> str:
         config = configparser.ConfigParser()
         config.read(config_path())
         return config['pwncrack_update']['api_keys'].split(',')[0]
 
     #update data from pwncrack
-    def __pwncrack_update(self):
+    def __pwncrack_update(self) -> None:
         logging.info(f"{self.TABLE_NAME}: Starting data update")
         config = configparser.ConfigParser()
         config.read(config_path())

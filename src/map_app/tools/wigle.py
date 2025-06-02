@@ -16,11 +16,12 @@ class Wigle(ToolSource):
     __description__ = "Tools to get localization for access point from wigle(https://wigle.net/)"
 
     def __init__(self):
+
         super().__init__("Wigle")
 
     # TODO add more keys suport for bypass limits
     @staticmethod
-    def get_api_key():
+    def get_api_key() -> str:
         config = configparser.ConfigParser()
         config.read(global_config_path)
         api_keys = config['WIGLE']['api_keys'].split(',')
@@ -85,7 +86,7 @@ class Wigle(ToolSource):
                 #shuffle data to increase chance for hits for the next day when running into the API Limit
                 random.shuffle(wpasec_data)
                 api_key = Wigle().get_api_key()
-                logging.info(f"Wigle API key loaded, try check {len(wpasec_data)} networks")
+                logging.info(f"{self.SOURCE_NAME} API key loaded, try check {len(wpasec_data)} networks")
 
                 for row in wpasec_data:
                     bssid, password = row
@@ -100,7 +101,7 @@ class Wigle(ToolSource):
                     )
 
                     if response.status_code == 401:
-                        logging.info(f"The Wigle API {api_key} Key is not authorized. Validate it in the Settings")
+                        logging.info(f"The {self.SOURCE_NAME} API {api_key} Key is not authorized. Validate it in the Settings")
                         break
                     elif response.status_code == 429:
                         logging.info("❌ Received status code 429: API Limit reached.")
@@ -109,7 +110,7 @@ class Wigle(ToolSource):
                         try:
                             wigle_data = response.json()
                             localized_networks += Wigle()._save_wigle_location(wigle_data, session, table, bssid, password)
-                            session.commit() # update after eah request, because main limit is wigle API limit
+                            session.commit() # update after each request, because main limit is wigle API limit
                         except ValueError as e:
                             logging.info(f"Error parsing JSON response: {e}")
                             break

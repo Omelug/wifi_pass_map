@@ -2,7 +2,7 @@ from flask import Flask
 from .endpoints.static import static_bp
 from .endpoints.api import api_bp
 
-def create_app():
+def create_app() -> Flask:
     app = Flask(
         __name__,
         static_folder='static',

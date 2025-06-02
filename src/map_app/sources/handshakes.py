@@ -53,9 +53,9 @@ class Handshakes(Table_v0):
             logging.error(f"Failed to process files: {e}")
 
 
-    def __load_hashes_to_db(self,config):
+    def __load_hashes_to_db(self,config) -> None:
         FILE_22000 = config['handshake_scan']['handshake_22000_file']
-        logging.info(f"HANDSHAKE: Loading data from {FILE_22000} to database...")
+        logging.info(f"{self.SOURCE_NAME}: Loading data from {FILE_22000} to database...")
         new_handshakes = 0
 
         if not os.path.exists(FILE_22000):
@@ -71,11 +71,11 @@ class Handshakes(Table_v0):
                             new_handshakes += 1
                 else:
                     logging.error("Invalid handsake format")
-        logging.info(f"Handshakes loading done, {new_handshakes} new handshakes added")
+        logging.info(f"{self.SOURCE_NAME}: loading done, {new_handshakes} new handshakes added")
 
 
     #-----------------------TOOLS FUNCTIONS-----------------------
-    def __handshake_reload(self):
+    def __handshake_reload(self) -> None:
         config = configparser.ConfigParser()
         config.read(config_path())
         Handshakes.__create_hash_file(config)

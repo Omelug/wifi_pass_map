@@ -3,7 +3,8 @@ import inspect
 import logging
 import os
 import traceback
-from typing import Dict, List, Any, Tuple
+from typing import Dict, List, Any, Tuple, Optional
+
 from src.map_app.source_core.Source import MapSource
 
 BASE_FILE = os.path.dirname(os.path.abspath(__file__))
@@ -47,7 +48,7 @@ def tool_list(add_class=False) -> Dict[str, Any]:
     return tools
 
 
-def get_AP_data(filters=None) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+def get_AP_data(filters: Optional[Dict[str, Any]] = None) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
     """Get data from source sources using get_map_data()."""
 
     pwned_data: List[Dict[str, Any]] = []
@@ -77,7 +78,7 @@ def get_AP_data(filters=None) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]
     return pwned_data, script_statuses
 
 
-def config_path(config_name=None)->str:
+def config_path(config_name:str=None)->str:
     if config_name is None:
         frame = inspect.stack()[1]
         calling_script = frame[1]

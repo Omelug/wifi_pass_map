@@ -19,7 +19,7 @@ def mac2dec(mac:str) -> int:
     return int(mac, 16)
 
 # This was stolen from pwnagotchi, thanks to the authors
-def extract_essid_bssid(hash_line) -> tuple[str, str]:
+def extract_essid_bssid(hash_line:str) -> tuple[str, str]:
     parts = hash_line.strip().split('*')
 
     essid = ''

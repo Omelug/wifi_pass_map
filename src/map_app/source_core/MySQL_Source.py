@@ -4,10 +4,8 @@ import os
 import warnings
 
 from sqlalchemy import inspect, create_engine, exc
-
-from src.map_app.source_core.MapSource import MapSource
+from src.map_app.source_core.Source import MapSource
 from src.map_app.sources import config_path
-
 
 #---------------------MySQL_Source----------------------
 class MySQL_MapSource(MapSource):

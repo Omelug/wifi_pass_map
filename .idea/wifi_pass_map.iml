@@ -30,7 +30,7 @@
     <option name="TEMPLATE_CONFIGURATION" value="Jinja2" />
     <option name="TEMPLATE_FOLDERS">
       <list>
-        <option value="$MODULE_DIR$/map_app/templates" />
+        <option value="$MODULE_DIR$/src/map_app/templates" />
       </list>
     </option>
   </component>

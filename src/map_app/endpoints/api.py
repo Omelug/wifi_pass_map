@@ -3,6 +3,7 @@ import logging
 import os
 import threading
 import queue
+from typing import Any, Dict, Tuple
 
 from flask import jsonify, request, Response, Blueprint
 
@@ -15,14 +16,14 @@ SAFE_CONFIG_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..","
 
 # ------------MAPS--------------
 @api_bp.route('/api/wifi_pass_map')
-def pwnapi():
+def pwnapi()->Response:
     """Load first data to map"""
     logging.debug(f"Request Path: {request.path} was called")
     pwned_data,script_statuses = sources.get_AP_data()
     return jsonify({'data': pwned_data,'script_statuses': script_statuses,'AP_len': len(pwned_data)})
 
 @api_bp.route('/api/explore')
-def exploreapi():
+def exploreapi() -> Response:
     """Load filtered AP data"""
     logging.debug(f"Request Path: {request.path} was called")
 
@@ -39,7 +40,7 @@ def exploreapi():
 
 
 @api_bp.route('/api/load_sqare', methods=["POST"])
-def load_sqare():
+def load_sqare() -> Response:
     logging.debug(f"Request Path: {request.path} was called")
 
     filters = {k: v for k, v in {
@@ -53,7 +54,7 @@ def load_sqare():
 
 # ------------TOOLS--------------
 @api_bp.route('/api/tools', methods=['POST'])
-def run_tool():
+def run_tool() -> Tuple[Dict[str, Any], int] | Response:
     """Run specified tool script, stream its output."""
     tools = sources.tool_list(add_class=True)
 
@@ -124,7 +125,7 @@ def run_tool():
     return Response(generate_log_output(func), content_type='text/plain')
 
 @api_bp.route('/api/save_params', methods=['POST'])
-def save_params():
+def save_params() -> Tuple[Dict[str, Any], int]:
     """Save user-defined parameters for a given source script and tool."""
     data = request.json or {}
     object_name = data.get('object_name')
@@ -158,7 +159,7 @@ def save_params():
 
 
 @api_bp.route('/api/set_log_level', methods=['POST'])
-def set_log_level():
+def set_log_level() -> Tuple[Dict[str, Any], int]:
     data = request.json or {}
     log_level = data.get('log_level', '').upper()
 

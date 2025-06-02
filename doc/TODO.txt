@@ -3,16 +3,18 @@ TODO Roadmap
 + = new feature, b = bug, r = refactoring
 v = visual, d = documentation
 
+--------- CHANGELOG REALASE2(already ok)
++ pwncrack
 ---------TODO IN NEXT REALEASE (shoud be clean in realease commits)
 b: add to global config  to change init map ords
 + add git hooks for simple tests
-+ pwncrack
 r: add _ to private metdhods
++ pwncrack/wpasec
 + connect and share info between sources
 +: wigle - add time, And chek only older_than (WIGLE CONFIG)
 + add source on/off and source order in menu
 v: for same wifi with changed passwords/multiple sources are generated multiple points
-
+b: change example.d and add description to README
 -------CREATE RELEASE
 +: more wpa_sec/pwncrack/wIgle keys
 d: documentation

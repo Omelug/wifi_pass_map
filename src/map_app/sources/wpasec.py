@@ -29,7 +29,7 @@ class Wpasec(Table_v0):
 
     # Return the CSV content for further processing
     @staticmethod
-    def __download_potfile(config,api_key):
+    def __download_potfile(config,api_key) -> bytes|None:
         api_url = config['wpasec_update']['wpasec_link'] + "/?api&dl=1"
         cookies = {'key': api_key}
         try:
@@ -67,14 +67,14 @@ class Wpasec(Table_v0):
 
 
     @staticmethod
-    def __get_wpasec_key():
+    def __get_wpasec_key() -> str:
         config = configparser.ConfigParser()
         config.read(config_path())
         # TODO here add some system to rotate keys
         return config['wpasec_update']['api_keys'].split(',')[0]
 
     #update data from wpa_sec
-    def __wpasec_update(self):
+    def __wpasec_update(self) -> None:
         logging.info(f"{self.TABLE_NAME}: Starting data update")
         config = configparser.ConfigParser()
         config.read(config_path())
