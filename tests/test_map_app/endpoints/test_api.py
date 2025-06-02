@@ -4,15 +4,15 @@ from tests.test_map_app.map_test_core.db_core import temp_db
 
 @pytest.fixture
 def client(monkeypatch, temp_db):
-    # import after db init
+    from src.map_app.endpoints import api
     from src.map_app.endpoints.api import api_bp
     app = Flask(__name__)
     app.register_blueprint(api_bp)
     app.config['TESTING'] = True
 
-    # Mock sources.get_AP_data
-    import src.map_app.sources
-    monkeypatch.setattr(src.map_app.sources, "get_AP_data", lambda: ([{'id': 1}], {'status': 'ok'}))
+    # Patch get_AP_data where it is used
+    monkeypatch.setattr(api, "get_AP_data",
+                        lambda *args, **kwargs: ([{'id': 1}], {'status': 'ok'}))
     with app.test_client() as client:
         yield client
 

@@ -5,7 +5,6 @@ import os
 import sys
 import requests
 from src.map_app.source_core.Table_v0 import Table_v0
-from src.map_app.sources import config_path
 from src.map_app.source_core.db import get_db_connection
 from src.formator.potfile import decode_hexed
 
@@ -65,17 +64,16 @@ class Pwncrack(Table_v0):
               f"{duplicate_networks} already known or duplicates")
 
 
-    @staticmethod
-    def __get_pwncrack_key() -> str:
+    def __get_pwncrack_key(self) -> str:
         config = configparser.ConfigParser()
-        config.read(config_path())
+        config.read(self.config_path())
         return config['pwncrack_update']['api_keys'].split(',')[0]
 
     #update data from pwncrack
     def __pwncrack_update(self) -> None:
         logging.info(f"{self.TABLE_NAME}: Starting data update")
         config = configparser.ConfigParser()
-        config.read(config_path())
+        config.read(self.config_path())
 
         api_key = Pwncrack.__get_pwncrack_key()
         acc_potfile = Pwncrack.__download_potfile(config,api_key)
@@ -83,7 +81,7 @@ class Pwncrack(Table_v0):
 
     def get_tools(self):
         config = configparser.ConfigParser()
-        config.read(config_path())
+        config.read(self.config_path())
 
         pwncrack_update_params = [("api_keys", str, None, config['pwncrack_update']['api_keys'], "Key for pwncrack"),
                                 ("pwncrack_link", str, None, config['pwncrack_update']['pwncrack_link'], "Link to pwncrack api")]

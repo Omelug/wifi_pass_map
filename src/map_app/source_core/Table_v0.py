@@ -1,5 +1,4 @@
 import logging
-import os
 from abc import abstractmethod
 from typing import Any, Dict, Optional
 
@@ -9,9 +8,9 @@ from sqlalchemy.sql import expression
 
 from src.formator.bssid import format_bssid
 from src.map_app.source_core.Source import MapSource
+from src.map_app.source_core.ToolSource import ToolSource
 from src.map_app.source_core.db import Base, get_db_connection, engine, metadata
-from src.map_app.sources import config_path as sources_config_path
-from src.map_app.tools.wigle import Wigle
+from src.map_app.sources.wigle import Wigle
 
 
 #---------------------Table_v0----------------------
@@ -45,16 +44,7 @@ class Table_v0(MapSource):
                 '__tablename__': self.TABLE_NAME,
                 '__table__': self.table
             })
-        conf_path = self.config_path()
-        if not os.path.exists(conf_path):
-            with open(conf_path, 'w') as config_file:
-                config.write(config_file)
-            logging.info(f"{self.TABLE_NAME} configuration created {conf_path}")
-
-    def config_path(self, c_name = None) -> str:
-        if c_name is None:
-            return sources_config_path(self.TABLE_NAME)
-        return sources_config_path(c_name)
+        self.create_config(self.config_path(), config)
 
     @staticmethod
     def create_table(table_name) -> Table:

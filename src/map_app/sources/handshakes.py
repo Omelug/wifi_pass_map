@@ -9,7 +9,6 @@ import glob
 from src.formator.bssid import extract_essid_bssid
 from src.map_app.source_core.Table_v0 import Table_v0
 from src.map_app.source_core.db import get_db_connection
-from src.map_app.sources import config_path
 
 sys.path.append(str(Path(__file__).resolve().parents[2]))
 
@@ -77,14 +76,14 @@ class Handshakes(Table_v0):
     #-----------------------TOOLS FUNCTIONS-----------------------
     def __handshake_reload(self) -> None:
         config = configparser.ConfigParser()
-        config.read(config_path())
+        config.read(self.config_path())
         Handshakes.__create_hash_file(config)
         self.__load_hashes_to_db(config)
 
 
     def get_tools(self):
         config = configparser.ConfigParser()
-        config.read(config_path())
+        config.read(self.config_path())
         hs_reload = [("hs_path", str, None, config['handshake_scan']['handshakes_dir'], "Path to the directory with handshakes"),]
         return {"handshake_reload": {"run_fun": self.__handshake_reload,
                                      "params":hs_reload},

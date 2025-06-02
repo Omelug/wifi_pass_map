@@ -4,18 +4,14 @@ import logging
 import os
 import traceback
 from typing import Dict, List, Any, Tuple, Optional
-
-from src.map_app.source_core.Source import MapSource
+from src.map_app.source_core.Source import ToolSource, MapSource
 
 BASE_FILE = os.path.dirname(os.path.abspath(__file__))
-sources_config_file = os.path.join(BASE_FILE,'sources','config')
-os.makedirs(sources_config_file, exist_ok=True)
 
-
-def load_source_objects() -> List[Any]:
+def _load_source_objects(Source_class) -> List[Any]:
     """Dynamically load source classes and create instances if they are children of DBSource."""
     source_objects = []
-    SOURCE_DIR = os.path.join(BASE_FILE, "sources")
+    SOURCE_DIR = os.path.join(BASE_FILE,'..', "sources")
     script_paths = [os.path.join(root, f) for root, _, files in os.walk(SOURCE_DIR) for f in files if f.endswith('.py')]
     for script_path in script_paths:
         try:
@@ -25,7 +21,7 @@ def load_source_objects() -> List[Any]:
                 spec.loader.exec_module(module)
 
                 for name, obj in inspect.getmembers(module, inspect.isclass):
-                    if issubclass(obj, MapSource) and obj.__module__ == module.__name__:
+                    if issubclass(obj, Source_class) and obj.__module__ == module.__name__:
                         source_objects.append(obj())
         except Exception as e:
             logging.error(f"Error loading module from {script_path}: {e}")
@@ -36,7 +32,7 @@ def load_source_objects() -> List[Any]:
 def tool_list(add_class=False) -> Dict[str, Any]:
     """Get tool lists from sources using get_tools()"""
     tools = {}
-    source_objects = load_source_objects()
+    source_objects = _load_source_objects(ToolSource)
     for source_obj in source_objects:
         if hasattr(source_obj, 'get_tools'):
             object_name = type(source_obj).__name__.lower()
@@ -54,7 +50,7 @@ def get_AP_data(filters: Optional[Dict[str, Any]] = None) -> Tuple[List[Dict[str
     pwned_data: List[Dict[str, Any]] = []
     script_statuses: List[Dict[str, Any]] = []
 
-    for source_obj in load_source_objects():
+    for source_obj in _load_source_objects(MapSource):
         object_name = type(source_obj).__name__
 
         if hasattr(source_obj, 'get_map_data'):
@@ -76,11 +72,3 @@ def get_AP_data(filters: Optional[Dict[str, Any]] = None) -> Tuple[List[Dict[str
             script_statuses.append({'name': object_name, 'status': 'missing_function'})
 
     return pwned_data, script_statuses
-
-
-def config_path(config_name:str=None)->str:
-    if config_name is None:
-        frame = inspect.stack()[1]
-        calling_script = frame[1]
-        config_name = os.path.splitext(os.path.basename(calling_script))[0]
-    return f'{sources_config_file}/{config_name}.ini'

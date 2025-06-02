@@ -6,12 +6,13 @@ v = visual, d = documentation
 --------- CHANGELOG REALASE 0.0.1 (already ok)
 + pwncrack
 r: python type control
++ add git hook for unit tests
+
 ---------TODO IN NEXT REALEASE (shoud be clean in realease commits)
 +: wigle - add time, And check only older_than (WIGLE CONFIG)
 b: add to global config  to change init map ords
-+ add git hooks for simple tests
 r: add _ to private metdhods
-+ pwncrack/wpasec
++ pwncrack/wpasecinfo sharing?
 + connect and share info between sources
 + add source on/off and source order in menu
 v: for same wifi with changed passwords/multiple sources are generated multiple points

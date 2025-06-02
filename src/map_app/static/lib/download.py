@@ -2,8 +2,6 @@ import logging
 import os
 import requests
 
-# List of resources to downloadhttps://cdnjs.com/libraries/Leaflet.awesome-markers
-#
 resources = [
     # JavaScript files
     {"url": "https://unpkg.com/leaflet/dist/leaflet.js", "filename": "js/leaflet.js"},
@@ -22,29 +20,19 @@ resources = [
     {"url": "https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css", "filename": "css/MarkerCluster.css"},
     {"url": "https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css", "filename": "css/MarkerCluster.Default.css"},
     {"url": "https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css", "filename": "css/leaflet.awesome-markers.css"},
-
-
-    # Image files
-    #{"url": "https://unpkg.com/leaflet/dist/images/marker-shadow.png", "filename": "css/images/markers-shadow.png"},
-    #{"url": "https://unpkg.com/leaflet/dist/images/marker-icon.png", "filename": "css/images/markers-icon.png"},
-    #{"url": "https://unpkg.com/leaflet/dist/images/marker-icon-2x.png", "filename": "css/images/markers-icon-2x.png"},
-    #{"url":"https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/images/markers-soft.png", "filename":"css/images/markers-soft.png"}
 ]
 
-# Base directory for saving files
-base_dir = "."
 
-# Download each resource
+base_dir = "."
 for resource in resources:
 
     # Determine full path for the file
     file_path = os.path.join(base_dir, resource["filename"])
-    os.makedirs(os.path.dirname(file_path), exist_ok=True)  # Ensure the directory exists
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
-    # Download the resource
     try:
         response = requests.get(resource["url"], timeout=10)
-        response.raise_for_status()  # Raise an error for HTTP issues
+        response.raise_for_status()
         with open(file_path, "wb") as file:
             file.write(response.content)
         logging.info(f"Downloaded: {resource['url']} -> {file_path}")

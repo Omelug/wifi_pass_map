@@ -1,5 +1,6 @@
 import configparser
 import logging
+import os
 import sqlite3
 from typing import Dict, Any
 import requests
@@ -8,7 +9,6 @@ from requests import ReadTimeout
 from sqlalchemy import select, MetaData, Table, update, Connection
 
 from src.map_app.source_core.ToolSource import ToolSource
-from src.map_app.tools import global_config_path
 from src.map_app.source_core.db import get_db_connection, engine
 from datetime import datetime
 
@@ -16,16 +16,20 @@ class Wigle(ToolSource):
     __description__ = "Tools to get localization for access point from wigle(https://wigle.net/)"
 
     def __init__(self):
+        super().__init__("wigle")
 
-        super().__init__("Wigle")
+        default_config = configparser.ConfigParser()
+        default_config['wigle_locate'] = {
+            'api_keys': '<your_wigle_api_key_here>'
+        }
 
-    # TODO add more keys suport for bypass limits
-    @staticmethod
-    def get_api_key() -> str:
+        self.create_config(config=default_config)
+
+    def __get_api_key(self) -> str:
         config = configparser.ConfigParser()
-        config.read(global_config_path)
-        api_keys = config['WIGLE']['api_keys'].split(',')
-        return api_keys[0]
+        config.read(self.config_path())
+        return config['wigle_locate']['api_keys'].split(',')[0]
+
 
     # table_name - in this table shoud be bssid, password,
     def _save_wigle_location(
@@ -85,7 +89,7 @@ class Wigle(ToolSource):
 
                 #shuffle data to increase chance for hits for the next day when running into the API Limit
                 random.shuffle(wpasec_data)
-                api_key = Wigle().get_api_key()
+                api_key = Wigle().__get_api_key()
                 logging.info(f"{self.SOURCE_NAME} API key loaded, try check {len(wpasec_data)} networks")
 
                 for row in wpasec_data:
@@ -120,5 +124,13 @@ class Wigle(ToolSource):
             except ReadTimeout as  e:
                 logging.info(f"Timeout error: {e}")
         return localized_networks, total_networks
+
+    def get_tools(self):
+        config = configparser.ConfigParser()
+        config.read(self.config_path())
+        #TODO add wigle api param
+        return {}
+
+
 
 

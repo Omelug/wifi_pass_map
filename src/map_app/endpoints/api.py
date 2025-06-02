@@ -8,7 +8,7 @@ from typing import Any, Dict, Tuple
 from flask import jsonify, request, Response, Blueprint
 
 from src.formator.files import source_object_name
-from src.map_app import sources
+from src.map_app.source_core.manager import get_AP_data, tool_list
 
 api_bp = Blueprint('api', __name__)
 
@@ -19,7 +19,7 @@ SAFE_CONFIG_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..","
 def pwnapi()->Response:
     """Load first data to map"""
     logging.debug(f"Request Path: {request.path} was called")
-    pwned_data,script_statuses = sources.get_AP_data()
+    pwned_data,script_statuses = get_AP_data()
     return jsonify({'data': pwned_data,'script_statuses': script_statuses,'AP_len': len(pwned_data)})
 
 @api_bp.route('/api/explore')
@@ -35,7 +35,7 @@ def exploreapi() -> Response:
         'network_type': request.args.get('network_type'),
     }.items() if v not in (None, '')}
 
-    ap_data, script_statuses = sources.get_AP_data(filters=filters)
+    ap_data, script_statuses = get_AP_data(filters=filters)
     return jsonify({'data': ap_data, 'script_statuses': script_statuses, 'AP_len': len(ap_data) })
 
 
@@ -49,14 +49,14 @@ def load_sqare() -> Response:
         "square_limit": request.args.get("square_limit"),
     }.items() if v is not None}
 
-    ap_data, script_statuses = sources.get_AP_data(filters)
+    ap_data, script_statuses = get_AP_data(filters)
     return jsonify({'data': ap_data,'script_statuses': script_statuses,'AP_len': len(ap_data)})
 
 # ------------TOOLS--------------
 @api_bp.route('/api/tools', methods=['POST'])
 def run_tool() -> Tuple[Dict[str, Any], int] | Response:
     """Run specified tool script, stream its output."""
-    tools = sources.tool_list(add_class=True)
+    tools = tool_list(add_class=True)
 
     # Get script name and optional arguments from the POST request
     object_name = request.json.get('object_name')
@@ -73,19 +73,6 @@ def run_tool() -> Tuple[Dict[str, Any], int] | Response:
     if tool_name not in tools[object_name].keys():
         logging.error(f"Request Path: {request.path} - The tool {tool_name} was not found in script {object_name}")
         return {"status": "error", "message": f"Tool not found in script {object_name}"}, 404
-
-    class Tee:
-        def __init__(self, *streams):
-            self.streams = streams
-
-        def write(self, data):
-            for s in self.streams:
-                s.write(data)
-                s.flush()
-
-        def flush(self):
-            for s in self.streams:
-                s.flush()
 
     class QueueHandler(logging.Handler):
         def __init__(self, q):

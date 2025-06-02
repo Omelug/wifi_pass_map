@@ -5,7 +5,6 @@ import os
 import sys
 import requests
 from src.map_app.source_core.Table_v0 import Table_v0
-from src.map_app.sources import config_path
 from src.map_app.source_core.db import get_db_connection
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
@@ -65,27 +64,24 @@ class Wpasec(Table_v0):
               f"{invalid} invalid networks"
         )
 
-
-    @staticmethod
-    def __get_wpasec_key() -> str:
+    def __get_wpasec_key(self) -> str:
         config = configparser.ConfigParser()
-        config.read(config_path())
-        # TODO here add some system to rotate keys
+        config.read(self.config_path())
         return config['wpasec_update']['api_keys'].split(',')[0]
 
     #update data from wpa_sec
     def __wpasec_update(self) -> None:
         logging.info(f"{self.TABLE_NAME}: Starting data update")
         config = configparser.ConfigParser()
-        config.read(config_path())
+        config.read(self.config_path())
 
-        api_key = Wpasec.__get_wpasec_key()
-        acc_potfile = Wpasec.__download_potfile(config,api_key)
+        api_key = self.__get_wpasec_key()
+        acc_potfile = self.__download_potfile(config,api_key)
         self.__csv_to_db(acc_potfile)
 
     def get_tools(self):
         config = configparser.ConfigParser()
-        config.read(config_path())
+        config.read(self.config_path())
 
         wpasec_update_params = [("api_keys", str, None, config['wpasec_update']['api_keys'], "Key for WPASEC"),
                                 ("wpasec_link", str, None, config['wpasec_update']['wpasec_link'], "Link to wpasec api")]

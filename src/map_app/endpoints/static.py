@@ -3,7 +3,8 @@ from flask import render_template, Blueprint, Response
 from flask import session as flask_session
 from flask import send_from_directory
 from flask import current_app
-from src.map_app import sources
+
+from src.map_app.source_core.manager import tool_list
 
 static_bp = Blueprint('static', __name__)
 
@@ -18,7 +19,7 @@ def wifi_pass_map() -> str:
 
 @static_bp.route('/tools')
 def tools() -> str:
-    return render_template('tools.html', tools=sources.tool_list())
+    return render_template('tools.html', tools=tool_list())
 
 
 # --------------GENERIC --------------------------
