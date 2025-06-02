@@ -1,21 +1,13 @@
-from typing import Dict, Any
+from abc import abstractmethod
+from typing import Dict, Any, Optional
 
-class SingletonMeta(type):
-    """A metaclass for creating Singleton classes."""
-    _instances = {}
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            instance = super().__call__(*args, **kwargs)
-            cls._instances[cls] = instance
-        return cls._instances[cls]
+from src.map_app.source_core.ToolSource import ToolSource
 
-class Source(metaclass=SingletonMeta):
-    def __init__(self, source_name):
-        super().__init__()
-        self.SOURCE_NAME = source_name
 
-    def get_tools(self) -> Dict[str, Dict[str, Any]]:
-        pass
+class MapSource(ToolSource):
+    def __init__(self, source_name:str):
+        super().__init__(source_name)
 
-    def get_map_data(self, filters=None):
+    @abstractmethod
+    def get_map_data(self, filters: Optional[Dict[str, Any]] = None) -> list[dict[str, Any]]:
         pass

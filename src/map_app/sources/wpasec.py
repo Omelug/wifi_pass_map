@@ -58,10 +58,12 @@ class Wpasec(Table_v0):
                     invalid += 1
                     logging.error(f"Cantparse line in potfile: {row}")
 
-        logging.info(f"Processed a total of {new_networks+duplicate_networks} networks, "
+        logging.info(
+                f"Processed a total of {new_networks+duplicate_networks} networks, "
               f"{new_networks} new APs\n"
-              f"{duplicate_networks} already known or duplicates\n",
-              f"{invalid} invalid networks")
+              f"{duplicate_networks} already known or duplicates\n"
+              f"{invalid} invalid networks"
+        )
 
 
     @staticmethod

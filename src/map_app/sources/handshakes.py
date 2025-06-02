@@ -14,7 +14,7 @@ from src.map_app.sources import config_path
 sys.path.append(str(Path(__file__).resolve().parents[2]))
 
 class Handshakes(Table_v0):
-    __description__ = "Source for manipulation with raw handshake files"
+    __description__ = "MapSource for manipulation with raw handshake files"
     __requirement__ = ['hcxpcapngtool']
     TABLE_NAME = __qualname__.lower()
 

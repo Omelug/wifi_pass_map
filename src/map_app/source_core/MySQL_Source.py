@@ -5,12 +5,12 @@ import warnings
 
 from sqlalchemy import inspect, create_engine, exc
 
-from src.map_app.source_core.Source import Source
+from src.map_app.source_core.MapSource import MapSource
 from src.map_app.sources import config_path
 
 
 #---------------------MySQL_Source----------------------
-class MySQL_Source(Source):
+class MySQL_MapSource(MapSource):
 
     def __init__(self, database_name, default_config):
         super().__init__(database_name)

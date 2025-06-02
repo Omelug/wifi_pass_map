@@ -1,5 +1,5 @@
 from what_is_wrong.wiw import print_o, print_rg
-from src.map_app.tools.wigle_api import get_api_key
+from src.map_app.tools.wigle import get_api_key
 import re
 
 if __name__ == "__main__":

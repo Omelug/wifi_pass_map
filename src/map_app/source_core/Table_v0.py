@@ -1,21 +1,21 @@
 import logging
 import os
 from abc import abstractmethod
-from sqlalchemy import Column, Table, UniqueConstraint, String, MetaData, inspect
+from sqlalchemy import Column, Table, UniqueConstraint, String, inspect
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql import expression
 
 from src.formator.bssid import format_bssid
-from src.map_app.source_core.Source import Source
+from src.map_app.source_core.Source import MapSource
 from src.map_app.source_core.db import Base, get_db_connection, engine, metadata
 from src.map_app.sources import config_path as sources_config_path
-from src.map_app.tools.wigle_api import wigle_locate
+from src.map_app.tools.wigle import Wigle
 
 
 #---------------------Table_v0----------------------
 # Table_v0 is typical table to make some sources more generic
 # check create_table to see table format
-class Table_v0(Source):
+class Table_v0(MapSource):
 
     @property
     @abstractmethod
@@ -123,7 +123,7 @@ class Table_v0(Source):
 
     def table_v0_locate(self):
         logging.info(f"{self.TABLE_NAME}: Starting data localization")
-        localized_networks, total_networks = wigle_locate(self.TABLE_NAME)
+        localized_networks, total_networks = Wigle().wigle_locate(self.TABLE_NAME)
         logging.info(f"{self.TABLE_NAME}: Located {localized_networks} out of {total_networks} networks")
 
     def _save_AP_to_db(self, bssid=None, essid=None, password=None, time=None,

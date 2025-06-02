@@ -30,7 +30,7 @@ class Pwncrack(Table_v0):
 
 
     @staticmethod
-    def __download_potfile(config,api_key):
+    def __download_potfile(config,api_key) -> bytes|None:
         api_url = config['pwncrack_update']['pwncrack_link'] + "/download_potfile?key=" + api_key
         try:
             return requests.get(api_url).content
@@ -39,7 +39,7 @@ class Pwncrack(Table_v0):
 
     #-----------------------TOOLS FUNCTIONS-----------------------
     #Save csv content to pwncrack table in database
-    def __csv_to_db(self,csv_content):
+    def __csv_to_db(self,csv_content:bytes) -> None:
         #TODO Hex input!
         new_networks, duplicate_networks = 0,0
         csv_reader = csv.reader(csv_content.decode('utf-8').splitlines(), delimiter=':')
@@ -89,3 +89,4 @@ class Pwncrack(Table_v0):
                                 ("pwncrack_link", str, None, config['pwncrack_update']['pwncrack_link'], "Link to pwncrack api")]
         return {"pwncrack_update":  {"run_fun": self.__pwncrack_update, "params":pwncrack_update_params},
                 "pwncrack_locate":  {"run_fun": self.table_v0_locate}}
+

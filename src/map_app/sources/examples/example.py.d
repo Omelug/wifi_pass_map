@@ -15,7 +15,7 @@ def print_example():
     logging.info(f"{custom_text}")
 
 
-class Example(Source):
+class Example(MapSource):
     __description__ = "example source "
     def __init__(self):
 

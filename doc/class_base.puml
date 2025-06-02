@@ -1,0 +1,31 @@
+@startuml
+hide empty members
+class Table_v0{
+    create_table()
+}
+
+class ToolSource{
+    - (Singleton)
+    SOURCE_NAME
+}
+
+class Wigle{
+   wigle_locate(table_name)
+}
+
+class MapSource {
+    get_map_data()
+}
+
+ToolSource <|-- MapSource
+ToolSource <|-- Wigle
+
+package "src/map_app/source" {
+    Table_v0 <|-- WPASec
+    Table_v0 <|-- Handshakes
+    Table_v0 <|-- Pwncrack
+}
+
+MapSource <|-- Table_v0
+
+@enduml

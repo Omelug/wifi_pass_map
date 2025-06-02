@@ -4,7 +4,7 @@ import logging
 import os
 import traceback
 from typing import Dict, List, Any, Tuple
-from src.map_app.source_core.Source import Source
+from src.map_app.source_core.Source import MapSource
 
 BASE_FILE = os.path.dirname(os.path.abspath(__file__))
 sources_config_file = os.path.join(BASE_FILE,'sources','config')
@@ -24,7 +24,7 @@ def load_source_objects() -> List[Any]:
                 spec.loader.exec_module(module)
 
                 for name, obj in inspect.getmembers(module, inspect.isclass):
-                    if issubclass(obj, Source) and obj.__module__ == module.__name__:
+                    if issubclass(obj, MapSource) and obj.__module__ == module.__name__:
                         source_objects.append(obj())
         except Exception as e:
             logging.error(f"Error loading module from {script_path}: {e}")
