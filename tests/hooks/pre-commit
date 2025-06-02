@@ -1,0 +1,7 @@
+#!/bin/sh
+echo "Running tests before commit..."
+if ! make test; then
+  echo "Tests failed. Commit aborted."
+  exit 1
+fi
+

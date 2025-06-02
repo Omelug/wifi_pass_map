@@ -7,8 +7,7 @@ download_lib:
 	cd src/map_app/static/lib/ && python3 download.py
 
 test:
-	clear
-	PYTHONPATH=./src && . .venv/bin/activate && pytest -q --tb=short ./tests/*
+	. .venv/bin/activate && PYTHONPATH=./src pytest -q --tb=short ./tests/*
 
 doc:
 	 pyreverse
@@ -21,6 +20,12 @@ doc_install:
 run:
 	. .venv/bin/activate && cd src && python3 app.py
 
+set_up_git_hooks:
+	for hook in tests/hooks/*; do \
+		hook_name=$$(basename $$hook); \
+		sudo cp $$hook .git/hooks/$$hook_name; \
+		sudo chmod +x .git/hooks/$$hook_name; \
+	done
 
 clean:
 	rm -rf .venv

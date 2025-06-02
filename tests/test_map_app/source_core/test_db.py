@@ -17,10 +17,10 @@ def temp_db(monkeypatch):
     fd, path = tempfile.mkstemp()
     os.close(fd)
     engine = create_engine(f"sqlite:///{path}")
-    Session = sessionmaker(bind=engine)
+    SessionFactory = sessionmaker(bind=engine)
     Base.metadata.create_all(engine)
     monkeypatch.setattr(db, "engine", engine)
-    monkeypatch.setattr(db, "Session", Session)
+    monkeypatch.setattr(db, "SessionFactory", SessionFactory)
     yield
     os.remove(path)
 
