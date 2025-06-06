@@ -54,8 +54,7 @@ Development:
 
 Createing New Plugin:
     - copy ./map_app/sources/example.py.d to  ./map_app/sources/new_name_.py  (or more specific example_*.py.d)
-    - if you want create param for tool,\
-        use "GLOBAL" except of param name (dict key)
+    - if you want create param for tool,
     - use __requirements__ to set requirements names (now it si only for description, will be later used for auto install)
 
 

@@ -9,6 +9,7 @@ r: python type control
 + add git hook for unit tests
 
 ---------TODO IN NEXT REALEASE (shoud be clean in realease commits)
+b: change tool_list from dict o list
 + pwncrack/wpasec info sharing?
 +: wigle - add time, And check only older_than (WIGLE CONFIG)
 b: add to global config  to change init map ords

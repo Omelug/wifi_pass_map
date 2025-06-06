@@ -64,6 +64,8 @@ class Handshakes(Table_v0):
             for line in hash_file:
                 if line.startswith('WPA'):
                     essid, bssid= extract_essid_bssid(line)
+                    if self._new_row(bssid):
+                        continue
                     with get_db_connection() as session:
                         if self._save_AP_to_db(bssid, essid, None, session=session):
                             new_handshakes += 1

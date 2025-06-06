@@ -47,6 +47,8 @@ class Pwncrack(Table_v0):
             for row in csv_reader:
                 if len(row) == 5:
                     _, bssid, _, essid, password = row
+                    if not self._new_row(bssid):
+                        continue
                     essid = decode_hexed(essid)
                     password = decode_hexed(password)
                     result = self._save_AP_to_db(
@@ -59,9 +61,9 @@ class Pwncrack(Table_v0):
                 else:
                     logging.error(f"Cantparse line in potfile: {row}")
 
-        logging.info(f"Processed a total of {new_networks+duplicate_networks} networks: "
-              f"{new_networks} new APs,"
-              f"{duplicate_networks} already known or duplicates")
+        logging.info(f"Processed a total of {new_networks+duplicate_networks} networks:\n"
+              f"{new_networks} new APs\n"
+              f"{duplicate_networks} already known or duplicates\n")
 
 
     def __get_pwncrack_key(self) -> str:
@@ -75,7 +77,7 @@ class Pwncrack(Table_v0):
         config = configparser.ConfigParser()
         config.read(self.config_path())
 
-        api_key = Pwncrack.__get_pwncrack_key()
+        api_key = self.__get_pwncrack_key()
         acc_potfile = Pwncrack.__download_potfile(config,api_key)
         self.__csv_to_db(acc_potfile)
 

@@ -3,7 +3,7 @@ import logging
 from abc import abstractmethod
 from typing import Any, Dict, Optional
 
-from sqlalchemy import Column, Table, UniqueConstraint, String, inspect
+from sqlalchemy import Column, Table, UniqueConstraint, String, inspect, text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql import expression
 
@@ -16,6 +16,7 @@ from src.map_app.source_core.db import Base, get_db_connection, engine, metadata
 # Table_v0 is typical table to make some sources more generic
 # check create_table to see table format
 class Table_v0(MapSource):
+    tablev0_tables = []
 
     @property
     @abstractmethod
@@ -43,22 +44,49 @@ class Table_v0(MapSource):
                 '__tablename__': self.TABLE_NAME,
                 '__table__': self.table
             })
+
+        if self.TABLE_NAME not in Table_v0.tablev0_tables:
+            Table_v0.tablev0_tables.append(self.TABLE_NAME)
+
         super().__init__(table_name, config)
 
-    def __block_duplicates(self):
+        default_config = configparser.ConfigParser()
+        default_config['table_v0'] = {
+            'block_duplicates': 'true',
+        }
+        self.create_config(self.config_path("table_v0"), default_config)
+
+
+    def _new_row(self, bssid ) -> bool:
+        config = configparser.ConfigParser()
+        config.read(self.config_path("table_v0"))
+
+        # ignore
+        if config['table_v0']['block_duplicates'] == 'false':
+            return True
+
+        union_queries = [
+            f"SELECT 1 FROM {table_name} WHERE bssid = :bssid "
+            for table_name in Table_v0.tablev0_tables
+        ]
+        full_query = " UNION ALL ".join(union_queries) + " LIMIT 1"
+
+        with engine.connect() as conn:
+            result = conn.execute(text(full_query), {"bssid": bssid}).first()
+            return result is None
+
+    def __remove_duplicates(self):
+        #in reload/insert meyhods check if in already in
         pass
 
     def get_tools(self) -> Dict[str, Dict[str, Any]]:
         config = configparser.ConfigParser()
-        config.read(self.config_path("toolsource"))
-        default_config = configparser.ConfigParser()
-        default_config['tool_source'] = {
-            'blocked_duplicates': 'true',
+        config.read(self.config_path("table_v0"))
+        global_param = [("block_duplicates", str, None, config['table_v0']['block_duplicates'], "Block insert of duplicates betweeb tablec0 tables"), ]
+        return {
+            "Table_v0": {"params":global_param},
+            "remove_duplicates": {"run_fun": self.__remove_duplicates}
         }
-
-        #h = [("hs_path", str, None, config['handshake_scan']['handshakes_dir'], ""), ]
-        #return {"block_duplicates": {"GLOBAL": self.__block_duplicates}}
-        return {}
 
     @staticmethod
     def create_table(table_name) -> Table:

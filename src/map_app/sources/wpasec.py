@@ -46,6 +46,8 @@ class Wpasec(Table_v0):
             for row in csv_reader:
                 if len(row) == 4:
                     bssid, _, essid, password = row
+                    if not self._new_row(bssid):
+                        continue
                     result = self._save_AP_to_db(
                         bssid, essid, password, bssid_format=True, session=session
                     )
