@@ -51,6 +51,14 @@ Development:
     - TODO in the /doc/TODO.txt
     - changelog in the /doc/CHANGELOG.txt
 
+
+Createing New Plugin:
+    - copy ./map_app/sources/example.py.d to  ./map_app/sources/new_name_.py  (or more specific example_*.py.d)
+    - if you want create param for tool,\
+        use "GLOBAL" except of param name (dict key)
+    - use __requirements__ to set requirements names (now it si only for description, will be later used for auto install)
+
+
 Tests:
     - in /tests/
     - to run base  tests, run "make test" or commit (.git/hooks/pre-commit)

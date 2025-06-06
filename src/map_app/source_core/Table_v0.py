@@ -1,3 +1,4 @@
+import configparser
 import logging
 from abc import abstractmethod
 from typing import Any, Dict, Optional
@@ -8,9 +9,7 @@ from sqlalchemy.sql import expression
 
 from src.formator.bssid import format_bssid
 from src.map_app.source_core.Source import MapSource
-from src.map_app.source_core.ToolSource import ToolSource
 from src.map_app.source_core.db import Base, get_db_connection, engine, metadata
-from src.map_app.sources.wigle import Wigle
 
 
 #---------------------Table_v0----------------------
@@ -26,7 +25,7 @@ class Table_v0(MapSource):
 
     # ------------CONFIG----------------
     def __init__(self, table_name: str, config: Optional[Dict[str, Any]] = None):
-        super().__init__(table_name)
+        self.SOURCE_NAME: str = table_name
 
         # create table if not exists
         if self.TABLE_NAME in metadata.tables:
@@ -44,7 +43,22 @@ class Table_v0(MapSource):
                 '__tablename__': self.TABLE_NAME,
                 '__table__': self.table
             })
-        self.create_config(self.config_path(), config)
+        super().__init__(table_name, config)
+
+    def __block_duplicates(self):
+        pass
+
+    def get_tools(self) -> Dict[str, Dict[str, Any]]:
+        config = configparser.ConfigParser()
+        config.read(self.config_path("toolsource"))
+        default_config = configparser.ConfigParser()
+        default_config['tool_source'] = {
+            'blocked_duplicates': 'true',
+        }
+
+        #h = [("hs_path", str, None, config['handshake_scan']['handshakes_dir'], ""), ]
+        #return {"block_duplicates": {"GLOBAL": self.__block_duplicates}}
+        return {}
 
     @staticmethod
     def create_table(table_name) -> Table:
@@ -111,6 +125,7 @@ class Table_v0(MapSource):
             ]
 
     def table_v0_locate(self) -> None:
+        from src.map_app.sources.wigle import Wigle
         logging.info(f"{self.TABLE_NAME}: Starting data localization")
         localized_networks, total_networks = Wigle().wigle_locate(self.TABLE_NAME)
         logging.info(f"{self.TABLE_NAME}: Located {localized_networks} out of {total_networks} networks")

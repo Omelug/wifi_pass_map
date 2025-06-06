@@ -9,10 +9,10 @@ r: python type control
 + add git hook for unit tests
 
 ---------TODO IN NEXT REALEASE (shoud be clean in realease commits)
++ pwncrack/wpasec info sharing?
 +: wigle - add time, And check only older_than (WIGLE CONFIG)
 b: add to global config  to change init map ords
-r: add _ to private metdhods
-+ pwncrack/wpasecinfo sharing?
+r: add _ to private methods
 + connect and share info between sources
 + add source on/off and source order in menu
 v: for same wifi with changed passwords/multiple sources are generated multiple points

@@ -1,3 +1,4 @@
+import configparser
 import inspect
 import logging
 import os
@@ -16,9 +17,10 @@ sources_config_file = os.path.join(BASE_FILE,'..','sources','config')
 os.makedirs(sources_config_file, exist_ok=True)
 
 class ToolSource(metaclass=SingletonMeta):
-    def __init__(self, source_name:str):
+    def __init__(self, source_name:str, config:Dict[str, Any]=None):
         super().__init__()
         self.SOURCE_NAME: str = source_name
+        self.create_config(self.config_path(), config)
 
     def get_tools(self) -> Dict[str, Dict[str, Any]]:
         return {}

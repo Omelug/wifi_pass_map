@@ -14,7 +14,7 @@ sys.path.append(str(Path(__file__).resolve().parents[2]))
 
 class Handshakes(Table_v0):
     __description__ = "MapSource for manipulation with raw handshake files"
-    __requirement__ = ['hcxpcapngtool']
+    __requirement__ = ['hcxpcapngtool', "plugin:wigle"]
     TABLE_NAME = __qualname__.lower()
 
     def __init__(self):
@@ -38,7 +38,6 @@ class Handshakes(Table_v0):
         hcxpcapngtool_cmd = ['hcxpcapngtool', '-o', os.path.abspath(FILE_22000)] + pcap_files
 
         logging.debug(f"Executing: {' '.join(hcxpcapngtool_cmd)}")
-
 
         try:
             result = subprocess.run(hcxpcapngtool_cmd, capture_output=True, text=True)
@@ -82,9 +81,10 @@ class Handshakes(Table_v0):
 
 
     def get_tools(self):
+        super().get_tools()
         config = configparser.ConfigParser()
         config.read(self.config_path())
         hs_reload = [("hs_path", str, None, config['handshake_scan']['handshakes_dir'], "Path to the directory with handshakes"),]
         return {"handshake_reload": {"run_fun": self.__handshake_reload,
                                      "params":hs_reload},
-                "handshake_locate": {"run_fun": self.table_v0_locate}}
+                "handshake_locate": {"run_fun": self.table_v0_locate}}|super().get_tools()

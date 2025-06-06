@@ -2,6 +2,7 @@
 hide empty members
 class Table_v0{
     create_table()
+    {import Wigle} -> table_v0_locate()
 }
 
 class ToolSource{
