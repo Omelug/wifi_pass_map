@@ -132,6 +132,8 @@ class Table_v0(MapSource):
         )
 
     def get_map_data(self,filters: Optional[Dict[str, Any]]=None):
+        if  self.TABLE_NAME is None:
+            raise  NotImplementedError
         with get_db_connection() as session:
             table = Table(self.TABLE_NAME, metadata, autoload_with=engine)
 

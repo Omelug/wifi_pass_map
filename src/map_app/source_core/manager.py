@@ -70,6 +70,8 @@ def get_AP_data(filters: Optional[Dict[str, Any]] = None) -> Tuple[List[Dict[str
                     pwned_data.extend(data)
                 else:
                     script_statuses.append({'name': object_name, 'status': 'empty'})
+            except NotImplementedError: # ignore 'abstract' plugins
+                pass
             except Exception as e:
                 script_statuses.append({'name': object_name, 'status': 'failed'})
                 logging.error(f"Error processing data from {object_name}: {e}")
