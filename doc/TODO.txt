@@ -1,30 +1,30 @@
 TODO Roadmap
 
 + = new feature, b = bug, r = refactoring
-v = visual, d = documentation
+v = visual, d = documentation, t = test
 
 --------- CHANGELOG REALASE 0.0.1 (already ok)
 + pwncrack
 r: python type control
 + add git hook for unit tests
++ tablev0 config to disable duplicates
+b: change example.d and add description to README
 
 ---------TODO IN NEXT REALEASE (shoud be clean in realease commits)
-b: change tool_list from dict o list
+t: test table_v0 - duplicates
 + add config to check what shoud be done with duplicates (merge/remote old/ignore new)
-+ pwncrack/wpasec info sharing?
 +: wigle - add time, And check only older_than (WIGLE CONFIG)
 b: add to global config  to change init map ords
 r: add _ to private methods
-+ connect and share info between sources
 + add source on/off and source order in menu
 v: for same wifi with changed passwords/multiple sources are generated multiple points
-b: change example.d and add description to README
++: example for tablev0
 
 -------CREATE RELEASE
-+: more wpa_sec/pwncrack/wIgle keys
++: more wpa_sec/pwncrack/wigle keys
 d: documentation
     d: diagramy, ispirovat se tady https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/CREATE-TABLE.html
-
++ sources to auto install
 b: czech characters are saved to database badly
 + add info button text to tun tools button
 + create pwncrack-wpa-sec/potfile change

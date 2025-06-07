@@ -128,8 +128,8 @@ class Wigle(ToolSource):
     def get_tools(self):
         config = configparser.ConfigParser()
         config.read(self.config_path())
-        #TODO add wigle api param
-        return {}
+        wigle_param = [("api_keys", str, None, config['wigle_locate']['api_keys'], "Key for Wigle")]
+        return {"wigle":{"params":wigle_param}}
 
 
 

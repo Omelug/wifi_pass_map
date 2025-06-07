@@ -83,7 +83,10 @@ def run_tool() -> Tuple[Dict[str, Any], int] | Response:
             msg = self.format(record)
             self.q.put(msg + '\n')
 
-    func = tools[object_name][tool_name]["run_fun"]
+    func = tools[object_name][tool_name].get("run_fun", None)
+    if func is None:
+        logging.error(f"Not run_fun in {object_name} - {tool_name}")
+        return {"status": "error", "message": f"Not run_fun in {tool_name}"}, 404
 
     def generate_log_output(func):
         """ Run the function and capture its logging output"""

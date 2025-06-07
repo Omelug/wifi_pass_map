@@ -79,7 +79,7 @@ class Table_v0(MapSource):
         self.create_config(self.config_path("table_v0"), default_config)
 
 
-    def _new_row(self, bssid ) -> bool: # tru if it new
+    def _new_row(self, bssid ) -> bool: # true if it new
         config = configparser.ConfigParser()
         config.read(self.config_path("table_v0"))
 

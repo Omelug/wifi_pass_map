@@ -52,15 +52,18 @@ class Handshakes(Table_v0):
 
 
     def __load_hashes_to_db(self,config) -> None:
-        FILE_22000 = config['handshake_scan']['handshake_22000_file']
-        logging.info(f"{self.SOURCE_NAME}: Loading data from {FILE_22000} to database...")
+        base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..','..'))
+        file_22000 = config['handshake_scan']['handshake_22000_file']
+        file_22000_path = os.path.abspath(os.path.join(base_dir, file_22000))
+
+        logging.info(f"{self.SOURCE_NAME}: Loading data from {file_22000_path} to database...")
         new_handshakes = 0
 
-        if not os.path.exists(FILE_22000):
-            logging.error(f"Hash file {FILE_22000} does not exist.")
+        if not os.path.exists(file_22000_path):
+            logging.error(f"Hash file {file_22000_path} does not exist.")
             return
 
-        with open(FILE_22000, 'r') as hash_file:
+        with open(file_22000_path, 'r') as hash_file:
             for line in hash_file:
                 if line.startswith('WPA'):
                     essid, bssid= extract_essid_bssid(line)

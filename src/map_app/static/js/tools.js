@@ -40,8 +40,18 @@ function runTool(scriptName, toolName) {
             scrollToBottom(liveResults);
             toggleButtons(false);
         },
-
-        error: () => showError(liveResults, 'Error sending request.')
+        error: function(jqXHR) {
+            let message = 'Error sending request.';
+            if (jqXHR.responseText) {
+                try {
+                    const data = JSON.parse(jqXHR.responseText);
+                    if (data.message) message += ' ' +data.message;
+                } catch {
+                    message = jqXHR.responseText;
+                }
+            }
+            showError(liveResults, message);
+        }
     });
 }
 
