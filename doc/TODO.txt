@@ -19,6 +19,7 @@ r: add _ to private methods
 + add source on/off and source order in menu
 v: for same wifi with changed passwords/multiple sources are generated multiple points
 +: example for tablev0
+v: Table_v0 looks invalid on map
 
 -------CREATE RELEASE
 +: more wpa_sec/pwncrack/wigle keys

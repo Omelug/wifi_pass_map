@@ -9,7 +9,7 @@ from sqlalchemy import select, MetaData, Table, update, Connection
 
 from src.map_app.source_core.ToolSource import ToolSource
 from src.map_app.source_core.db import get_db_connection, engine
-from datetime import datetime
+from datetime import datetime,timedelta
 
 class Wigle(ToolSource):
     __description__ = "Tools to get localization for access point from wigle(https://wigle.net/)"
@@ -19,7 +19,8 @@ class Wigle(ToolSource):
 
         default_config = configparser.ConfigParser()
         default_config['wigle_locate'] = {
-            'api_keys': '<your_wigle_api_key_here>'
+            'api_keys': '<your_wigle_api_key_here>',
+            'locate_older_than_days': 7
         }
 
         self.create_config(config=default_config)
@@ -81,9 +82,24 @@ class Wigle(ToolSource):
 
         with get_db_connection() as session:
             try:
+
+                config = configparser.ConfigParser()
+                config.read(self.config_path())
+
+                # Get days from config and calculate cutoff datetime
+                days = int(config['wigle_locate']['locate_older_than_days'])
+                cutoff = datetime.now() - timedelta(days=days)
+
                 not_localized_q = select(table.c.bssid, table.c.password).distinct().where(
-                    (table.c.latitude.is_(None)) | (table.c.longitude.is_(None))
+                    (
+                            (table.c.latitude.is_(None)) | (table.c.longitude.is_(None))
+                    ) &
+                    (
+                            (table.c.last_locate_try.is_(None)) |
+                            (table.c.last_locate_try < cutoff)
+                    )
                 ).order_by(table.c.last_locate_try.is_(None), table.c.last_locate_try)
+
                 wpasec_data = session.execute(not_localized_q).fetchall()
 
                 #shuffle data to increase chance for hits for the next day when running into the API Limit
@@ -128,7 +144,8 @@ class Wigle(ToolSource):
     def get_tools(self):
         config = configparser.ConfigParser()
         config.read(self.config_path())
-        wigle_param = [("api_keys", str, None, config['wigle_locate']['api_keys'], "Key for Wigle")]
+        wigle_param = [("api_keys", str, None, config['wigle_locate']['api_keys'], "Key for Wigle"),
+                       ("locate_older_than_days", int, None, config['wigle_locate']['locate_older_than_days'], "Check localization older than")]
         return {"wigle":{"params":wigle_param}}
 
 
