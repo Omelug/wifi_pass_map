@@ -11,8 +11,15 @@ BASE_FILE = os.path.dirname(os.path.abspath(__file__))
 def _load_source_objects(Source_class) -> List[Any]:
     """Dynamically load source classes and create instances if they are children of DBSource."""
     source_objects = []
+
+    script_paths = []
+    # add special prototypes from /source_core/ (for general tools)
+    tablev_v_path = os.path.abspath(os.path.join(BASE_FILE, '..', 'source_core', 'Table_v0.py'))
+    script_paths.append(tablev_v_path)
+
     SOURCE_DIR = os.path.join(BASE_FILE,'..', "sources")
-    script_paths = [os.path.join(root, f) for root, _, files in os.walk(SOURCE_DIR) for f in files if f.endswith('.py')]
+    script_paths.extend([os.path.join(root, f) for root, _, files in os.walk(SOURCE_DIR) for f in files if f.endswith('.py')])
+
     for script_path in script_paths:
         try:
             spec = importlib.util.spec_from_file_location("source_module", script_path)
@@ -29,8 +36,8 @@ def _load_source_objects(Source_class) -> List[Any]:
             logging.error(traceback.format_exc())
     return source_objects
 
-def tool_list(add_class=False) -> Dict[str, Any]:
-    """Get tool lists from sources using get_tools()"""
+def tool_list(add_class=False) -> dict:
+    """Get tool lists from sources using get_tools(), adding object_name to each tool."""
     tools = {}
     source_objects = _load_source_objects(ToolSource)
     for source_obj in source_objects:

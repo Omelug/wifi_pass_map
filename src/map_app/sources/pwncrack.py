@@ -87,6 +87,5 @@ class Pwncrack(Table_v0):
 
         pwncrack_update_params = [("api_keys", str, None, config['pwncrack_update']['api_keys'], "Key for pwncrack"),
                                 ("pwncrack_link", str, None, config['pwncrack_update']['pwncrack_link'], "Link to pwncrack api")]
-        return {"pwncrack_update":  {"run_fun": self.__pwncrack_update, "params":pwncrack_update_params},
-                "pwncrack_locate":  {"run_fun": self.table_v0_locate}}
+        return {"pwncrack_update":  {"run_fun": self.__pwncrack_update, "params":pwncrack_update_params}}
 

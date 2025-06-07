@@ -3,7 +3,7 @@ import logging
 from abc import abstractmethod
 from typing import Any, Dict, Optional
 
-from sqlalchemy import Column, Table, UniqueConstraint, String, inspect, text
+from sqlalchemy import Column, Table, UniqueConstraint, String, inspect, text, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql import expression
 
@@ -11,12 +11,10 @@ from src.formator.bssid import format_bssid
 from src.map_app.source_core.Source import MapSource
 from src.map_app.source_core.db import Base, get_db_connection, engine, metadata
 
-
 #---------------------Table_v0----------------------
 # Table_v0 is typical table to make some sources more generic
 # check create_table to see table format
 class Table_v0(MapSource):
-    tablev0_tables = []
 
     @property
     @abstractmethod
@@ -25,8 +23,36 @@ class Table_v0(MapSource):
         pass
 
     # ------------CONFIG----------------
-    def __init__(self, table_name: str, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, table_name: str = None, config: Optional[Dict[str, Any]] = None):
+        if table_name is None:
+            return
         self.SOURCE_NAME: str = table_name
+
+        #tablev0 table to save to active plugins
+        if "tablev0_tables" in metadata.tables:
+            self.tablev0_tables_sql = metadata.tables["tablev0_tables"]
+        else:
+            if not inspect(engine).has_table("tablev0_tables"):
+                self.tablev0_tables_sql = Table(
+                    "tablev0_tables", metadata,
+                    Column("name", String, primary_key=True),
+                    extend_existing=True
+                )
+                metadata.create_all(engine)
+            else:
+                self.tablev0_tables_sql = Table(
+                    "tablev0_tables",
+                    metadata,
+                    autoload_with=engine
+                )
+
+        if table_name:
+            with get_db_connection() as conn:
+                conn.execute(
+                    self.tablev0_tables_sql.insert().prefix_with("OR IGNORE"),
+                    {"name": table_name}
+                )
+
 
         # create table if not exists
         if self.TABLE_NAME in metadata.tables:
@@ -44,10 +70,6 @@ class Table_v0(MapSource):
                 '__tablename__': self.TABLE_NAME,
                 '__table__': self.table
             })
-
-        if self.TABLE_NAME not in Table_v0.tablev0_tables:
-            Table_v0.tablev0_tables.append(self.TABLE_NAME)
-
         super().__init__(table_name, config)
 
         default_config = configparser.ConfigParser()
@@ -57,7 +79,7 @@ class Table_v0(MapSource):
         self.create_config(self.config_path("table_v0"), default_config)
 
 
-    def _new_row(self, bssid ) -> bool:
+    def _new_row(self, bssid ) -> bool: # tru if it new
         config = configparser.ConfigParser()
         config.read(self.config_path("table_v0"))
 
@@ -65,10 +87,15 @@ class Table_v0(MapSource):
         if config['table_v0']['block_duplicates'] == 'false':
             return True
 
+        table_names = Table_v0.get_tablev0_tables()
+        if not table_names:
+            return True  # No tables to check, so allow insert
+
         union_queries = [
-            f"SELECT 1 FROM {table_name} WHERE bssid = :bssid "
-            for table_name in Table_v0.tablev0_tables
+            f"SELECT 1 FROM {table_name} WHERE bssid = :bssid"
+            for table_name in table_names
         ]
+
         full_query = " UNION ALL ".join(union_queries) + " LIMIT 1"
 
         with engine.connect() as conn:
@@ -85,7 +112,8 @@ class Table_v0(MapSource):
         global_param = [("block_duplicates", str, None, config['table_v0']['block_duplicates'], "Block insert of duplicates betweeb tablec0 tables"), ]
         return {
             "Table_v0": {"params":global_param},
-            "remove_duplicates": {"run_fun": self.__remove_duplicates}
+            "remove_duplicates": {"run_fun": self.__remove_duplicates},
+            "tablev0_locate": {"run_fun": Table_v0.table_v0_locate}
         }
 
     @staticmethod
@@ -152,11 +180,25 @@ class Table_v0(MapSource):
                 for row in table_v0_data
             ]
 
-    def table_v0_locate(self) -> None:
+    @staticmethod
+    def get_tablev0_tables():
+        from src.map_app.source_core.db import engine, metadata
+        table = metadata.tables.get("tablev0_tables")
+        if table is None:
+            return []
+        with engine.connect() as conn:
+            result = conn.execute(select(table.c.name))
+            return [row[0] for row in result.fetchall()]
+
+    @staticmethod
+    def table_v0_locate() -> None:
         from src.map_app.sources.wigle import Wigle
-        logging.info(f"{self.TABLE_NAME}: Starting data localization")
-        localized_networks, total_networks = Wigle().wigle_locate(self.TABLE_NAME)
-        logging.info(f"{self.TABLE_NAME}: Located {localized_networks} out of {total_networks} networks")
+        table_names = Table_v0.get_tablev0_tables()
+        logging.info(f"Active tablev0_tables: {table_names}")
+        for table_v0_name in table_names:
+            logging.info(f"{table_v0_name}: Starting data localization")
+            localized_networks, total_networks = Wigle().wigle_locate(table_v0_name)
+            logging.info(f"{table_v0_name}: Located {localized_networks} out of {total_networks} networks")
 
     def _save_AP_to_db(self, bssid=None, essid=None, password=None, time=None,
                        bssid_format=False, session= None) -> bool:

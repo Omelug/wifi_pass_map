@@ -10,6 +10,7 @@ r: python type control
 
 ---------TODO IN NEXT REALEASE (shoud be clean in realease commits)
 b: change tool_list from dict o list
++ add config to check what shoud be done with duplicates (merge/remote old/ignore new)
 + pwncrack/wpasec info sharing?
 +: wigle - add time, And check only older_than (WIGLE CONFIG)
 b: add to global config  to change init map ords

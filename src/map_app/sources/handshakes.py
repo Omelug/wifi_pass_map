@@ -89,4 +89,5 @@ class Handshakes(Table_v0):
         hs_reload = [("hs_path", str, None, config['handshake_scan']['handshakes_dir'], "Path to the directory with handshakes"),]
         return {"handshake_reload": {"run_fun": self.__handshake_reload,
                                      "params":hs_reload},
-                "handshake_locate": {"run_fun": self.table_v0_locate}}|super().get_tools()
+                #"handshake_locate": {"run_fun": self.table_v0_locate}
+                }

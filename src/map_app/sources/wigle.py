@@ -1,6 +1,5 @@
 import configparser
 import logging
-import os
 import sqlite3
 from typing import Dict, Any
 import requests
@@ -88,6 +87,7 @@ class Wigle(ToolSource):
                 wpasec_data = session.execute(not_localized_q).fetchall()
 
                 #shuffle data to increase chance for hits for the next day when running into the API Limit
+                #TODO order by tried longest time, config for max days
                 random.shuffle(wpasec_data)
                 api_key = Wigle().__get_api_key()
                 logging.info(f"{self.SOURCE_NAME} API key loaded, try check {len(wpasec_data)} networks")
