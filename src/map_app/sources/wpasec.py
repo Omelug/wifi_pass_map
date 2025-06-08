@@ -5,15 +5,13 @@ import os
 import sys
 import requests
 from src.map_app.source_core.Table_v0 import Table_v0
-from src.map_app.source_core.db import get_db_connection
+from src.map_app.source_core.db import Database
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
 
 class Wpasec(Table_v0):
     __description__ = "Source to get potfile from wpasec (https://github.com/RealEnder/dwpa)"
-
-    TABLE_NAME = __qualname__.lower()
 
     def __init__(self):
 
@@ -22,7 +20,7 @@ class Wpasec(Table_v0):
             'api_keys': '<your_wpasec_api_key_here>',
             'wpasec_link': 'https://wpa-sec.stanev.org'
         }
-        super().__init__(self.TABLE_NAME, default_config)
+        super().__init__(table_name=type(self).__qualname__.lower(),config=default_config)
 
     # ------------FUNCTIONS----------------
 
@@ -42,7 +40,7 @@ class Wpasec(Table_v0):
         new_networks, duplicate_networks, invalid = 0,0,0
         csv_reader = csv.reader(csv_content.decode('utf-8').splitlines(), delimiter=':')
 
-        with get_db_connection() as session:
+        with Database().get_db_connection() as session:
             for row in csv_reader:
                 if len(row) == 4:
                     bssid, _, essid, password = row

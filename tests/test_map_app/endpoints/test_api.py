@@ -1,9 +1,10 @@
+import sys
+
 import pytest
 from flask import Flask
-from tests.test_map_app.map_test_core.db_core import temp_db
 
 @pytest.fixture
-def client(monkeypatch, temp_db):
+def client(monkeypatch):
     from src.map_app.endpoints import api
     from src.map_app.endpoints.api import api_bp
     app = Flask(__name__)

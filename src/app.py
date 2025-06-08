@@ -7,7 +7,7 @@ from pathlib import Path
 from flask import Flask, send_from_directory
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from src.map_app.source_core import db
+from src.map_app.source_core.db import Database
 
 db_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'data', 'wifi_pass_map.db'))
 print(f"Database path: {db_path}")
@@ -23,8 +23,8 @@ from src.map_app import create_app
 #    tile_app.run(host='0.0.0.0', port=5000)
 
 def run_main_app() -> None:
-    db.db_init()
-    create_app().run(host='0.0.0.0', port=1337, debug=False)
+    Database().db_init()
+    create_app().run(host='0.0.0.0', port=1337, debug=False,use_reloader=False)
 
 parser = argparse.ArgumentParser(description='Check for --tile_server argument')
 parser.add_argument('--tile_server', action='store_true', help='Enable tile server')

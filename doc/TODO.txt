@@ -10,11 +10,13 @@ r: python type control
 + tablev0 config to disable duplicates
 b: change example.d and add description to README
 b: repair Table_v0 source invalid on map
++: wigle - add time, And check only older_than (WIGLE CONFIG)
 
 ---------TODO IN NEXT REALEASE (shoud be clean in realease commits)
+r : delete TABLE_NAME, use SOURCE_NAME
++: sourcce order
 t: test table_v0 - duplicates
 + add config to check what shoud be done with duplicates (merge/remote old/ignore new)
-+: wigle - add time, And check only older_than (WIGLE CONFIG)
 b: add to global config  to change init map ords
 r: add _ to private methods
 + add source on/off and source order in menu

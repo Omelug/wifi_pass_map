@@ -4,7 +4,7 @@ import logging
 import os
 import traceback
 from typing import Dict, List, Any, Tuple, Optional
-from src.map_app.source_core.Source import ToolSource, MapSource
+from map_app.source_core.Source import ToolSource, MapSource
 
 BASE_FILE = os.path.dirname(os.path.abspath(__file__))
 

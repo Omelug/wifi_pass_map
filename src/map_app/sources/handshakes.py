@@ -8,7 +8,7 @@ import glob
 
 from src.formator.bssid import extract_essid_bssid
 from src.map_app.source_core.Table_v0 import Table_v0
-from src.map_app.source_core.db import get_db_connection
+from src.map_app.source_core.db import Database
 
 sys.path.append(str(Path(__file__).resolve().parents[2]))
 
@@ -69,7 +69,7 @@ class Handshakes(Table_v0):
                     essid, bssid= extract_essid_bssid(line)
                     if self._new_row(bssid):
                         continue
-                    with get_db_connection() as session:
+                    with Database().get_db_connection() as session:
                         if self._save_AP_to_db(bssid, essid, None, session=session):
                             new_handshakes += 1
                 else:

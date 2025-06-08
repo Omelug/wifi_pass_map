@@ -7,7 +7,7 @@ download_lib:
 	cd src/map_app/static/lib/ && python3 download.py
 
 test:
-	. .venv/bin/activate && PYTHONPATH=./src pytest -q --tb=short ./tests/*
+	PYTEST_CURRENT_TEST=1 . .venv/bin/activate && PYTHONPATH=./src pytest --basetemp=./tests/pytest_tmp -vv --tb=short ./tests
 
 doc:
 	 pyreverse

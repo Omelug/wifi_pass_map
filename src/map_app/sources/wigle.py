@@ -8,7 +8,7 @@ from requests import ReadTimeout
 from sqlalchemy import select, MetaData, Table, update, Connection
 
 from src.map_app.source_core.ToolSource import ToolSource
-from src.map_app.source_core.db import get_db_connection, engine
+from src.map_app.source_core.db import Database
 from datetime import datetime,timedelta
 
 class Wigle(ToolSource):
@@ -78,9 +78,9 @@ class Wigle(ToolSource):
         localized_networks = total_networks = 0
 
         metadata = MetaData()
-        table = Table(table_name, metadata, autoload_with=engine)
+        table = Table(table_name, metadata, autoload_with=Database().engine)
 
-        with get_db_connection() as session:
+        with Database().get_db_connection() as session:
             try:
 
                 config = configparser.ConfigParser()

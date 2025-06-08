@@ -4,7 +4,7 @@ from flask import session as flask_session
 from flask import send_from_directory
 from flask import current_app
 
-from src.map_app.source_core.manager import tool_list
+from map_app.source_core.manager import tool_list
 
 static_bp = Blueprint('static', __name__)
 

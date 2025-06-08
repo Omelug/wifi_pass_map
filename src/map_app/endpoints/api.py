@@ -7,8 +7,8 @@ from typing import Any, Dict, Tuple
 
 from flask import jsonify, request, Response, Blueprint
 
-from src.formator.files import source_object_name
-from src.map_app.source_core.manager import get_AP_data, tool_list
+from formator.files import source_object_name
+from map_app.source_core.manager import get_AP_data, tool_list
 
 api_bp = Blueprint('api', __name__)
 

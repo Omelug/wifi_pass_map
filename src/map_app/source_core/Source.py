@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from typing import Dict, Any, Optional
 
-from src.map_app.source_core.ToolSource import ToolSource
+from map_app.source_core.ToolSource import ToolSource
 
 
 class MapSource(ToolSource):

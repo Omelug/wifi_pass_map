@@ -1,4 +1,3 @@
-import configparser
 import inspect
 import logging
 import os
@@ -17,6 +16,7 @@ sources_config_file = os.path.join(BASE_FILE,'..','sources','config')
 os.makedirs(sources_config_file, exist_ok=True)
 
 class ToolSource(metaclass=SingletonMeta):
+
     def __init__(self, source_name:str, config:Dict[str, Any]=None):
         super().__init__()
         self.SOURCE_NAME: str = source_name
@@ -27,7 +27,7 @@ class ToolSource(metaclass=SingletonMeta):
 
     def create_config(self, conf_path:str=None, config=None) -> None:
         if config is None:
-            config = {}
+            return
         if conf_path is None:
             conf_path = self.config_path()
         if not os.path.exists(conf_path):

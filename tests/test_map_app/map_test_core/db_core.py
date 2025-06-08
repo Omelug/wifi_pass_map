@@ -2,9 +2,10 @@ import os
 import tempfile
 import pytest
 from sqlalchemy import create_engine, Column, String, Integer
-from src.map_app.source_core import db
+from map_app.source_core.db import Database
 
-class DBTestModel(db.Base):
+"""
+class DBTestModel(Database("test").Base):
     __tablename__ = "test"
     id = Column(Integer, primary_key=True)
     val = Column(String)
@@ -14,9 +15,9 @@ def temp_db():
     fd, path = tempfile.mkstemp()
     os.close(fd)
     engine = create_engine(f"sqlite:///{path}")
-    db.db_init(engine)
-    db.Base.metadata.create_all(engine)
+    Database().db_init(engine)
+    Database().Base.metadata.create_all(engine)
     yield
-    db.Base.metadata.drop_all(engine)
+    Database().Base.metadata.drop_all(engine)
     engine.dispose()
-    os.remove(path)
+    os.remove(path)"""

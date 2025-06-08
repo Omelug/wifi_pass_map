@@ -5,7 +5,6 @@ import warnings
 
 from sqlalchemy import inspect, create_engine, exc
 from src.map_app.source_core.Source import MapSource
-from src.map_app.sources import config_path
 
 #---------------------MySQL_Source----------------------
 class MySQL_MapSource(MapSource):
@@ -14,7 +13,7 @@ class MySQL_MapSource(MapSource):
         super().__init__(database_name)
 
         #default config values
-        conf_path = config_path(self.SOURCE_NAME)
+        conf_path = self.config_path(self.SOURCE_NAME)
         if not os.path.exists(conf_path):
             with open(conf_path, 'w') as config_file:
                 default_config.write(config_file)
@@ -22,7 +21,7 @@ class MySQL_MapSource(MapSource):
 
     def _get_db_connection(self):
         config = configparser.ConfigParser()
-        config.read(config_path(self.SOURCE_NAME))
+        config.read(self.config_path(self.SOURCE_NAME))
 
         db_user = config['MAIN']['db_user']
         db_pass = config['MAIN']['db_pass']

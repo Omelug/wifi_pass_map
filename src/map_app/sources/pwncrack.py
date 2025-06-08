@@ -5,7 +5,7 @@ import os
 import sys
 import requests
 from src.map_app.source_core.Table_v0 import Table_v0
-from src.map_app.source_core.db import get_db_connection
+from src.map_app.source_core.db import Database
 from src.formator.potfile import decode_hexed
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
@@ -14,8 +14,6 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '.
 class Pwncrack(Table_v0):
     __description__ = "Source to get potfile from pwncrack (https://github.com/Terminatoror/pwncrack-backend)"
 
-    TABLE_NAME = __qualname__.lower()
-
     def __init__(self):
 
         default_config = configparser.ConfigParser()
@@ -23,7 +21,7 @@ class Pwncrack(Table_v0):
             'api_keys': '<your_pwncrack_api_key_here>',
             'pwncrack_link': 'https://pwncrack.org/'
         }
-        super().__init__(self.TABLE_NAME, default_config)
+        super().__init__(table_name=type(self).__qualname__.lower(),config=default_config)
 
     # ------------FUNCTIONS----------------
 
@@ -43,7 +41,7 @@ class Pwncrack(Table_v0):
         new_networks, duplicate_networks = 0,0
         csv_reader = csv.reader(csv_content.decode('utf-8').splitlines(), delimiter=':')
 
-        with get_db_connection() as session:
+        with Database().get_db_connection() as session:
             for row in csv_reader:
                 if len(row) == 5:
                     _, bssid, _, essid, password = row
