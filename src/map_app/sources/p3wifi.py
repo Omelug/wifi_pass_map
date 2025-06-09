@@ -3,15 +3,14 @@ import sys
 from sqlalchemy import exc, text
 import configparser
 import logging
-
-from src.map_app.source_core.MySQL_Source import MySQL_Source
+from map_app.source_core.MySQL_Source import MySQL_MapSource
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 from formator.bssid import dec2mac, mac2dec
 
 # ------------CONFIG----------------
 
-class p3wifi(MySQL_Source):
+class p3wifi(MySQL_MapSource):
     MYSQL_NAME = "p3wifi"
 
     def __init__(self):

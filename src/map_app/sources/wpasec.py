@@ -55,7 +55,7 @@ class Wpasec(Table_v0):
                         duplicate_networks += 1
                 else:
                     invalid += 1
-                    logging.error(f"Cantparse line in potfile: {row}")
+                    logging.error(f"Cant parse line in wpasec potfile: {row}")
 
         logging.info(
                 f"Processed a total of {new_networks+duplicate_networks} networks, "

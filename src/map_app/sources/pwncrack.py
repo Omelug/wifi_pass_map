@@ -57,7 +57,7 @@ class Pwncrack(Table_v0):
                     else:
                         duplicate_networks += 1
                 else:
-                    logging.error(f"Cantparse line in potfile: {row}")
+                    logging.error(f"Cant parse line in pwncrack potfile: {row}")
 
         logging.info(f"Processed a total of {new_networks+duplicate_networks} networks:\n"
               f"{new_networks} new APs\n"

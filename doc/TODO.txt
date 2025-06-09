@@ -12,15 +12,15 @@ b: change example.d and add description to README
 b: repair Table_v0 source invalid on map
 +: wigle - add time, And check only older_than (WIGLE CONFIG)
 r : delete TABLE_NAME, use SOURCE_NAME
-
----------TODO IN NEXT REALEASE (shoud be clean in realease commits)
-b: wigle toolsnot found
 +: sourcce order
++: global config
++ add source on/off and source order in menu
+
+---------TODO IN NEXT REALEASE
 t: test table_v0 - duplicates
 + add config to check what shoud be done with duplicates (merge/remote old/ignore new)
-b: add to global config  to change init map ords
+b: global config  to change init map ords
 r: add _ to private methods
-+ add source on/off and source order in menu
 v: for same wifi with changed passwords/multiple sources are generated multiple points
 +: example for tablev0
 
