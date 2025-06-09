@@ -5,10 +5,10 @@ from typing import Dict, Any
 import requests
 import random
 from requests import ReadTimeout
-from sqlalchemy import select, MetaData, Table, update, Connection
+from sqlalchemy import select, Table, update, Connection
 
-from src.map_app.source_core.ToolSource import ToolSource
-from src.map_app.source_core.db import Database
+from map_app.source_core.ToolSource import ToolSource
+from map_app.source_core.db import Database
 from datetime import datetime,timedelta
 
 class Wigle(ToolSource):
@@ -77,8 +77,7 @@ class Wigle(ToolSource):
     def wigle_locate(self,table_name:str) -> (int, int):
         localized_networks = total_networks = 0
 
-        metadata = MetaData()
-        table = Table(table_name, metadata, autoload_with=Database().engine)
+        table = Table(table_name, Database().metadata, autoload_with=Database().engine)
 
         with Database().get_db_connection() as session:
             try:

@@ -14,6 +14,7 @@ b: repair Table_v0 source invalid on map
 r : delete TABLE_NAME, use SOURCE_NAME
 
 ---------TODO IN NEXT REALEASE (shoud be clean in realease commits)
+b: wigle toolsnot found
 +: sourcce order
 t: test table_v0 - duplicates
 + add config to check what shoud be done with duplicates (merge/remote old/ignore new)
