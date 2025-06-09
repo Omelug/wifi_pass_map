@@ -1,5 +1,6 @@
 import importlib.util
 import inspect
+import json
 import logging
 import os
 import traceback
@@ -8,17 +9,55 @@ from map_app.source_core.Source import ToolSource, MapSource
 
 BASE_FILE = os.path.dirname(os.path.abspath(__file__))
 
-def _load_source_objects(Source_class) -> List[Any]:
-    """Dynamically load source classes and create instances if they are children of DBSource."""
-    source_objects = []
-
+def tool_name_list():
+    """Get all enabled tools sources"""
     script_paths = []
     # add special prototypes from /source_core/ (for general tools)
     tablev_v_path = os.path.abspath(os.path.join(BASE_FILE, '..', 'source_core', 'Table_v0.py'))
     script_paths.append(tablev_v_path)
 
     SOURCE_DIR = os.path.join(BASE_FILE,'..', "sources")
-    script_paths.extend([os.path.join(root, f) for root, _, files in os.walk(SOURCE_DIR) for f in files if f.endswith('.py')])
+    script_paths.extend([os.path.join(root, f) for root, _, files in os.walk(SOURCE_DIR) for f in files if f.endswith('.py') and not f.endswith('.disable.py')])
+    return script_paths
+
+
+def get_sources_with_status():
+    #TODO rewrite it to
+    sources_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "sources"))
+    order_file = os.path.join(sources_dir, "sources_order.json")
+
+    # Get all sources and their status
+    sources = {}
+    for fname in os.listdir(sources_dir):
+        if fname.endswith('.py') and not fname.endswith('.disable.py'):
+            name = fname[:-3]
+            sources[name] = True
+        elif fname.endswith('.disable.py'):
+            name = fname[:-11]
+            sources[name] = False
+
+    if os.path.exists(order_file):
+        # TODO get config data
+        #with open(order_file) as f:
+        #    order = json.load(f)
+        pass
+    else:
+        order = sorted(sources.keys())
+
+    ordered_sources = []
+    for name in order:
+        if name in sources:
+            ordered_sources.append({'name': name, 'enabled': sources[name]})
+
+    for name in sources:
+        if name not in order:
+            ordered_sources.append({'name': name, 'enabled': sources[name]})
+    return ordered_sources
+
+def _load_source_objects(Source_class) -> List[Any]:
+    """Dynamically load source classes and create instances if they are children of DBSource."""
+    script_paths = tool_name_list()
+    source_objects = []
 
     for script_path in script_paths:
         try:
@@ -26,7 +65,6 @@ def _load_source_objects(Source_class) -> List[Any]:
             if spec and spec.loader:
                 module = importlib.util.module_from_spec(spec)
                 spec.loader.exec_module(module)
-
                 for name, obj in inspect.getmembers(module, inspect.isclass):
                     if issubclass(obj, Source_class) and obj.__module__ == module.__name__:
                         source_objects.append(obj())
@@ -81,3 +119,17 @@ def get_AP_data(filters: Optional[Dict[str, Any]] = None) -> Tuple[List[Dict[str
             script_statuses.append({'name': object_name, 'status': 'missing_function'})
 
     return pwned_data, script_statuses
+
+def toggle_source(source_name: str, enable: bool):
+
+    BASE_FILE = os.path.dirname(os.path.abspath(__file__))
+    SOURCES_DIR = os.path.join(BASE_FILE, '..', 'sources')
+    src_file = os.path.join(SOURCES_DIR, f"{source_name}.py")
+    disabled_file = os.path.join(SOURCES_DIR, f"{source_name}.disable.py")
+
+    if enable:
+        if os.path.exists(disabled_file):
+            os.rename(disabled_file, src_file)
+    else:
+        if os.path.exists(src_file):
+            os.rename(src_file, disabled_file)

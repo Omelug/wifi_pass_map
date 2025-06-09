@@ -1,0 +1,37 @@
+.source-list {
+    list-style: none;
+    padding: 0;
+}
+.source-item {
+    padding: 5px;
+    margin: 0 0;
+    background: #838080;
+    cursor: move;
+    display: flex;
+    align-items: center;
+}
+.source-label {
+    flex: 1;
+}
+button {
+    margin-top: 10px;
+    font-size: 14px;
+    background-color: #424141;
+    color: #7c7c7c;
+    border: none;
+    border-radius: 0;
+    cursor: pointer;
+}
+button:hover {
+    background-color: #3b3042;
+}
+button:disabled {
+    background-color: grey;
+    cursor: not-allowed;
+}
+input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    color: #3b3042;
+    accent-color: #5e5d5d;
+}

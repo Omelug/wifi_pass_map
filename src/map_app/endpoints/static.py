@@ -4,6 +4,7 @@ from flask import session as flask_session
 from flask import send_from_directory
 from flask import current_app
 
+from map_app.source_core import manager
 from map_app.source_core.manager import tool_list
 
 static_bp = Blueprint('static', __name__)
@@ -21,6 +22,9 @@ def wifi_pass_map() -> str:
 def tools() -> str:
     return render_template('tools.html', tools=tool_list())
 
+@static_bp.route('/view')
+def view() -> str:
+    return render_template('view.html', sources=manager.get_sources_with_status())
 
 # --------------GENERIC --------------------------
 @static_bp.route('/images/<path:filename>')

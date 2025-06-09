@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>View Settings</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/menu.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/view_settings.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
+</head>
+<body>
+    <ul id="sourceList" class="source-list">
+        {% for src in sources %}
+        <li class="source-item" data-name="{{ src.name }}">
+            <span class="source-label">{{ src.name }}</span>
+            <input type="checkbox" class="enable-toggle" {% if src.enabled %}checked{% endif %}>
+        </li>
+        {% endfor %}
+    </ul>
+    <button onclick="saveOrder()">Save Order</button>
+
+    <script>
+    // Enable/disable toggle
+    document.querySelectorAll('.enable-toggle').forEach(function(checkbox) {
+        checkbox.addEventListener('change', function() {
+            const li = this.closest('.source-item');
+            const sourceName = li.getAttribute('data-name');
+            fetch('/api/toggle_source', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    source_name: sourceName,
+                    enabled: this.checked ? 'true' : 'false'
+                })
+            }).then(r => r.json()).then(console.log);
+        });
+    });
+
+    // Drag and drop ordering
+    let dragged;
+    document.querySelectorAll('.source-item').forEach(function(item) {
+        item.draggable = true;
+        item.ondragstart = function(e) { dragged = this; };
+        item.ondragover = function(e) { e.preventDefault(); };
+        item.ondrop = function(e) {
+            e.preventDefault();
+            if (dragged && dragged !== this) {
+                this.parentNode.insertBefore(dragged, this.nextSibling);
+            }
+        };
+    });
+
+    // Save order
+    function saveOrder() {
+        const order = Array.from(document.querySelectorAll('.source-item'))
+            .map(li => li.getAttribute('data-name'));
+        fetch('/api/order_sources', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({source_order: order})
+        }).then(r => r.json()).then(console.log);
+    }
+    </script>
+</body>
+</html>

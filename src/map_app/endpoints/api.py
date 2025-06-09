@@ -1,4 +1,5 @@
 import configparser
+import json
 import logging
 import os
 import threading
@@ -8,6 +9,7 @@ from typing import Any, Dict, Tuple
 from flask import jsonify, request, Response, Blueprint
 
 from formator.files import source_object_name
+from map_app.source_core import manager
 from map_app.source_core.manager import get_AP_data, tool_list
 
 api_bp = Blueprint('api', __name__)
@@ -160,3 +162,33 @@ def set_log_level() -> Tuple[Dict[str, Any], int]:
     logging.getLogger().setLevel(log_level)
     logging.info(f"Log level changed to {log_level}")
     return {"status": "success", "message": f"Log level set to {log_level}"}, 200
+
+# --------------------- ORDER/EDIT ----------------
+@api_bp.route('/api/toggle_source', methods=['POST'])
+def enable_disable_source() -> Tuple[Dict[str, Any], int]:
+    data = request.json or {}
+    source_name = data.get('source_name', None)
+    enabled = data.get('enabled', None)
+    if source_name is None or enabled is None:
+        return {"status": "error", "message": "Parameters source_name and enabled are required"}, 400
+    if enabled == 'true':
+        manager.toggle_source(source_name, True)
+        return {"status": "success", "message": f"Parameter enabled set to {enabled}"}, 200
+    if enabled == 'false':
+        manager.toggle_source(source_name, False)
+        return {"status": "success", "message": f"Parameter enabled set to {enabled}"}, 200
+    return {"status": "error", "message": "Parameters have invalid values"}, 400
+
+
+@api_bp.route('/api/order_sources', methods=['POST'])
+def order_sources() -> Tuple[Dict[str, Any], int]:
+
+    data = request.json
+    source_order = data.get('source_order', None)
+    if not isinstance(source_order, list):
+        return {"status": "error", "message": "source_order must be a list"}, 400
+    try:
+        #TODO GlobaConfig().save_order(source_order)
+        return {"status": "success", "message": "Source order saved"}, 200
+    except Exception as e:
+        return {"status": "error", "message": str(e)}, 500
