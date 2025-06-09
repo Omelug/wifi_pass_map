@@ -21,3 +21,18 @@ class GlobalConfig(ToolSource):
         return {
             "Global Settings": {"params": global_param},
         }
+
+    def get_ordered_sources(self):
+        config = configparser.ConfigParser()
+        config.read(self.config_path())
+        ordered = config.get('view_settings', 'ordered_sources', fallback='')
+        return [s for s in ordered.split(',') if s]
+
+    def save_ordered_sources(self, order_list):
+        config = configparser.ConfigParser()
+        config.read(self.config_path())
+        if 'view_settings' not in config:
+            config['view_settings'] = {}
+        config['view_settings']['ordered_sources'] = ','.join(order_list)
+        with open(self.config_path(), 'w') as f:
+            config.write(f)

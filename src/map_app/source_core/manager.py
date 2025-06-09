@@ -4,6 +4,8 @@ import logging
 import os
 import traceback
 from typing import Dict, List, Any, Tuple, Optional
+
+from map_app.source_core.GlobalConfig import GlobalConfig
 from map_app.source_core.Source import ToolSource, MapSource
 
 BASE_FILE = os.path.dirname(os.path.abspath(__file__))
@@ -26,9 +28,7 @@ def tool_name_list():
 def get_sources_with_status():
     #TODO rewrite it to
     sources_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "sources"))
-    order_file = os.path.join(sources_dir, "sources_order.json")
 
-    # Get all sources and their status
     sources = {}
     for fname in os.listdir(sources_dir):
         if fname.endswith('.py') and not fname.endswith('.disable.py'):
@@ -38,22 +38,20 @@ def get_sources_with_status():
             name = fname[:-11]
             sources[name] = False
 
-    if os.path.exists(order_file):
-        # TODO get config data
-        #with open(order_file) as f:
-        #    order = json.load(f)
-        pass
-    else:
-        order = sorted(sources.keys())
 
+    order = GlobalConfig().get_ordered_sources()
     ordered_sources = []
+    used = set()
+
     for name in order:
         if name in sources:
             ordered_sources.append({'name': name, 'enabled': sources[name]})
+            used.add(name)
 
-    for name in sources:
-        if name not in order:
+    for name in sorted(sources):
+        if name not in used:
             ordered_sources.append({'name': name, 'enabled': sources[name]})
+
     return ordered_sources
 
 def _load_source_objects(Source_class) -> List[Any]:

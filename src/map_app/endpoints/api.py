@@ -10,6 +10,7 @@ from flask import jsonify, request, Response, Blueprint
 
 from formator.files import source_object_name
 from map_app.source_core import manager
+from map_app.source_core.GlobalConfig import GlobalConfig
 from map_app.source_core.manager import get_AP_data, tool_list
 
 api_bp = Blueprint('api', __name__)
@@ -182,13 +183,12 @@ def enable_disable_source() -> Tuple[Dict[str, Any], int]:
 
 @api_bp.route('/api/order_sources', methods=['POST'])
 def order_sources() -> Tuple[Dict[str, Any], int]:
-
     data = request.json
     source_order = data.get('source_order', None)
     if not isinstance(source_order, list):
         return {"status": "error", "message": "source_order must be a list"}, 400
     try:
-        #TODO GlobaConfig().save_order(source_order)
+        GlobalConfig().save_ordered_sources(source_order)
         return {"status": "success", "message": "Source order saved"}, 200
     except Exception as e:
         return {"status": "error", "message": str(e)}, 500
