@@ -1,6 +1,7 @@
 from flask import Flask
 from .endpoints.static import static_bp
 from .endpoints.api import api_bp
+from map_app.source_core.db import Database
 
 def create_app() -> Flask:
     app = Flask(

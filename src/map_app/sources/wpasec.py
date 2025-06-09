@@ -71,7 +71,7 @@ class Wpasec(Table_v0):
 
     #update data from wpa_sec
     def __wpasec_update(self) -> None:
-        logging.info(f"{self.TABLE_NAME}: Starting data update")
+        logging.info(f"{self.SOURCE_NAME}: Starting data update")
         config = configparser.ConfigParser()
         config.read(self.config_path())
 

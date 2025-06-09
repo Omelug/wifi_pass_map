@@ -71,7 +71,7 @@ class Pwncrack(Table_v0):
 
     #update data from pwncrack
     def __pwncrack_update(self) -> None:
-        logging.info(f"{self.TABLE_NAME}: Starting data update")
+        logging.info(f"{self.SOURCE_NAME}: Starting data update")
         config = configparser.ConfigParser()
         config.read(self.config_path())
 

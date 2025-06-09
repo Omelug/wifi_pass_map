@@ -15,7 +15,6 @@ sys.path.append(str(Path(__file__).resolve().parents[2]))
 class Handshakes(Table_v0):
     __description__ = "MapSource for manipulation with raw handshake files"
     __requirement__ = ['hcxpcapngtool', "plugin:wigle"]
-    TABLE_NAME = __qualname__.lower()
 
     def __init__(self):
         default_config = configparser.ConfigParser()
@@ -24,7 +23,7 @@ class Handshakes(Table_v0):
             'handshakes_dir' : 'data/raw/handshakes',
             'handshake_22000_file': 'data/raw/hash.hc22000',
         }
-        super().__init__(self.TABLE_NAME, default_config)
+        super().__init__(type(self).__qualname__.lower(), default_config)
 
     # ------------FUNCTIONS----------------
     @staticmethod
