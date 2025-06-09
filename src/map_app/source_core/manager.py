@@ -12,8 +12,11 @@ def tool_name_list():
     """Get all enabled tools sources"""
     script_paths = []
     # add special prototypes from /source_core/ (for general tools)
-    tablev_v_path = os.path.abspath(os.path.join(BASE_FILE, '..', 'source_core', 'Table_v0.py'))
-    script_paths.append(tablev_v_path)
+    tablev_v_path = os.path.join(BASE_FILE, '..', 'source_core', 'Table_v0.py')
+    script_paths.append(os.path.abspath(tablev_v_path))
+
+    global_config_path = os.path.join(BASE_FILE, '..', 'source_core', 'GlobalConfig.py')
+    script_paths.append(os.path.abspath(global_config_path))
 
     SOURCE_DIR = os.path.join(BASE_FILE,'..', "sources")
     script_paths.extend([os.path.join(root, f) for root, _, files in os.walk(SOURCE_DIR) for f in files if f.endswith('.py') and not f.endswith('.disable.py')])
