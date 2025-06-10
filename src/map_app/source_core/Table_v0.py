@@ -147,21 +147,25 @@ class Table_v0(MapSource):
             )
 
             limit = None
-            if filters is not None:
-                limit = filters.pop('limit', None)
-                if limit is not None:
-                    limit = int(limit)
+            if filters is not None  and 'limit' in filters:
+                limit = int(filters.pop('limit', None))
+
+            regex = False
+            if filters is not None and 'regex' in filters:
+                regex = filters.pop('regex')
 
             if filters is not None and 'center_latitude' in filters and 'center_longitude' in filters:
                 pass
             else:
                 if filters:
-                    print("Filters:", filters)
+                    logging.info("Filters:", filters)
                     for key, value in filters.items():
                         column = getattr(table.c, key, None)
-                        print(column, value)
                         if column is not None:
-                            table_v0_query = table_v0_query.where(column == value)
+                            if regex and key in ('essid', 'bssid'):
+                                table_v0_query = table_v0_query.where(column.op("REGEXP")(value))
+                            else:
+                                table_v0_query = table_v0_query.where(column == value)
                         else:
                             logging.error(f"Column {key} does not exist in the table")
             if limit is not None:

@@ -25,8 +25,8 @@ def pwnapi()->Response:
     pwned_data,script_statuses = get_AP_data()
     return jsonify({'data': pwned_data,'script_statuses': script_statuses,'AP_len': len(pwned_data)})
 
-@api_bp.route('/api/explore')
-def exploreapi() -> Response:
+@api_bp.route('/api/search')
+def searchapi() -> Response:
     """Load filtered AP data"""
     logging.debug(f"Request Path: {request.path} was called")
 
@@ -36,6 +36,7 @@ def exploreapi() -> Response:
         'limit': request.args.get('limit'),
         'encryption': request.args.get('encryption'),
         'network_type': request.args.get('network_type'),
+        'regex': request.args.get('regex')
     }.items() if v not in (None, '')}
 
     ap_data, script_statuses = get_AP_data(filters=filters)

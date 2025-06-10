@@ -118,11 +118,12 @@ function searchAndRefreshMap() {
         encryption: getElementValue('encryption'),
         name: getElementValue('searchInputName'),
         bssid: getElementValue('searchInputNetworkId'),
-        limit: getElementValue('searchInputLimit')
+        limit: getElementValue('searchInputLimit'),
+        regex: document.getElementById('searchInputRegex').checked ? '1' : ''
     });
 
     const query = [...params.entries()].filter(([_, v]) => v).length ? '?' + params.toString() : '';
-    fetchDataAndUpdateMap(`${apiBaseUrl}/explore${query}`);
+    fetchDataAndUpdateMap(`${apiBaseUrl}/search${query}`);
 }
 
 /* TODO
