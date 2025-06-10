@@ -15,16 +15,19 @@ r : delete TABLE_NAME, use SOURCE_NAME
 +: sourcce order
 +: global config
 + add source on/off and source order in menu
-
----------TODO IN NEXT REALEASE
-t: test table_v0 - duplicates
-+ add config to check what shoud be done with duplicates (merge/remote old/ignore new)
-b: global config  to change init map ords
-r: add _ to private methods
-v: for same wifi with changed passwords/multiple sources are generated multiple points
 +: example for tablev0
 
+---------TODO IN NEXT REALEASE 0.0.1
+t: test table_v0 - duplicates
++ add config to check what shoud be done with duplicates (merge/remote old/ignore new)
+b: global config to change init map ords
+r: add _ to private methods
+v: for same wifi with changed passwords/multiple sources are generated multiple points
++: regex serach for ESSIDs
+
 -------CREATE RELEASE
++: dependencies to enable/disale to disable all what importparentplugin
++ pwncrack download handshakes
 +: more wpa_sec/pwncrack/wigle keys
 d: documentation
     d: diagramy, ispirovat se tady https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/CREATE-TABLE.html

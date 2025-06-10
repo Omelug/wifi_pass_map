@@ -85,7 +85,6 @@ class Handshakes(Table_v0):
 
 
     def get_tools(self):
-        super().get_tools()
         config = configparser.ConfigParser()
         config.read(self.config_path())
         hs_reload = [("hs_path", str, None, config['handshake_scan']['handshakes_dir'], "Path to the directory with handshakes"),]

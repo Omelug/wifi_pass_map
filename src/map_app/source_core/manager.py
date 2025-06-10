@@ -5,12 +5,14 @@ import os
 import traceback
 from typing import Dict, List, Any, Tuple, Optional
 
+from attr.validators import disabled
+
 from map_app.source_core.GlobalConfig import GlobalConfig
 from map_app.source_core.Source import ToolSource, MapSource
 
 BASE_FILE = os.path.dirname(os.path.abspath(__file__))
 
-def tool_name_list():
+def tool_name_list(disabled:bool = True):
     """Get all enabled tools sources"""
     script_paths = []
     # add special prototypes from /source_core/ (for general tools)
@@ -21,12 +23,24 @@ def tool_name_list():
     script_paths.append(os.path.abspath(global_config_path))
 
     SOURCE_DIR = os.path.join(BASE_FILE,'..', "sources")
-    script_paths.extend([os.path.join(root, f) for root, _, files in os.walk(SOURCE_DIR) for f in files if f.endswith('.py') and not f.endswith('.disable.py')])
+    script_paths.extend([os.path.join(root, f) for root, _, files in os.walk(SOURCE_DIR) for f in files if f.endswith('.py') and (disabled or not f.endswith('.disable.py'))])
     return script_paths
 
 
+def order_sources_by_config(source_names: list) -> list:
+    order = GlobalConfig().get_ordered_sources()
+    ordered = []
+    used = set()
+    for name in order:
+        if name in source_names:
+            ordered.append(name)
+            used.add(name)
+    for name in sorted(source_names):
+        if name not in used:
+            ordered.append(name)
+    return ordered
+
 def get_sources_with_status():
-    #TODO rewrite it to
     sources_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "sources"))
 
     sources = {}
@@ -37,26 +51,18 @@ def get_sources_with_status():
         elif fname.endswith('.disable.py'):
             name = fname[:-11]
             sources[name] = False
+    #print("sources", sources)
+    valid_names = {type(obj).__name__.lower() for obj in _load_source_objects(ToolSource, True)}
+    #print("valid_names", valid_names)
+    sources = {name: enabled for name, enabled in sources.items() if name in valid_names}
+    #print("sources", sources)
 
+    ordered_names = order_sources_by_config(list(sources.keys()))
+    return [{'name': name, 'enabled': sources[name]} for name in ordered_names]
 
-    order = GlobalConfig().get_ordered_sources()
-    ordered_sources = []
-    used = set()
-
-    for name in order:
-        if name in sources:
-            ordered_sources.append({'name': name, 'enabled': sources[name]})
-            used.add(name)
-
-    for name in sorted(sources):
-        if name not in used:
-            ordered_sources.append({'name': name, 'enabled': sources[name]})
-
-    return ordered_sources
-
-def _load_source_objects(Source_class) -> List[Any]:
-    """Dynamically load source classes and create instances if they are children of DBSource."""
-    script_paths = tool_name_list()
+def _load_source_objects(Source_class, disabled:bool = False) -> List[Any]:
+    """Dynamically load source classes and create instances if they are children of Source_class."""
+    script_paths = tool_name_list(disabled)
     source_objects = []
 
     for script_path in script_paths:
@@ -72,7 +78,11 @@ def _load_source_objects(Source_class) -> List[Any]:
             logging.error(f"Error loading module from {script_path}: {e}")
 
             logging.error(traceback.format_exc())
-    return source_objects
+
+    # Order by config
+    name_to_obj = {type(obj).__name__.lower(): obj for obj in source_objects}
+    ordered_names = order_sources_by_config(list(name_to_obj.keys()))
+    return [name_to_obj[name] for name in ordered_names if name in name_to_obj]
 
 def tool_list(add_class=False) -> dict:
     """Get tool lists from sources using get_tools(), adding object_name to each tool."""
