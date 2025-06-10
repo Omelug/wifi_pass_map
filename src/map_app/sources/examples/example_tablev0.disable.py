@@ -4,7 +4,7 @@ import logging
 from map_app.source_core.Table_v0 import Table_v0
 
 
-class Example(Table_v0):
+class Example_Table_v0(Table_v0):
     __description__ = "example tablev0 source"
     def __init__(self):
 
@@ -12,7 +12,7 @@ class Example(Table_v0):
         default_config['example_tool'] = {
             'custom_text': 'example_string'
         }
-        super().__init__("example",config=default_config)
+        super().__init__("example_tablev0",config=default_config)
 
     def get_map_data(self, filters=None):
 

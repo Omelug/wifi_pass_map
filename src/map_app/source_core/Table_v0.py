@@ -10,6 +10,7 @@ from sqlalchemy.sql import expression
 from formator.bssid import format_bssid
 from map_app.source_core.Source import MapSource
 from map_app.source_core.db import Database
+from map_app.source_core.manager import _load_source_objects
 
 
 #---------------------Table_v0----------------------
@@ -21,6 +22,7 @@ class Table_v0(MapSource):
     def __init__(self, table_name: str = None, config: Optional[Dict[str, Any]] = None):
         self.SOURCE_NAME: str = table_name
         if table_name is None:
+            self.SOURCE_NAME = "tablev0" # tablev0 only like tool source
             return
         #tablev0 table to save to active plugins
         if "tablev0_tables" in Database().metadata.tables:
@@ -180,14 +182,15 @@ class Table_v0(MapSource):
 
     @staticmethod
     def get_tablev0_tables():
-        from src.map_app.source_core.db import Database
-        Database().metadata.reflect(bind=Database().engine)
-        table =Database().metadata.tables.get("tablev0_tables")
-        if table is None:
-            return []
-        with Database().engine.connect() as conn:
-            result = conn.execute(select(table.c.name))
-            return [row[0] for row in result.fetchall()]
+        return  _load_source_objects(Table_v0)
+        #from src.map_app.source_core.db import Database
+        #Database().metadata.reflect(bind=Database().engine)
+        #table = Database().metadata.tables.get("tablev0_tables")
+        #if table is None:
+        #    return []
+        #with Database().engine.connect() as conn:
+        #    result = conn.execute(select(table.c.name))
+        #    return [row[0] for row in result.fetchall()]
 
     @staticmethod
     def table_v0_locate() -> None:

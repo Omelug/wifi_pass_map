@@ -12,15 +12,16 @@ from map_app.source_core.Source import ToolSource, MapSource
 
 BASE_FILE = os.path.dirname(os.path.abspath(__file__))
 
-def tool_name_list(disabled:bool = True):
-    """Get all enabled tools sources"""
+def tool_path_list(disabled:bool = True, no_source_folder:bool = True):
+    """Get all enabled pats to tool sources"""
     script_paths = []
-    # add special prototypes from /source_core/ (for general tools)
-    tablev_v_path = os.path.join(BASE_FILE, '..', 'source_core', 'Table_v0.py')
-    script_paths.append(os.path.abspath(tablev_v_path))
+    if no_source_folder:
+        # add special prototypes from /source_core/ (for general tools)
+        tablev_v_path = os.path.join(BASE_FILE, '..', 'source_core', 'Table_v0.py')
+        script_paths.append(os.path.abspath(tablev_v_path))
 
-    global_config_path = os.path.join(BASE_FILE, '..', 'source_core', 'GlobalConfig.py')
-    script_paths.append(os.path.abspath(global_config_path))
+        global_config_path = os.path.join(BASE_FILE, '..', 'source_core', 'GlobalConfig.py')
+        script_paths.append(os.path.abspath(global_config_path))
 
     SOURCE_DIR = os.path.join(BASE_FILE,'..', "sources")
     script_paths.extend([os.path.join(root, f) for root, _, files in os.walk(SOURCE_DIR) for f in files if f.endswith('.py') and (disabled or not f.endswith('.disable.py'))])
@@ -28,6 +29,7 @@ def tool_name_list(disabled:bool = True):
 
 
 def order_sources_by_config(source_names: list) -> list:
+    """Order list of sources by global config, rest of it leaver sorted at the end"""
     order = GlobalConfig().get_ordered_sources()
     ordered = []
     used = set()
@@ -41,18 +43,17 @@ def order_sources_by_config(source_names: list) -> list:
     return ordered
 
 def get_sources_with_status():
-    sources_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "sources"))
-
     sources = {}
-    for fname in os.listdir(sources_dir):
+
+    for fname in [os.path.basename(p).lower() for p in tool_path_list()]:
         if fname.endswith('.py') and not fname.endswith('.disable.py'):
             name = fname[:-3]
             sources[name] = True
         elif fname.endswith('.disable.py'):
             name = fname[:-11]
             sources[name] = False
-    #print("sources", sources)
-    valid_names = {type(obj).__name__.lower() for obj in _load_source_objects(ToolSource, True)}
+    print("sources", sources)
+    valid_names = {obj.SOURCE_NAME for obj in _load_source_objects(ToolSource, True)}
     #print("valid_names", valid_names)
     sources = {name: enabled for name, enabled in sources.items() if name in valid_names}
     #print("sources", sources)
@@ -60,9 +61,9 @@ def get_sources_with_status():
     ordered_names = order_sources_by_config(list(sources.keys()))
     return [{'name': name, 'enabled': sources[name]} for name in ordered_names]
 
-def _load_source_objects(Source_class, disabled:bool = False) -> List[Any]:
+def _load_source_objects(Source_class, disabled:bool = False, no_source_folder:bool = True) -> List[Any]:
     """Dynamically load source classes and create instances if they are children of Source_class."""
-    script_paths = tool_name_list(disabled)
+    script_paths = tool_path_list(disabled=disabled,no_source_folder=no_source_folder)
     source_objects = []
 
     for script_path in script_paths:
@@ -105,7 +106,7 @@ def get_AP_data(filters: Optional[Dict[str, Any]] = None) -> Tuple[List[Dict[str
     pwned_data: List[Dict[str, Any]] = []
     script_statuses: List[Dict[str, Any]] = []
 
-    for source_obj in _load_source_objects(MapSource):
+    for source_obj in _load_source_objects(MapSource, no_source_folder=False):
         object_name = type(source_obj).__name__
 
         if hasattr(source_obj, 'get_map_data'):
@@ -131,15 +132,22 @@ def get_AP_data(filters: Optional[Dict[str, Any]] = None) -> Tuple[List[Dict[str
     return pwned_data, script_statuses
 
 def toggle_source(source_name: str, enable: bool):
-
-    BASE_FILE = os.path.dirname(os.path.abspath(__file__))
-    SOURCES_DIR = os.path.join(BASE_FILE, '..', 'sources')
-    src_file = os.path.join(SOURCES_DIR, f"{source_name}.py")
-    disabled_file = os.path.join(SOURCES_DIR, f"{source_name}.disable.py")
-
-    if enable:
-        if os.path.exists(disabled_file):
-            os.rename(disabled_file, src_file)
-    else:
-        if os.path.exists(src_file):
-            os.rename(src_file, disabled_file)
+    for path in tool_path_list(disabled=True, no_source_folder=True):
+        base = os.path.basename(path).lower()
+        if base == f"{source_name}.py":
+            src_file = path
+            disabled_file = path[:-3] + ".disable.py"
+            if not enable and os.path.exists(src_file):
+                os.rename(src_file, disabled_file)
+            elif enable and os.path.exists(disabled_file):
+                os.rename(disabled_file, src_file)
+            break
+        elif base == f"{source_name}.disable.py":
+            src_file = path[:-11] + ".py"
+            disabled_file = path
+            if enable and os.path.exists(disabled_file):
+                os.rename(disabled_file, src_file)
+            elif not enable and os.path.exists(disabled_file):
+                # Already disabled, do nothing
+                pass
+            break

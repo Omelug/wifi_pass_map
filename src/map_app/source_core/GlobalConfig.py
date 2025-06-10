@@ -8,7 +8,7 @@ class GlobalConfig(ToolSource):
     def __init__(self):
         default_config = configparser.ConfigParser()
         default_config['view_settings'] = {
-            'ordered_sources': '',
+            'ordered_sources': 'globalconfig,table_v0',
         }
         super().__init__(type(self).__qualname__.lower(), default_config)
 

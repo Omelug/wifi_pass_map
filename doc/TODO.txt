@@ -16,16 +16,17 @@ r : delete TABLE_NAME, use SOURCE_NAME
 +: global config
 + add source on/off and source order in menu
 +: example for tablev0
+b: global config to change init map ords
+r: add _ to private methods
 
 ---------TODO IN NEXT REALEASE 0.0.1
 t: test table_v0 - duplicates
 + add config to check what shoud be done with duplicates (merge/remote old/ignore new)
-b: global config to change init map ords
-r: add _ to private methods
 v: for same wifi with changed passwords/multiple sources are generated multiple points
 +: regex serach for ESSIDs
 
 -------CREATE RELEASE
+b: some tools operation depends on self.SOURCE_NAMEsoem a depends on file name
 +: dependencies to enable/disale to disable all what importparentplugin
 + pwncrack download handshakes
 +: more wpa_sec/pwncrack/wigle keys
