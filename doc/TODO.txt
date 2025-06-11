@@ -19,11 +19,12 @@ r : delete TABLE_NAME, use SOURCE_NAME
 b: global config to change init map ords
 r: add _ to private methods
 +: regex serach for ESSIDs
-
----------TODO IN NEXT REALEASE 0.0.1
 t: test table_v0 - duplicates
 + add config to check what shoud be done with duplicates (merge/remote_old/ignore_new)
+
+---------TODO IN NEXT REALEASE 0.0.1
 v: for same wifi with changed passwords/multiple sources are generated multiple points
+b: handskahek broken permissions
 
 -------CREATE RELEASE
 b: some tools operation depends on self.SOURCE_NAMEsoem a depends on file name

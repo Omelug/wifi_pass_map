@@ -23,7 +23,7 @@ class ToolSource(metaclass=SingletonMeta):
         self.create_config(self.config_path(), config)
 
     def get_tools(self) -> Dict[str, Dict[str, Any]]:
-        return {}
+        return None
 
     def create_config(self, conf_path:str=None, config=None) -> None:
         if config is None:

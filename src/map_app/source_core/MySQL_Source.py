@@ -9,7 +9,10 @@ from src.map_app.source_core.Source import MapSource
 #---------------------MySQL_Source----------------------
 class MySQL_MapSource(MapSource):
 
-    def __init__(self, database_name, default_config):
+    def __init__(self, database_name = None, default_config = None):
+        if database_name is None:
+            self.SOURCE_NAME = "MySQL_MapSource"
+            return
         super().__init__(database_name)
 
         #default config values

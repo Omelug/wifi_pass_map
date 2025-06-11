@@ -48,6 +48,8 @@ File system:
     handshakes.py:
 
 Development:
+    - check tool lists is not strict, so dont try make 2 plugins with same name,
+     it could be danger
     - TODO in the /doc/TODO.txt
     - changelog in the /doc/CHANGELOG.txt
 

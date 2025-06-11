@@ -12,7 +12,6 @@ class GlobalConfig(ToolSource):
         }
         super().__init__(type(self).__qualname__.lower(), default_config)
 
-
     def get_tools(self) -> Dict[str, Dict[str, Any]]:
         config = configparser.ConfigParser()
         config.read(self.config_path())

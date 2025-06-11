@@ -1,29 +1,27 @@
 import configparser
 import logging
-from abc import abstractmethod
 from typing import Any, Dict, Optional
 
-from sqlalchemy import Column, Table, UniqueConstraint, String, inspect, text, select
+from sqlalchemy import Column, Table, UniqueConstraint, String, inspect, text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql import expression
 
 from formator.bssid import format_bssid
 from map_app.source_core.Source import MapSource
-from map_app.source_core.ToolSource import ToolSource
 from map_app.source_core.db import Database
-from map_app.source_core.manager import _load_source_objects
+from map_app.source_core.manager import _load_source_objects, order_sources_by_config
 
 
 #---------------------Table_v0----------------------
 # Table_v0 is typical table to make some sources more generic
 # check create_table to see table format
 class Table_v0(MapSource):
-
+    DEFAULT_SOURCE_NAME = "table_v0"
     # ------------CONFIG----------------
     def __init__(self, table_name: str = None, config: Optional[Dict[str, Any]] = None):
         self.SOURCE_NAME: str = table_name
         if table_name is None:
-            self.SOURCE_NAME = "tablev0" # tablev0 only like tool source
+            self.SOURCE_NAME = Table_v0.DEFAULT_SOURCE_NAME # table_v0 only like tool source
             return
         #tablev0 table to save to active plugins
         """
@@ -76,12 +74,12 @@ class Table_v0(MapSource):
         default_config['table_v0'] = {
             'block_duplicates': 'true',
         }
-        self.create_config(self.config_path("table_v0"), default_config)
+        self.create_config(self.config_path(Table_v0.DEFAULT_SOURCE_NAME ), default_config)
 
 
-    def _new_row(self, bssid ) -> bool: # true if it new
+    def _new_row(self, bssid ) -> bool: # true if it is new
         config = configparser.ConfigParser()
-        config.read(self.config_path("table_v0"))
+        config.read(self.config_path(Table_v0.DEFAULT_SOURCE_NAME))
 
         # ignore
         if config['table_v0']['block_duplicates'] == 'false':
@@ -102,13 +100,30 @@ class Table_v0(MapSource):
             result = conn.execute(text(full_query), {"bssid": bssid}).first()
             return result is None
 
-    def __remove_duplicates(self):
-        #in reload/insert meyhods check if in already in
-        pass
+    @staticmethod
+    def __remove_duplicates():
+        tablev0_names = [
+            name
+            for name in order_sources_by_config(source_names=Table_v0.get_tablev0_tables())
+            if name in Table_v0.get_tablev0_tables()
+        ]
+        logging.info(f"Removing duplicates in table_v0 tables: {tablev0_names}")
+        seen_bssids = set()
+        with Database().get_db_connection() as session:
+            for table_name in tablev0_names:
+                table = Database().metadata.tables[table_name]
+                rows = session.execute(table.select()).fetchall()
+                for row in rows:
+                    bssid = row.bssid
+                    if bssid in seen_bssids:
+                        logging.info(f"Remove duplicate bssid: {bssid}")
+                        session.execute(table.delete().where(table.c.bssid == bssid))
+                    else:
+                        seen_bssids.add(bssid)
 
     def get_tools(self) -> Dict[str, Dict[str, Any]]:
         config = configparser.ConfigParser()
-        config.read(self.config_path("table_v0"))
+        config.read(self.config_path(Table_v0.DEFAULT_SOURCE_NAME))
         global_param = [("block_duplicates", str, None, config['table_v0']['block_duplicates'], "(false, remove_old, merge_to_new, merge_to_old) Block insert of duplicates betweeb tablec0 tables"), ]
         return {
             "Table_v0": {"params":global_param},
@@ -132,8 +147,8 @@ class Table_v0(MapSource):
         )
 
     def get_map_data(self,filters: Optional[Dict[str, Any]]=None):
-        if  self.SOURCE_NAME is None:
-            raise  NotImplementedError
+        if  self.SOURCE_NAME is Table_v0.DEFAULT_SOURCE_NAME :
+           return None
         with Database().get_db_connection() as session:
             table = Table(self.SOURCE_NAME, Database().metadata, autoload_with=Database().engine)
 
@@ -188,16 +203,8 @@ class Table_v0(MapSource):
 
     @staticmethod
     def get_tablev0_tables():
-        f = _load_source_objects(Table_v0)
-        #from src.map_app.source_core.db import Database
-        #Database().metadata.reflect(bind=Database().engine)
-        #table = Database().metadata.tables.get("tablev0_tables")
-        #if table is None:
-        #    return []
-        #with Database().engine.connect() as conn:
-        #    result = conn.execute(select(table.c.name))
-        # return [row[0] for row in result.fetchall()]
-        return [obj.SOURCE_NAME for obj in _load_source_objects(Table_v0)]
+        """Get all tables name of loaded table_v0"""
+        return [obj.SOURCE_NAME for obj in _load_source_objects(Table_v0) if obj.SOURCE_NAME != Table_v0().SOURCE_NAME]
 
     @staticmethod
     def table_v0_locate() -> None:
@@ -209,29 +216,83 @@ class Table_v0(MapSource):
             localized_networks, total_networks = Wigle().wigle_locate(table_v0_name)
             logging.info(f"{table_v0_name}: Located {localized_networks} out of {total_networks} networks")
 
-    def _save_AP_to_db(self, bssid=None, essid=None, password=None, time=None,
-                       bssid_format=False, session= None) -> bool:
-
-        #TOODo marge methods
-        if not self._new_row(bssid):
-            return False
-
-        if bssid_format:
-            bssid=format_bssid(bssid)
-
-        new_tablev0_entry = {
-            'bssid': bssid,
-            'essid': essid,
-            'password': password,
-            'time': time
-        }
-
+    def _insert_entry(self, session, entry):
         try:
-            session.execute(self.table.insert().values(new_tablev0_entry))
-            logging.info(f"New network: {essid}")
+            session.execute(self.table.insert().values(entry))
+            logging.info(f"Inserted: {entry.get('essid')}")
             return True
         except IntegrityError as e:
             if "UNIQUE constraint failed" in str(e.orig):
                 return False
             else:
                 raise
+
+    @staticmethod
+    def _find_existing_row(bssid, session):
+        """Find existing row with bssid in any table_v0 table."""
+        for table_name in Table_v0.get_tablev0_tables():
+            table = Database().metadata.tables[table_name]
+            row = session.execute(
+                table.select().where(table.c.bssid == bssid)
+            ).fetchone()
+            if row:
+                return table, row
+        return None, None
+
+    def _save_AP_to_db(self, bssid=None, essid=None, password=None, time=None,
+                       bssid_format=False, session=None) -> bool:
+        import configparser
+        config = configparser.ConfigParser()
+        config.read(self.config_path(Table_v0.DEFAULT_SOURCE_NAME ))
+        mode = config['table_v0'].get('block_duplicates', 'true')
+
+        if bssid_format:
+            bssid = format_bssid(bssid)
+
+        new_entry = {
+            'bssid': bssid,
+            'essid': essid,
+            'password': password,
+            'time': time
+        }
+
+        if mode == 'false':
+            try:
+                session.execute(self.table.insert().values(new_entry))
+                logging.info(f"New network: {essid}")
+                return True
+            except IntegrityError as e:
+                if "UNIQUE constraint failed" in str(e.orig):
+                    return False
+                else:
+                    raise
+
+        table, old_row = self._find_existing_row(bssid, session)
+
+        if mode == 'remove_old':
+            if table:
+                session.execute(table.delete().where(table.c.bssid == bssid))
+            return self._insert_entry(session, new_entry)
+
+        elif mode == 'merge_to_new':
+            if old_row:
+                for k in new_entry:
+                    if not new_entry[k] and old_row[k]:
+                        new_entry[k] = old_row[k]
+                session.execute(table.delete().where(table.c.bssid == bssid))
+            return self._insert_entry(session, new_entry)
+
+        elif mode == 'merge_to_old':
+            if old_row:
+                update_data = {k: new_entry[k] for k in new_entry if new_entry[k] and not old_row[k]}
+                if update_data:
+                    session.execute(table.update().where(table.c.bssid == bssid).values(**update_data))
+                    logging.info(f"Merged new into old: {essid}")
+                return False
+            else:
+                return self._insert_entry(session, new_entry)
+
+        else:  # 'true' or default
+            if old_row:
+                return False
+            return self._insert_entry(session, new_entry)

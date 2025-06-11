@@ -73,7 +73,7 @@ def _load_source_objects(Source_class, disabled:bool = False, no_source_folder:b
                 module = importlib.util.module_from_spec(spec)
                 spec.loader.exec_module(module)
                 for name, obj in inspect.getmembers(module, inspect.isclass):
-                    if issubclass(obj, Source_class) and obj.__module__ == module.__name__:
+                    if obj is not Source_class and Source_class.__name__ in [base.__name__ for base in obj.__mro__]:
                         source_objects.append(obj())
         except Exception as e:
             logging.error(f"Error loading module from {script_path}: {e}")
@@ -92,7 +92,11 @@ def tool_list(add_class=False) -> dict:
     for source_obj in source_objects:
         if hasattr(source_obj, 'get_tools'):
             object_name = type(source_obj).__name__.lower()
-            tools[object_name] = source_obj.get_tools()
+            obj_tools = source_obj.get_tools()
+            if obj_tools is None:
+                continue
+            tools[object_name] = obj_tools
+
             if add_class:
                 tools[object_name]["class"] = type(source_obj)
         else:
@@ -112,7 +116,9 @@ def get_AP_data(filters: Optional[Dict[str, Any]] = None) -> Tuple[List[Dict[str
         if hasattr(source_obj, 'get_map_data'):
             try:
                 data = source_obj.get_map_data(filters.copy() if filters else None)
-                if data:
+                if data is None:
+                    continue
+                if data != {}:
                     for ap_point in data:
                         ap_point['source'] = object_name
                     script_statuses.append({'name': object_name, 'status': 'success', 'len': len(data)})
