@@ -9,6 +9,7 @@ from sqlalchemy.sql import expression
 
 from formator.bssid import format_bssid
 from map_app.source_core.Source import MapSource
+from map_app.source_core.ToolSource import ToolSource
 from map_app.source_core.db import Database
 from map_app.source_core.manager import _load_source_objects
 
@@ -25,6 +26,7 @@ class Table_v0(MapSource):
             self.SOURCE_NAME = "tablev0" # tablev0 only like tool source
             return
         #tablev0 table to save to active plugins
+        """
         if "tablev0_tables" in Database().metadata.tables:
             self.tablev0_tables_sql = Database().metadata.tables["tablev0_tables"]
         else:
@@ -42,7 +44,7 @@ class Table_v0(MapSource):
                 )
 
             Database().metadata.create_all(Database().engine)
-
+        
 
         if table_name is not None:
             with Database().get_db_connection() as conn:
@@ -50,7 +52,7 @@ class Table_v0(MapSource):
                     self.tablev0_tables_sql.insert().prefix_with("OR IGNORE"),
                     {"name": table_name}
                 )
-
+        """
 
         # create table if not exists
         if self.SOURCE_NAME in Database().metadata.tables:
@@ -107,7 +109,7 @@ class Table_v0(MapSource):
     def get_tools(self) -> Dict[str, Dict[str, Any]]:
         config = configparser.ConfigParser()
         config.read(self.config_path("table_v0"))
-        global_param = [("block_duplicates", str, None, config['table_v0']['block_duplicates'], "Block insert of duplicates betweeb tablec0 tables"), ]
+        global_param = [("block_duplicates", str, None, config['table_v0']['block_duplicates'], "(false, remove_old, merge_to_new, merge_to_old) Block insert of duplicates betweeb tablec0 tables"), ]
         return {
             "Table_v0": {"params":global_param},
             "remove_duplicates": {"run_fun": self.__remove_duplicates},
@@ -186,7 +188,7 @@ class Table_v0(MapSource):
 
     @staticmethod
     def get_tablev0_tables():
-        return  _load_source_objects(Table_v0)
+        f = _load_source_objects(Table_v0)
         #from src.map_app.source_core.db import Database
         #Database().metadata.reflect(bind=Database().engine)
         #table = Database().metadata.tables.get("tablev0_tables")
@@ -194,7 +196,8 @@ class Table_v0(MapSource):
         #    return []
         #with Database().engine.connect() as conn:
         #    result = conn.execute(select(table.c.name))
-        #    return [row[0] for row in result.fetchall()]
+        # return [row[0] for row in result.fetchall()]
+        return [obj.SOURCE_NAME for obj in _load_source_objects(Table_v0)]
 
     @staticmethod
     def table_v0_locate() -> None:
@@ -208,6 +211,10 @@ class Table_v0(MapSource):
 
     def _save_AP_to_db(self, bssid=None, essid=None, password=None, time=None,
                        bssid_format=False, session= None) -> bool:
+
+        #TOODo marge methods
+        if not self._new_row(bssid):
+            return False
 
         if bssid_format:
             bssid=format_bssid(bssid)

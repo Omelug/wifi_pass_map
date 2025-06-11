@@ -54,27 +54,37 @@ class Handshakes(Table_v0):
         base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..','..'))
         file_22000 = config['handshake_scan']['handshake_22000_file']
         file_22000_path = os.path.abspath(os.path.join(base_dir, file_22000))
-
         logging.info(f"{self.SOURCE_NAME}: Loading data from {file_22000_path} to database...")
-        new_handshakes = 0
+
+        new_networks, duplicate_networks, invalid = 0, 0, 0
 
         if not os.path.exists(file_22000_path):
             logging.error(f"Hash file {file_22000_path} does not exist.")
             return
 
-        with open(file_22000_path, 'r') as hash_file:
-            for line in hash_file:
-                if line.startswith('WPA'):
-                    essid, bssid= extract_essid_bssid(line)
-                    if self._new_row(bssid):
-                        continue
-                    with Database().get_db_connection() as session:
-                        if self._save_AP_to_db(bssid, essid, None, session=session):
-                            new_handshakes += 1
-                else:
-                    logging.error("Invalid handsake format")
-        logging.info(f"{self.SOURCE_NAME}: loading done, {new_handshakes} new handshakes added")
+        with Database().get_db_connection() as session:
+            with open(file_22000_path, 'r') as hash_file:
+                for line in hash_file:
+                    if line.startswith('WPA'):
+                        essid, bssid = extract_essid_bssid(line)
+                        if self._save_AP_to_db(
+                                bssid=bssid,
+                                essid=essid,
+                                password=None,
+                                session=session):
+                            new_networks += 1
+                        else:
+                            duplicate_networks += 1
+                    else:
+                        invalid += 1
+                        logging.error("Invalid handsake format")
 
+        logging.info(
+            f"Processed a total of {new_networks + duplicate_networks} networks, "
+            f"{new_networks} new APs\n"
+            f"{duplicate_networks} already known or duplicates\n"
+            f"{invalid} invalid networks"
+        )
 
     #-----------------------TOOLS FUNCTIONS-----------------------
     def __handshake_reload(self) -> None:
