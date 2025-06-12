@@ -19,7 +19,6 @@ class Handshakes(Table_v0):
     def __init__(self):
         default_config = configparser.ConfigParser()
         default_config['handshake_scan'] = {
-            'rescan_days': '7',
             'handshakes_dir' : 'data/raw/handshakes',
             'handshake_22000_file': 'data/raw/hash.hc22000',
         }
@@ -29,23 +28,25 @@ class Handshakes(Table_v0):
     @staticmethod
     def __create_hash_file(config):
         HS_DIR = config['handshake_scan']['handshakes_dir']
-        FILE_22000 = config['handshake_scan']['handshake_22000_file']
 
-        logging.info(f"HANDSHAKE: Creating hash file {FILE_22000}")
+        base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..','..'))
+        file_22000 = config['handshake_scan']['handshake_22000_file']
+        file_22000_path = os.path.abspath(os.path.join(base_dir, file_22000))
+
+        logging.info(f"HANDSHAKE: Creating hash file {file_22000_path}")
 
         pcap_files = glob.glob(os.path.join(os.path.abspath(HS_DIR), '*.pcap'))
-        hcxpcapngtool_cmd = ['hcxpcapngtool', '-o', os.path.abspath(FILE_22000)] + pcap_files
+        hcxpcapngtool_cmd = ['hcxpcapngtool', '-o', file_22000_path] + pcap_files
 
         logging.debug(f"Executing: {' '.join(hcxpcapngtool_cmd)}")
 
         try:
             result = subprocess.run(hcxpcapngtool_cmd, capture_output=True, text=True)
             if result.returncode != 0:
-                parent_dir = os.path.dirname(os.path.abspath(FILE_22000))
-                if not os.access(parent_dir, os.W_OK):
-                    logging.error(f"No write permissions for directory '{parent_dir}'. Cannot create '{os.path.dirname(os.path.abspath(FILE_22000))}.")
+                if not os.access(file_22000_path, os.W_OK):
+                    logging.error(f"No write permissions for directory '{file_22000_path}'. Cannot create '{file_22000_path}.")
             else:
-                logging.info(f"Hash file created at {FILE_22000}")
+                logging.info(f"Hash file created at {file_22000_path}")
         except Exception as e:
             logging.error(f"Failed to process files: {e}")
 

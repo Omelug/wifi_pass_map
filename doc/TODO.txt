@@ -3,30 +3,11 @@ TODO Roadmap
 + = new feature, b = bug, r = refactoring
 v = visual, d = documentation, t = test
 
---------- CHANGELOG REALASE 0.0.1 (already ok)
-+ pwncrack
-r: python type control
-+ add git hook for unit tests
-+ tablev0 config to disable duplicates
-b: change example.d and add description to README
-b: repair Table_v0 source invalid on map
-+: wigle - add time, And check only older_than (WIGLE CONFIG)
-r : delete TABLE_NAME, use SOURCE_NAME
-+: sourcce order
-+: global config
-+ add source on/off and source order in menu
-+: example for tablev0
-b: global config to change init map ords
-r: add _ to private methods
-+: regex serach for ESSIDs
-t: test table_v0 - duplicates
-+ add config to check what shoud be done with duplicates (merge/remote_old/ignore_new)
 
----------TODO IN NEXT REALEASE 0.0.1
-v: for same wifi with changed passwords/multiple sources are generated multiple points
-b: handskahek broken permissions
-
+---------TODO IN NEXT REALEASE 0.0.2
 -------CREATE RELEASE
+t: test table_v0 - duplicates
+v: for same wifi with changed passwords/multiple sources are generated multiple points
 b: some tools operation depends on self.SOURCE_NAMEsoem a depends on file name
 +: dependencies to enable/disale to disable all what importparentplugin
 + pwncrack download handshakes

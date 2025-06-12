@@ -17,8 +17,12 @@ doc_install:
 	pipx install pylint
 
 
-run:
+run: data_folder
 	. .venv/bin/activate && cd src && python3 app.py
+
+data_folder:
+	mkdir -p ./data/clean ./data/raw
+	chmod u+rwx ./data ./data/clean ./data/raw
 
 set_up_git_hooks:
 	for hook in tests/hooks/*; do \
