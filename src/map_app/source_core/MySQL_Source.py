@@ -11,7 +11,7 @@ class MySQL_MapSource(MapSource):
 
     def __init__(self, database_name = None, default_config = None):
         if database_name is None:
-            self.SOURCE_NAME = "MySQL_MapSource"
+            self.SOURCE_NAME = "mysql_mapsource"
             return
         super().__init__(database_name)
 

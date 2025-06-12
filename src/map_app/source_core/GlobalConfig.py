@@ -9,6 +9,8 @@ class GlobalConfig(ToolSource):
         default_config = configparser.ConfigParser()
         default_config['view_settings'] = {
             'ordered_sources': 'globalconfig,table_v0',
+        }
+        default_config['start_view'] = {
             'start_map_point': '49.8175,15.4730',
             'start_zoom': '7',
         }
@@ -18,7 +20,11 @@ class GlobalConfig(ToolSource):
         config = configparser.ConfigParser()
         config.read(self.config_path())
 
-        global_param = [("ordered_sources", str, None, config['view_settings']['ordered_sources'], "Ordered listof sources"), ]
+        global_param = [
+            ("ordered_sources", str, None, config['view_settings']['ordered_sources'], "Ordered listof sources"),
+            ("start_map_point", str, None, config['start_view']['start_map_point'], "start map point zoom"),
+            ("start_zoom", str, None, config['start_view']['start_zoom'], "start map zoom"),
+        ]
         return {
             "Global Settings": {"params": global_param},
         }
@@ -41,7 +47,7 @@ class GlobalConfig(ToolSource):
     def get_map_settings(self):
         config = configparser.ConfigParser()
         config.read(self.config_path())
-        point = config.get('view_settings', 'start_map_point')
-        zoom = config.get('view_settings', 'start_zoom')
+        point = config.get('start_view', 'start_map_point')
+        zoom = config.get('start_view', 'start_zoom')
         lat, lng = map(float, point.split(','))
         return {'lat': lat, 'lng': lng, 'zoom': int(zoom)}

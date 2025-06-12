@@ -17,8 +17,11 @@ def tool_path_list(disabled:bool = True, no_source_folder:bool = True):
     script_paths = []
     if no_source_folder:
         # add special prototypes from /source_core/ (for general tools)
-        tablev_v_path = os.path.join(BASE_FILE, '..', 'source_core', 'Table_v0.py')
-        script_paths.append(os.path.abspath(tablev_v_path))
+        table_v0_path = os.path.join(BASE_FILE, '..', 'source_core', 'Table_v0.py')
+        script_paths.append(os.path.abspath(table_v0_path))
+
+        table_mysql_path = os.path.join(BASE_FILE, '..', 'source_core', 'MySQL_Source.py')
+        script_paths.append(os.path.abspath(table_mysql_path))
 
         global_config_path = os.path.join(BASE_FILE, '..', 'source_core', 'GlobalConfig.py')
         script_paths.append(os.path.abspath(global_config_path))
@@ -52,11 +55,8 @@ def get_sources_with_status():
         elif fname.endswith('.disable.py'):
             name = fname[:-11]
             sources[name] = False
-    print("sources", sources)
     valid_names = {obj.SOURCE_NAME for obj in _load_source_objects(ToolSource, True)}
-    #print("valid_names", valid_names)
     sources = {name: enabled for name, enabled in sources.items() if name in valid_names}
-    #print("sources", sources)
 
     ordered_names = order_sources_by_config(list(sources.keys()))
     return [{'name': name, 'enabled': sources[name]} for name in ordered_names]
