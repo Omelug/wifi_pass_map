@@ -3,9 +3,11 @@ TODO Roadmap
 + = new feature, b = bug, r = refactoring
 v = visual, d = documentation, t = test
 
-
 ---------TODO IN NEXT REALEASE 0.0.2
 -------CREATE RELEASE
+t: run test in costom enviroment
+t: selenum tests ???
+v: add click cords to map view
 t: test table_v0 - duplicates
 v: for same wifi with changed passwords/multiple sources are generated multiple points
 b: some tools operation depends on self.SOURCE_NAMEsoem a depends on file name

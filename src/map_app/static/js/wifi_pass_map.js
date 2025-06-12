@@ -1,7 +1,40 @@
-//TODO hardcoded to czech republic
-const map = L.map('map').setView([49.8175, 15.4730], 7);
+let map;
+let notPwnedMarkers, pwnedMarkers;
+const apiBaseUrl = '/api';
+let AP_len_global = 0;
 
-const notPwnedMarkers = L.markerClusterGroup({
+fetch('/api/map_settings')
+    .then(res => res.json())
+    .then(({lat, lng, zoom}) => {
+        map = L.map('map').setView([lat, lng], zoom);
+
+        L.control.locate({ drawCircle: false }).addTo(map);
+
+        let remoteTileUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+        L.tileLayer(remoteTileUrl, {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        notPwnedMarkers = L.markerClusterGroup({
+            maxClusterRadius: 30,
+            iconCreateFunction: function(cluster) {
+                const count = cluster.getChildCount();
+                return L.divIcon({
+                    html: `<div style="background: #888; color: white; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 18px;">${count}</div>`,
+                    className: 'custom-gray-cluster',
+                    iconSize: [40, 40]
+                });
+            }
+        });
+        pwnedMarkers = L.markerClusterGroup({ maxClusterRadius: 30 });
+
+        map.addLayer(pwnedMarkers);
+        map.addLayer(notPwnedMarkers);
+
+        fetchDataAndUpdateMap(`${apiBaseUrl}/wifi_pass_map`);
+    });
+
+/**const notPwnedMarkers = L.markerClusterGroup({
    maxClusterRadius: 30,
   iconCreateFunction: function(cluster) {
         const count = cluster.getChildCount();
@@ -26,7 +59,7 @@ L.tileLayer(remoteTileUrl, {
     attribution: '&copy; OpenStreetMap contributors'
 }).addTo(map);
 
-fetchDataAndUpdateMap(`${apiBaseUrl}/wifi_pass_map`);
+fetchDataAndUpdateMap(`${apiBaseUrl}/wifi_pass_map`);**/
 
 // ----------------------------STATUS ---------------------------
 function updateStatsDiv(script_statuses, AP_len) {
@@ -144,8 +177,6 @@ document.getElementById('loadButton').addEventListener('click', () => {
         })
         .catch(error => console.error('Error fetching data:', error));
 });*/
-
-
 
 // ---------------------EVENT LISTENERS--------------------
 document.querySelectorAll('#searchInputName, #searchInputNetworkId').forEach(input => {

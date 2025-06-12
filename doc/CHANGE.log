@@ -12,6 +12,7 @@ Version 0.0.1:
     +: wigle - add time, check only older_than
     +: add source on/off and source order in menu
     +: example for tablev0
+    +: global config to start position on the map
 
     r: add _ to private methods
     r: delete TABLE_NAME, use SOURCE_NAME

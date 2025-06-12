@@ -193,3 +193,8 @@ def order_sources() -> Tuple[Dict[str, Any], int]:
         return {"status": "success", "message": "Source order saved"}, 200
     except Exception as e:
         return {"status": "error", "message": str(e)}, 500
+
+@api_bp.route('/api/map_settings')
+def map_settings():
+    settings = GlobalConfig().get_map_settings()
+    return jsonify(settings)
