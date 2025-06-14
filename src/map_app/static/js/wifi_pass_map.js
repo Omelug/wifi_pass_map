@@ -3,6 +3,8 @@ let notPwnedMarkers, pwnedMarkers;
 const apiBaseUrl = '/api';
 let AP_len_global = 0;
 
+const getElementValue = (id) => document.getElementById(id)?.value.trim();
+
 fetch('/api/map_settings')
     .then(res => res.json())
     .then(({lat, lng, zoom}) => {

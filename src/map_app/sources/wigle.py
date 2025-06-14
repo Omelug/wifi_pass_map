@@ -1,15 +1,15 @@
 import configparser
 import logging
 import sqlite3
+from datetime import datetime, timedelta
 from typing import Dict, Any
 import requests
-import random
 from requests import ReadTimeout
 from sqlalchemy import select, Table, update, Connection
 
 from map_app.source_core.ToolSource import ToolSource
 from map_app.source_core.db import Database
-from datetime import datetime,timedelta
+
 
 class Wigle(ToolSource):
     __description__ = "Tools to get localization for access point from wigle(https://wigle.net/)"
@@ -51,16 +51,14 @@ class Wigle(ToolSource):
             time = result.get('lasttime')
             logging.info(f"✅📌 Found geolocation for {essid}({bssid}) - {latitude}, {longitude}")
             try:
-                query = update(table).where(table.c.bssid == bssid).values(
+                session.execute(update(table).where(table.c.bssid == bssid).values(
                     encryption=encryption,
                     latitude=latitude,
                     longitude=longitude,
                     time=time,
                     essid=essid,
                     password=password
-                )
-                logging.info(query)
-                session.execute(query)
+                ))
                 return True
             except sqlite3.Error as e:
                 logging.info(f"{self.SOURCE_NAME} Got error {e} when inserting entry for bssid: {bssid}")
