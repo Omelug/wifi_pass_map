@@ -10,26 +10,29 @@ from src.map_app.source_core.Source import MapSource
 class MySQL_MapSource(MapSource):
 
     def __init__(self, database_name = None, default_config = None):
+        self.SOURCE_NAME = database_name
         if database_name is None:
             self.SOURCE_NAME = "mysql_mapsource"
             return
         super().__init__(database_name)
 
-        #default config values
-        conf_path = self.config_path(self.SOURCE_NAME)
-        if not os.path.exists(conf_path):
-            with open(conf_path, 'w') as config_file:
-                default_config.write(config_file)
-            logging.info(f"{self.SOURCE_NAME} configuration created {conf_path}")
+        default_config = configparser.ConfigParser()
+        default_config['mysql_mapsource'] = {
+            'db_user': '',
+            'db_pass': '',
+            'db_ip': '',
+            'db_name': '',
+        }
+        self.create_config(self.config_path( self.SOURCE_NAME), default_config)
 
     def _get_db_connection(self):
         config = configparser.ConfigParser()
         config.read(self.config_path(self.SOURCE_NAME))
 
-        db_user = config['MAIN']['db_user']
-        db_pass = config['MAIN']['db_pass']
-        db_ip = config['MAIN']['db_ip']
-        db_name = config['MAIN']['db_name']
+        db_user = config['mysql_mapsource']['db_user']
+        db_pass = config['mysql_mapsource']['db_pass']
+        db_ip = config['mysql_mapsource']['db_ip']
+        db_name = config['mysql_mapsource']['db_name']
 
         engine = create_engine(
             f'mysql+mysqlconnector://{db_user}:{db_pass}@{db_ip}/{db_name}',

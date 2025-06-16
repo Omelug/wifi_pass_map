@@ -7,6 +7,7 @@
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/tests_bb" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/.idea/dataSources" />
       <excludeFolder url="file://$MODULE_DIR$/data" />
       <excludeFolder url="file://$MODULE_DIR$/src/map_app/sources/config" />
@@ -15,6 +16,8 @@
       <excludeFolder url="file://$MODULE_DIR$/.venv" />
       <excludeFolder url="file://$MODULE_DIR$/src/data" />
       <excludeFolder url="file://$MODULE_DIR$/.git" />
+      <excludeFolder url="file://$MODULE_DIR$/tests_bb/test_env/src" />
+      <excludeFolder url="file://$MODULE_DIR$/tests_bb/test_env" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.13 virtualenv at ~/PycharmProjects/wifi_pass_map/.venv" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />

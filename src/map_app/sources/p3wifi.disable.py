@@ -27,12 +27,13 @@ class p3wifi(MySQL_MapSource):
         super().__init__(self.MYSQL_NAME, default_config)
 
         #check requiered tables
-        self.check_db_connection_and_tables(
-            {
-                'nets': ['BSSID', 'ESSID', 'WiFiKey'],
-                'geo': ['BSSID', 'latitude', 'longitude']
-            }
-        )
+        #TODO
+        # self.check_db_connection_and_tables(
+        #    {
+        #        'nets': ['BSSID', 'ESSID', 'WiFiKey'],
+        #        'geo': ['BSSID', 'latitude', 'longitude']
+        #    }
+        #)
 
     @staticmethod
     def __load_random_APs_to_limit(filters=None):

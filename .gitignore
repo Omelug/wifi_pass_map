@@ -9,3 +9,6 @@ src/map_app/sources/config/*.ini
 src/map_app/static/lib/css/*
 src/map_app/static/lib/js/*
 src/map_app/sources/config
+tests_bb/test_env
+tests_bb/pytest_tmp
+tests/pytest_tmp
