@@ -1,4 +1,3 @@
-import argparse
 import logging
 import os
 import sys
@@ -26,13 +25,15 @@ def run_main_app() -> None:
     Database().db_init()
     create_app().run(host='0.0.0.0', port=1337, debug=False,use_reloader=False)
 
-parser = argparse.ArgumentParser(description='Check for --tile_server argument')
-parser.add_argument('--tile_server', action='store_true', help='Enable tile server')
-args = parser.parse_args()
-
 
 logging.basicConfig(level=logging.INFO, stream=sys.stdout)
 if __name__ == "__main__":
+    """
+    import argparse
+    parser = argparse.ArgumentParser(description='Check for --tile_server argument')
+    parser.add_argument('--tile_server', action='store_true', help='Enable tile server')
+    args = parser.parse_args()
+    """
     #if args.tile_server:
     #    tile_server_thread = threading.Thread(target=run_tile_server)
     #    tile_server_thread.start()

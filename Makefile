@@ -9,16 +9,8 @@ download_lib:
 test:
 	PYTEST_CURRENT_TEST=1 . .venv/bin/activate && PYTHONPATH=./src pytest --basetemp=./tests/pytest_tmp -vv --tb=short ./tests
 
-test_bb: test_bb_setup
+test_bb:
 	make test -C test
-
-test_bb_setup:
-	mkdir -p ./tests_bb/pytest_tmp
-	mkdir -p ./tests_bb/test_env
-	rsync -a --delete --exclude='config' ./src/ ./tests_bb/test_env/src/
-	#if [ -d ./tests_bb/src/map_app/sources/config ]; then rm -rf ./tests_bb/src/map_app/sources/config; fi
-	#rsync -a Makefile ./tests_bb/test_env/
-
 
 doc:
 	 pyreverse

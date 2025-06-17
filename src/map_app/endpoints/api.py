@@ -162,7 +162,7 @@ def set_log_level() -> Tuple[Dict[str, Any], int]:
         return {"status": "error", "message": f"Invalid log level. Valid levels are: {', '.join(valid_levels)}"}, 400
 
     logging.getLogger().setLevel(log_level)
-    logging.info(f"Log level changed to {log_level}")
+    logging.warning(f"Log level changed to {log_level}")
     return {"status": "success", "message": f"Log level set to {log_level}"}, 200
 
 # --------------------- ORDER/EDIT ----------------
