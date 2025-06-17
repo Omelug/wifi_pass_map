@@ -44,3 +44,42 @@ Feature: Empty setup
     Then web code is 200
     And web response is {'message': 'Log level set to INFO', 'status': 'success'}
     And log contains "Log level changed to INFO"
+
+  Scenario: Missing parameters for run_tool
+    When API POST "/api/tools" with data "{}"
+    Then web code is 404
+    And web response contains "Empty plugin name or tool name"
+
+  Scenario: Script not found for run_tool
+    When API POST "/api/tools" with data "{"object_name": "notfound", "tool_name": "any"}"
+    Then web code is 404
+    And web response contains "The plugin notfound was not found"
+
+  """
+
+  Scenario: Tool not found in script
+    Given tool "dummytool" exists with run_fun
+    When API POST "/api/tools" with data "{"object_name": "dummytool", "tool_name": "notfound"}"
+    Then web code is 404
+    And web response contains "Tool not found"
+
+  Scenario: Tool run_fun missing
+    Given tool "wigle" exists with "wigle_locate"
+    When API POST "/api/tools" with data "{"object_name": "dummytool", "tool_name":"tool1"}"
+    Then web code is 404
+    And web response contains "The tool tool1 was not found in plugin dummytool"
+  """
+
+# --------- API -------------------
+
+  Scenario: API returns empty wifi_pass_map data
+    Given delete all plugins
+    When Client GET "/api/wifi_pass_map"
+    Then web code is 200
+    And web response is {'data': [], 'script_statuses': [], 'AP_len': 0}
+
+  Scenario: API returns empty search data
+    Given delete all plugins
+    When Client GET "/api/search"
+    Then web code is 200
+    And web response is {"data": [], "script_statuses": [], "AP_len": 0}

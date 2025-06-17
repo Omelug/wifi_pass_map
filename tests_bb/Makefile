@@ -1,12 +1,12 @@
-testp: # test but with test prints
+testp: test_bb_setup # test but with test prints
 	. ../.venv/bin/activate && cd test_env \
   	&& BEHAVE_LOG_LEVEL=DEBUG PYTHONPATH=./src && \
   	../../.venv/bin/python ../../.venv/bin/behave features/wigle.feature
 
-test:
+test: test_bb_setup
 	. ../.venv/bin/activate && cd test_env && PYTHONPATH=./src behave
 
-cover:
+cover: test_bb_setup
 	. ../.venv/bin/activate && cd test_env && PYTHONPATH=./src coverage run -m behave && coverage report && coverage html
 
 test_bb_setup:

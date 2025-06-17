@@ -67,16 +67,19 @@ def run_tool() -> Tuple[Dict[str, Any], int] | Response:
     tool_name = request.json.get('tool_name')
 
     if not object_name or not tool_name:
-        logging.warning(f"Request Path: {request.path} - Script name or tool name not provided")
-        return {"status": "error", "message": "Script name or tool name not provided."}, 400
+        err_msg = "Empty plugin name or tool name"
+        logging.warning(f"Request Path: {request.path} - {err_msg}")
+        return {"status": "error", "message": err_msg}, 404
 
     if object_name not in tools.keys():
-        logging.error(f"Request Path: {request.path} - The script {object_name} was not found")
-        return {"status": "error", "message": f"Script not found, available options are {', '.join(tools.keys())}"}, 404
+        err_msg = f"The plugin {object_name} was not found"
+        logging.error(f"Request Path: {request.path} - {err_msg} ")
+        return {"status": "error", "message": f"{err_msg}, available options are {', '.join(tools.keys())}"}, 404
 
     if tool_name not in tools[object_name].keys():
-        logging.error(f"Request Path: {request.path} - The tool {tool_name} was not found in script {object_name}")
-        return {"status": "error", "message": f"Tool not found in script {object_name}"}, 404
+        err_msg = f"The tool {tool_name} was not found in plugin {object_name}"
+        logging.error(f"Request Path: {request.path} - {err_msg}")
+        return {"status": "error", "message": err_msg}, 404
 
     class QueueHandler(logging.Handler):
         def __init__(self, q):
@@ -132,7 +135,7 @@ def save_params() -> Tuple[Dict[str, Any], int]:
     #secure input
     config_file = os.path.join(SAFE_CONFIG_DIR, f"{object_name}.ini")
     if not config_file.startswith(SAFE_CONFIG_DIR) or not source_object_name(object_name):
-        return {"status": "error", "message": "Invalid script name."}, 400
+        return {"status": "error", "message": "Invalid script name."}, 404
 
     config = configparser.ConfigParser()
     if os.path.exists(config_file):

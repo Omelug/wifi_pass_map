@@ -1,8 +1,9 @@
 import json
 import logging
 from io import StringIO
+from unittest.mock import patch
 
-from behave import when, then
+from behave import given, when, then
 from bs4 import BeautifulSoup
 
 @when('Client {method} "{path}"')
@@ -17,7 +18,10 @@ def step_impl(context,code_status):
 
 @then('web response is {response_text}')
 def step_impl(context, response_text):
-    assert response_text == f"{context.response.json}", f" response is {context.response.json}"
+    import json
+    expected = json.loads(response_text.replace("'", '"'))
+    actual = context.response.get_json()
+    assert expected == actual, f" response is {actual}"
 
 @then('html "{tag}" "{text}" is visible')
 def step_impl(context, tag, text):
@@ -58,3 +62,35 @@ def step_impl(context):
     print("Logger level:", logging.getLevelName(logger.level))
     print("Handlers:", logger.handlers)
     print("Propagate:", logger.propagate)
+
+# ------ TOOLS ----------
+
+@then('web response contains "{text}"')
+def step_impl(context, text):
+    assert text in context.response.get_data(as_text=True), f"{context.response.get_data(as_text=True)}"
+
+"""
+@given('tool "{tool_name}" exists with "plugin")
+def step_impl(context, tool_name, tool):
+    def dummy_run_fun():
+        pass
+    dummy_tools = {
+        tool_name: {
+            "tool1": {"run_fun": dummy_run_fun}
+        }
+    }
+    patcher = patch('map_app.source_core.manager.tool_list', return_value=dummy_tools)
+    context.tool_list_patcher = patcher.start()
+    context.add_cleanup(patcher.stop)
+
+@given('tool "{tool_name}" exists without run_fun')
+def step_impl(context, tool_name):
+    dummy_tools = {
+        tool_name: {
+            "tool1": {}
+        }
+    }
+    patcher = patch('map_app.source_core.manager.tool_list', return_value=dummy_tools)
+    context.tool_list_patcher = patcher.start()
+    context.add_cleanup(patcher.stop)
+"""
