@@ -14,6 +14,16 @@ class GlobalConfig(ToolSource):
             'start_map_point': '49.8175,15.4730',
             'start_zoom': '7',
         }
+
+        default_config['backup'] = {
+            'plugins': 'true',
+            'config': 'true',
+            'data': 'true',
+            'backup_path': 'backup',
+
+            'override': 'true',
+            'load_src_path': 'src',
+        }
         super().__init__(type(self).__qualname__.lower(), default_config)
 
     def get_tools(self) -> Dict[str, Dict[str, Any]]:
@@ -25,8 +35,23 @@ class GlobalConfig(ToolSource):
             ("start_map_point", str, None, config['start_view']['start_map_point'], "start map point zoom"),
             ("start_zoom", str, None, config['start_view']['start_zoom'], "start map zoom"),
         ]
+
+        create_backup_param = [
+            ("Backup plugins?", str, None, config['backup']['plugins'], "(true/false/only_custom)"),
+            ("Backup config?", str, None, config['backup']['config'], "Ordered listof sources (true/false)"),
+            ("data", str, None, config['backup']['data'], "(true/false)"),
+            ("backup_path", str, None, config['backup']['backup_path'], "(true/false/run_select)"),
+        ]
+
+        load_backup_param = [
+            ("override", str, None, config['backup']['override'], "(true/false)"),
+            ("load_src_path", str, None, config['backup']['load_src_path'], "(true/false/run_select)"),
+        ]
+
         return {
             "Global Settings": {"params": global_param},
+            "Create backup": {"params": create_backup_param},
+            "Load backup": {"params": load_backup_param}
         }
 
     def get_ordered_sources(self):
