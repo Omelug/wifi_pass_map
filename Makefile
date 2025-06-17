@@ -10,7 +10,7 @@ test:
 	PYTEST_CURRENT_TEST=1 . .venv/bin/activate && PYTHONPATH=./src pytest --basetemp=./tests/pytest_tmp -vv --tb=short ./tests
 
 test_bb:
-	make test -C test
+	make test -C tests_bb
 
 doc:
 	 pyreverse
