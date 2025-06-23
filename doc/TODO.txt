@@ -16,6 +16,7 @@ t: run test in costom enviroment
 t: selenum tests ???
 b: some tools operation depends on self.SOURCE_NAMEsoem a depends on file name
 +: show cracked count in statDiv
+d: documnet that .ini config have to be same like tool name (and chekc it with tests)!
 
 +:Country specific p3wifi:
      - add tool to
@@ -23,6 +24,7 @@ b: some tools operation depends on self.SOURCE_NAMEsoem a depends on file name
         - cut only one database
         - add warning messages - database not accesible etc.
         - add manual to this
+     -> some SQL indexes for big data
 +: add import/export config backup in global tools
 +: add help small windows if i focus on button in tools (or just add icons)
 

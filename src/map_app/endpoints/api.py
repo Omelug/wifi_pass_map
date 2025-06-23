@@ -138,6 +138,7 @@ def save_params() -> Tuple[Dict[str, Any], int]:
         return {"status": "error", "message": "Invalid script name."}, 404
 
     config = configparser.ConfigParser()
+    print(config_file)
     if os.path.exists(config_file):
         config.read(config_file)
     else:

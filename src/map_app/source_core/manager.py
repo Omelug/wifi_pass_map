@@ -23,6 +23,9 @@ def tool_path_list(disabled:bool = True, no_source_folder:bool = True):
         table_mysql_path = os.path.join(BASE_FILE, '..', 'source_core', 'MySQL_Source.py')
         script_paths.append(os.path.abspath(table_mysql_path))
 
+        table_pgsql_path = os.path.join(BASE_FILE, '..', 'source_core', 'PGSQL_Source.py')
+        script_paths.append(os.path.abspath(table_pgsql_path))
+
         global_config_path = os.path.join(BASE_FILE, '..', 'source_core', 'GlobalConfig.py')
         script_paths.append(os.path.abspath(global_config_path))
 

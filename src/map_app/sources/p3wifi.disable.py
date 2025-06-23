@@ -1,33 +1,79 @@
-import os
-import sys
-from sqlalchemy import exc, text
 import configparser
-import logging
+import json
+import os
+import subprocess
+import sys
+from typing import Dict, Any, Optional
+
+import requests
+from IPython.testing.tools import default_config
+
 from map_app.source_core.MySQL_Source import MySQL_MapSource
+from map_app.source_core.PGSQL_Source import PGSQL_MapSource
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
-from formator.bssid import dec2mac, mac2dec
 
-# ------------CONFIG----------------
+#update = False
+#path_to_sql = os.path.abspath("../../../data/raw/p3wifi_dump_19.05.2024.sql")
+#psql_path_to_sql = os.path.abspath("../../../data/raw/psql_p3wifi_dump_19.05.2024.sql")
 
-class p3wifi(MySQL_MapSource):
-    MYSQL_NAME = "p3wifi"
+from sqlalchemy import create_engine, text
 
-    def __init__(self):
+"""
+def create_db_if_not_exists(host, user, password, dbname, port=5432):
+    url = f"postgresql://{user}:{password}@{host}:{port}/postgres"
+    engine = create_engine(url)
+    try:
+        with engine.connect() as conn:
+            exists = conn.execute(text("SELECT 1 FROM pg_database WHERE datname=:db"), {'db': dbname}).scalar()
+            if exists:
+                print(f"Database '{dbname}' already exists")
+                return True
+        # New connection for CREATE DATABASE with autocommit
+        with engine.connect().execution_options(isolation_level="AUTOCOMMIT") as conn:
+            conn.execute(text(f'CREATE DATABASE "{dbname}"'))
+            print(f"Database '{dbname}' created")
+            return True
+    except OperationalError as e:
+        print("Error:", e)
+        return False
 
-        default_config = configparser.ConfigParser()
 
-        default_config['MYSQL'] = {
-            'db_ip':"localhost",
-            'db_user':"root",
-            'db_pass':"new_password",
-            'db_name':"p3wifi"
-            }
+def check_psql_connection_sa(host, user, password, dbname, port=5432):
+    url = f"postgresql://{user}:{password}@{host}:{port}/{dbname}"
+    engine = create_engine(url)
+    try:
+        with engine.connect() as conn:
+            print("PostgreSQL connection successful")
+            return True
+    except OperationalError as e:
+        print("PostgreSQL connection failed:", e)
+        return False
 
-        super().__init__(self.MYSQL_NAME, default_config)
+# Usage
+create_db_if_not_exists(psql_db_ip, psql_db_user, psql_db_pass, psql_db_name)
+if not check_psql_connection_sa(psql_db_ip, psql_db_user, psql_db_pass, psql_db_name):
+    exit(42)
+"""
 
-        #check requiered tables
-        #TODO
+"""
+def update_p3wifi_mysql():
+    conn = mysql.connector.connect(
+        host=db_ip,
+        user=db_user,
+        password=db_pass
+    )
+    cursor = conn.cursor()
+    cursor.execute(f"CREATE DATABASE IF NOT EXISTS {db_name};")
+    cursor.close()
+    conn.close()
+
+    # Add --force to continue on errors
+    cmd = f"mysql -h {db_ip} -u {db_user} -p'{db_pass}' --force {db_name} < {path_to_sql}"
+    print(cmd)
+    #FIXME os.system(cmd)
+    
+     #TODO
         # self.check_db_connection_and_tables(
         #    {
         #        'nets': ['BSSID', 'ESSID', 'WiFiKey'],
@@ -35,44 +81,44 @@ class p3wifi(MySQL_MapSource):
         #    }
         #)
 
-    @staticmethod
-    def __load_random_APs_to_limit(filters=None):
-        with open('map_app/sources/get_3wifi_data.sql', 'r') as file:
-            sql_script = file.read()
-        limit = 100
-        if filters:
-            filter_conditions = ""
-            if 'limit' in filters:
-                limit = filters.pop('limit')
-            sql_script = sql_script[:-1]
-            if not filters:
-                sql_script += f" LIMIT {limit};"
-            else:
-                # Remove the trailing semicolon
-                if 'bssid' in filters:
-                    filter_conditions += f"nets.BSSID = {mac2dec(filters.pop('bssid'))} "
-                filter_conditions += " AND ".join([f"{key} = :{key}" for key in filters.keys()])
-                sql_script += f" AND {filter_conditions} LIMIT {limit};"
-        else:
-            return f"{sql_script[:-1]} LIMIT {limit};"
-        return sql_script
+
+def update_p3wifi_psql():
+    cmd = f"pgloader mysql://{mysql_conn} postgresql://{psql_conn}"
+    print(cmd)
+    #TODO os.system(cmd)
+
+# BE PATIENT, TOOL 15+ minutes
+print("Update mysql p3wifi")
+update_p3wifi_mysql()
+
+# BE PATIENT, TOOL 15+ minutes
+print("Update postgresql p3wifi")
+update_p3wifi_psql()
+"""
 
 
-    @staticmethod
-    def __load_map_square(center_latitude, center_longitude, center_limit=0.05):
-        logging.info(center_latitude,center_longitude,center_limit)
-        logging.info("\n\n")
-        sql_query = f"""
-            SELECT nets.BSSID, ESSID, WifiKey, geo.latitude, geo.longitude
-            FROM nets
-            JOIN geo ON nets.BSSID = geo.BSSID
-            WHERE geo.latitude BETWEEN {center_latitude} - {center_limit} AND {center_latitude} + {center_limit}
-              AND geo.longitude BETWEEN {center_longitude} - {center_limit} AND {center_longitude} + {center_limit}
-            LIMIT 10000000;
-        """
-        return sql_query
+
+# ------------CONFIG----------------
+class p3wifi(MySQL_MapSource, PGSQL_MapSource):
+
+
+    def __init__(self):
+        self.SCHEMA_NAME = "p3wifi"
+
+        default_config = configparser.ConfigParser()
+        default_config[self.SCHEMA_NAME] = {
+            'country': '',
+            'out_schema': 'p3wifi_cut_of',
+        }
+
+        MySQL_MapSource.__init__(self,self.SCHEMA_NAME, config=default_config)
+        PGSQL_MapSource.__init__(self,self.SCHEMA_NAME)
+        #check requiered tables
+
+
 
     # --------------------Map Data --------------------
+    """
     def get_map_data(self, filters=None):
         try:
             with self._get_db_connection() as connection:
@@ -101,4 +147,84 @@ class p3wifi(MySQL_MapSource):
             }
             for row in rows
         ]
+    """
 
+    def get_map_data(self, filters: Optional[Dict[str, Any]] = None) -> list[dict[str, Any]]:
+        pass
+
+    @staticmethod
+    def __download_geojson(country):
+        url = f"https://www.geoboundaries.org/api/current/gbOpen/{country}/ADM1/"
+        response = requests.get(url)
+        response.raise_for_status()
+        data = response.json()
+
+        # Simplify: keep only geometry and shapeName
+        features = []
+        for feature in data.get('features', []):
+            simplified = {
+                "type": "Feature",
+                "geometry": feature["geometry"],
+                "properties": {
+                    "name": feature["properties"].get("shapeName", "")
+                }
+            }
+            features.append(simplified)
+
+        simple_geojson = {
+            "type": "FeatureCollection",
+            "features": features
+        }
+
+        # Save to file for PostGIS import
+        with open(f"../../data/clean/{country}_adm1_simple.geojson", "w") as f:
+            json.dump(simple_geojson, f)
+
+        return simple_geojson
+
+    def __enable_postgis(self, dbname=None):
+        engine = create_engine(PGSQL_MapSource.connection_link(self,dbname=dbname))
+        with engine.connect() as conn:
+            conn.execute(text("CREATE EXTENSION IF NOT EXISTS postgis;"))
+
+    def __import_geojson_to_postgis(self, out_schema, country):
+        schema_name = f"p3wifi_{country}"
+        ogr_cmd = [
+            "ogr2ogr",
+            "-f", "PostgreSQL",
+            PGSQL_MapSource.connection_link(self,eq_str=True) ,
+            f"../../data/clean/{country}_adm1_simple.geojson",
+            "-nln", f"{schema_name}.{table}",
+            "-nlt", "MULTIPOLYGON",
+            "-lco", f"SCHEMA={schema_name}",
+            "-lco", "GEOMETRY_NAME=geom",
+            "-lco", "FID=id",
+            "-overwrite"
+        ]
+        subprocess.run(ogr_cmd, check=True)
+
+    def _cut_of_db(self):
+        config = configparser.ConfigParser()
+        config.read(self.config_path())
+        self.__download_geojson(country=config[self.SOURCE_NAME]['country'])
+        self.__enable_postgis()
+        self.__import_geojson_to_postgis(
+            table="p3wifi",
+            out_schema=config[self.SOURCE_NAME]['out_schema'],
+            country=config[self.SOURCE_NAME]['country']
+        )
+
+
+    def get_tools(self) -> Dict[str, Dict[str, Any]]| None:
+        config = configparser.ConfigParser()
+        config.read(self.config_path())
+        cut_of_params = [
+            ("country", str, None, config[self.SOURCE_NAME]['country'], "country code ISO-3166-1"),
+            ("out_database", str, None, config[self.SOURCE_NAME]['out_schema'], "out databse, same for override"),
+        ]
+        return {
+            self.DEFAULT_SOURCE_NAME: {"params":[]},
+            #"load .sql backup": {"run_fun": self._load_backup},
+            #"convert mysql to postgres": {"run_fun": self._mysql_to_pg},
+            "cut_of_databse" : { "run_fun": self._cut_of_db,"params": cut_of_params }
+        }
