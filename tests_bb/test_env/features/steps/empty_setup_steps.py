@@ -1,10 +1,15 @@
+import configparser
 import json
 import logging
+import os
 from io import StringIO
 from unittest.mock import patch
 
 from behave import given, when, then
 from bs4 import BeautifulSoup
+
+from map_app.source_core.manager import tool_list
+
 
 @when('Client {method} "{path}"')
 def step_impl(context, method, path):
@@ -94,3 +99,44 @@ def step_impl(context, tool_name):
     context.tool_list_patcher = patcher.start()
     context.add_cleanup(patcher.stop)
 """
+
+# ------------------ BACKUP -------------------------
+
+@given('config "{config_file_name}" "{config_name}" is "{param_value}"')
+def step_impl(context, config_file_name, config_name, param_value):
+    config_path = os.path.join(os.path.dirname(__file__), f'../src/map_app/sources/{config_file_name}.ini')
+    config_path = os.path.abspath(config_path)
+    assert os.path.isfile(config_path), f"Config file not found at {config_path}"
+
+    config = configparser.ConfigParser()
+    config.read(config_path)
+    assert config_name in config, f"Section '{config_name}' not found in {config_file_name}.ini"
+    found = any(value == param_value for value in config[config_name].values())
+    assert found, f"No value '{param_value}' found in section '{config_name}' of {config_file_name}.ini"
+
+@when('tool run "{object_name}" "{tool_name}"')
+def step_impl(context, object_name, tool_name):
+    tools = tool_list(add_class=True)
+    func = tools[object_name][tool_name].get("run_fun", None)
+    assert func is not None
+    func()
+
+@then('root "{folder}" "{f_type}" exists')
+def step_impl(context, folder, f_type):
+    path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..','..', folder))
+    if f_type == "folder":
+        assert os.path.isdir(path), f'Folder not found: {path}'
+    elif f_type == "file":
+        assert os.path.isfile(path), f'File not found: {path}'
+    else:
+        raise ValueError(f'Unknown type: {f_type}')
+
+@then('in root "{parent}" is "{f_type}" "{name}"')
+def step_impl(context, parent, f_type, name):
+    path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..','..', parent, name))
+    if f_type == "folder":
+        assert os.path.isdir(path), f'Folder not found: {path}'
+    elif f_type == "file":
+        assert os.path.isfile(path), f'File not found: {path}'
+    else:
+        raise ValueError(f'Unknown type: {f_type}')

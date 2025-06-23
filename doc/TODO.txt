@@ -28,6 +28,10 @@ d: documnet that .ini config have to be same like tool name (and chekc it with t
 +: add import/export config backup in global tools
 +: add help small windows if i focus on button in tools (or just add icons)
 
+------- DONE in NEXT REALEASE REALEASE 0.0.2
+
+
+
 -------CREATE RELEASE
 
 v: add click cords to map view

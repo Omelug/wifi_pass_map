@@ -83,3 +83,25 @@ Feature: Empty setup
     When Client GET "/api/search"
     Then web code is 200
     And web response is {"data": [], "script_statuses": [], "AP_len": 0}
+
+# --------------- BACKUP -----------------
+
+  Scenario:  backup save
+    When tool run "globalconfig" "Create backup"
+    Then root "backup" "folder" exists
+    And in root "backup" is "folder" "config"
+    And in root "backup/config" is "file" "globalconfig.ini"
+    And in root "backup" is "folder" "plugins"
+    And in root "backup/plugins" is "file" "wigle.disable.py"
+    And in root "backup" is "folder" "data"
+    And in root "backup/data" is "file" "wifi_pass_map.db"
+
+  Scenario:  backup load
+    #TODO
+
+#------------- SAVE/UPDATE CONFIG ---------
+
+  #TODO Scenario: Default base configs are valid
+  #TODO Scenario: Invalid input
+  #TODO Scenario: Valid input
+  #TODO Scenario:

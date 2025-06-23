@@ -138,13 +138,11 @@ def save_params() -> Tuple[Dict[str, Any], int]:
         return {"status": "error", "message": "Invalid script name."}, 404
 
     config = configparser.ConfigParser()
-    print(config_file)
     if os.path.exists(config_file):
         config.read(config_file)
     else:
         return {"status": "error", "message": f"Config file for {config_file} not found"}, 404
 
-    # FIXME toolname musé být úžeji provázán s tím jak
     if tool_name not in config:
         config[tool_name] = {}
 
