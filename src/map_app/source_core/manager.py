@@ -100,7 +100,7 @@ def tool_list(add_class=False) -> dict:
                 continue
             tools[object_name] = obj_tools
 
-            if add_class:
+            if add_class and tools[object_name].get("class",None) is None:
                 tools[object_name]["class"] = type(source_obj)
         else:
             logging.warning(f"{type(source_obj).__name__} does not have a get_tools() function")
@@ -137,7 +137,6 @@ def get_AP_data(filters: Optional[Dict[str, Any]] = None) -> Tuple[List[Dict[str
         else:
             logging.debug(f"{object_name} does not have a get_map_data() function")
             script_statuses.append({'name': object_name, 'status': 'missing_function'})
-
     return pwned_data, script_statuses
 
 def toggle_source(source_name: str, enable: bool):

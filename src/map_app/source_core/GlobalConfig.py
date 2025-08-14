@@ -4,6 +4,7 @@ import os
 import shutil
 from typing import Dict, Any
 
+from formator.param_validator import valid_relative_path
 from map_app.source_core.ToolSource import ToolSource
 
 
@@ -121,14 +122,14 @@ class GlobalConfig(ToolSource):
 
         create_backup_param = [
             ("Backup plugins?", str, None, config['create_backup']['plugins'], "(true/false/only_custom)"),
-            ("Backup config?", str, None, config['create_backup']['config'], "Ordered listof sources (true/false)"),
-            ("data", str, None, config['create_backup']['data'], "(true/false)"),
-            ("backup_path", str, None, config['create_backup']['backup_path'], "(true/false/run_select)"),
+            ("Backup config?", str, None, config['create_backup']['config'], "Ordered list of sources (true/false)"),
+            ("Backup data?", str, None, config['create_backup']['data'], "(true/false)"),
+            ("Backup folder path", str, valid_relative_path, config['create_backup']['backup_path'], "(true/false/run_select)"),
         ]
 
         load_backup_param = [
             ("override", str, None, config['load_backup']['override'], "(true/false)"),
-            ("load_src_path", str, None, config['load_backup']['load_src_path'], "(true/false/run_select)"),
+            ("Backup folder path", str, os.path.exists, config['load_backup']['load_src_path'], "(true/false/run_select)"),
         ]
 
         return {

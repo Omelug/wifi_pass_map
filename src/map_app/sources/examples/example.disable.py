@@ -8,6 +8,8 @@ def param_control(string):
 
 class Example(MapSource):
     __description__ = "example source  - check for dicumentation"
+    __requirements__ = None
+
     def __init__(self):
 
         default_config = configparser.ConfigParser()

@@ -18,7 +18,6 @@ v = visual, d = documentation, t = test
      -> some SQL indexes for big data
 
 ---------TODO IN NEXT REALEASE 0.0.2
-+: add load backup in tools
 +: addc check funxtions for input + unit tests
 
 t: search test
@@ -30,7 +29,7 @@ d: documnet that .ini config have to be same like tool name (and chekc it with t
 +: add help small windows if i focus on button in tools (or just add icons)
 
 ------- DONE in REALEASE 0.0.2
-
++: add load backup in tools
 +: create backup tool
 t: behave testing
 v: tools few visual changes
