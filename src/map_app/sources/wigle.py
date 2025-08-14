@@ -7,7 +7,7 @@ import requests
 from requests import ReadTimeout
 from sqlalchemy import select, Table, update, Connection
 
-from map_app.source_core.ToolSource import ToolSource
+from map_app.source_core.ToolSource import ToolSource, ToolGenerator
 from map_app.source_core.db import Database
 
 
@@ -137,11 +137,16 @@ class Wigle(ToolSource):
         return localized_networks, total_networks
 
     def get_tools(self):
-        config = configparser.ConfigParser()
-        config.read(self.config_path())
-        wigle_param = [("api_keys", str, None, config['wigle_locate']['api_keys'], "Key for Wigle"),
-                       ("locate_older_than_days", int, None, config['wigle_locate']['locate_older_than_days'], "Check localization older than")]
-        return {"wigle_locate":{"params":wigle_param}}
+        gen = ToolGenerator(self)
+        gen.addParam(tool_name="wigle_locate",
+                     param_name="api_keys",
+                     description="Key for Wigle")
+        gen.addParam(tool_name="wigle_locate",
+                     param_name="locate_older_than_days",
+                     input_type=int,
+                     validation_function=int,
+                     description="Check localization older than")
+        return gen.get_list()
 
 
 

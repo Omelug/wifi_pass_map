@@ -88,6 +88,12 @@ def _load_source_objects(Source_class, disabled:bool = False, no_source_folder:b
     ordered_names = order_sources_by_config(list(name_to_obj.keys()))
     return [name_to_obj[name] for name in ordered_names if name in name_to_obj]
 
+def get_config_path_by_class_name(class_name: str) -> str:
+    for obj in _load_source_objects(ToolSource):
+        if type(obj).__name__ == class_name:
+            return obj.config_path()
+    raise ValueError(f"No ToolSource found with class name '{class_name}'")
+
 def tool_list() -> dict:
     """Get tool lists from sources using get_tools(), adding config_name to each tool."""
     tools = {}

@@ -8,10 +8,9 @@ from typing import Any, Dict, Tuple
 
 from flask import jsonify, request, Response, Blueprint
 
-from formator.files import source_object_name
 from map_app.source_core import manager
 from map_app.source_core.GlobalConfig import GlobalConfig
-from map_app.source_core.manager import get_AP_data, tool_list
+from map_app.source_core.manager import get_AP_data, tool_list, get_config_path_by_class_name
 
 api_bp = Blueprint('api', __name__)
 
@@ -124,16 +123,20 @@ def run_tool() -> Tuple[Dict[str, Any], int] | Response:
 def save_params() -> Tuple[Dict[str, Any], int]:
     """Save user-defined parameters for a given source script and tool."""
     data = request.json or {}
-    config_name = data.get('config_name')
+    source_class_name = data.get('source_class_name')
     tool_name = data.get('tool_name')
     params = data.get('params')
 
-    if not config_name or not tool_name or not params:
+    if not source_class_name or not tool_name or not params:
         return {"status": "error", "message": "Script name or tool name or parameters missing"}, 400
 
-    #secure input
-    config_file = os.path.join(SAFE_CONFIG_DIR, f"{config_name}.ini")
-    if not config_file.startswith(SAFE_CONFIG_DIR) or not source_object_name(config_name):
+    config_file = get_config_path_by_class_name(source_class_name)
+
+    config_file_abs = os.path.abspath(config_file)
+    safe_dir_abs = os.path.abspath(SAFE_CONFIG_DIR)
+
+    # Check if config_file is inside SAFE_CONFIG_DIR
+    if os.path.commonpath([config_file_abs, safe_dir_abs]) != safe_dir_abs:
         return {"status": "error", "message": "Invalid script name."}, 404
 
     config = configparser.ConfigParser()

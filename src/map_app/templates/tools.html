@@ -34,10 +34,10 @@
                 <div class="tool-block">
                     <div class="tool-container">
                         <div>
-                            <button id="{{ source_class_name }}_{{ tool_name }}_button" onclick="runTool('{{ object_name }}', '{{ tool_name }}')">
+                            <button id="{{ source_class_name }}_{{ tool_name }}_button" onclick="runTool('{{ source_class_name }}', '{{ tool_name }}')">
                                 {{ tool_name.upper() }}
                             </button>
-                            <button id="{{ source_class_name }}_{{ tool_name }}_save_button" class="save-button" onclick="saveParams('{{ object_name }}', '{{ tool_name }}')">
+                            <button id="{{ source_class_name }}_{{ tool_name }}_save_button" class="save-button" onclick="saveParams('{{ source_class_name }}', '{{ tool_name }}')">
                                 <i class="fas fa-save"></i>
                             </button>
                         </div>

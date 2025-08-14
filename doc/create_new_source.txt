@@ -13,8 +13,15 @@ How to make new source?
         <param_name> = <param_value>
 
 
-    - if you want create param for tool:
+    - if you want create param for tool (typical get_tool function):
+	    def get_tools(self):
+            config = configparser.ConfigParser()
+            config.read(self.config_path())
+            wigle_param = [("<param_name>", str, None | validation_function , config['wigle_locate'][<param_name>], "Info about param")]
 
+        return {"wigle_locate":{"params":wigle_param}}
+
+        - validation_function is function what have one param - input string
 
 
 Another tips:

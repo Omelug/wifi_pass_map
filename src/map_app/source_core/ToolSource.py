@@ -1,3 +1,4 @@
+import configparser
 import inspect
 import logging
 import os
@@ -44,4 +45,23 @@ class ToolSource(metaclass=SingletonMeta):
             config_name = os.path.splitext(os.path.basename(calling_script))[0]
         return f'{sources_config_file}/{config_name}.ini'
 
+
+class ToolGenerator():
+
+    def __init__(self, tool_source:ToolSource, config_path=None):
+        self.tool_params = dict()
+        if config_path is None:
+            self.config_path = tool_source.config_path()
+        else:
+            self.config_path = config_path
+
+    def addParam(self, tool_name: str, param_name: str, input_type=str, validation_function=None, description="") -> None:
+        if tool_name not in self.tool_params:
+            self.tool_params[tool_name] = []
+        config = configparser.ConfigParser()
+        config.read(self.config_path)
+        self.tool_params[tool_name].append((param_name, input_type, validation_function, config[tool_name][param_name],description))
+
+    def get_list(self):
+        return self.tool_params
 

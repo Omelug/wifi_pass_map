@@ -133,7 +133,7 @@ class GlobalConfig(ToolSource):
         ]
 
         return {
-            "Global Settings": {"params": global_param},
+            "global_settings": {"params": global_param},
             "create_backup": {"params": create_backup_param, "run_fun": self.__create_backup},
             "load_backup": {"params": load_backup_param, "run_fun": self.__load_backup}
         }
