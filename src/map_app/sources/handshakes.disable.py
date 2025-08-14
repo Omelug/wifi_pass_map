@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 import glob
 
+from map_app.source_core.ToolSource import ToolGenerator
 from src.formator.bssid import extract_essid_bssid
 from src.map_app.source_core.Table_v0 import Table_v0
 from src.map_app.source_core.db import Database
@@ -94,12 +95,9 @@ class Handshakes(Table_v0):
         Handshakes.__create_hash_file(config)
         self.__load_hashes_to_db(config)
 
-
     def get_tools(self):
-        config = configparser.ConfigParser()
-        config.read(self.config_path())
-        hs_reload = [("hs_path", str, None, config['handshake_scan']['handshakes_dir'], "Path to the directory with handshakes"),]
-        return {"handshake_reload": {"run_fun": self.__handshake_reload,
-                                     "params":hs_reload},
-                #"handshake_locate": {"run_fun": self.table_v0_locate}
-                }
+        gen = ToolGenerator(self)
+        gen.addParam(tool_name="handshake_reload", param_name="hs_path",
+                     description="Path to the directory with handshakes")
+        gen.add_run_fun("handshake_reload", self.__handshake_reload)
+        return gen.get_list()

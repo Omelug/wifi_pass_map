@@ -12,6 +12,10 @@ class SingletonMeta(type):
             cls._instances[cls] = instance
         return cls._instances[cls]
 
+    @classmethod
+    def clear_instances(cls):
+        cls._instances.clear()
+
 BASE_FILE = os.path.dirname(os.path.abspath(__file__))
 sources_config_file = os.path.join(BASE_FILE,'..','sources','config')
 os.makedirs(sources_config_file, exist_ok=True)
@@ -50,6 +54,7 @@ class ToolGenerator():
 
     def __init__(self, tool_source:ToolSource, config_path=None):
         self.tool_params = dict()
+        self.run_funs = dict()
         if config_path is None:
             self.config_path = tool_source.config_path()
         else:
@@ -62,6 +67,16 @@ class ToolGenerator():
         config.read(self.config_path)
         self.tool_params[tool_name].append((param_name, input_type, validation_function, config[tool_name][param_name],description))
 
+    def add_run_fun(self, tool_name: str, run_fun) -> None:
+        self.run_funs[tool_name] = run_fun
+
     def get_list(self):
-        return self.tool_params
+        result = {}
+        for tool_name, params in self.tool_params.items():
+            entry = {"params": params}
+            if tool_name in self.run_funs:
+                entry["run_fun"] = self.run_funs[tool_name]
+            result[tool_name] = entry
+        return result
+
 

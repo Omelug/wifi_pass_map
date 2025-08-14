@@ -4,6 +4,8 @@ import logging
 import os
 import sys
 import requests
+
+from map_app.source_core.ToolSource import ToolGenerator
 from src.map_app.source_core.Table_v0 import Table_v0
 from src.map_app.source_core.db import Database
 
@@ -81,9 +83,8 @@ class Wpasec(Table_v0):
         self.__csv_to_db(acc_potfile)
 
     def get_tools(self):
-        config = configparser.ConfigParser()
-        config.read(self.config_path())
-
-        wpasec_update_params = [("api_keys", str, None, config['wpasec_update']['api_keys'], "Key for WPASEC"),
-                                ("wpasec_link", str, None, config['wpasec_update']['wpasec_link'], "Link to wpasec api")]
-        return {"wpasec_update":  {"run_fun": self.__wpasec_update, "params":wpasec_update_params}}
+        gen = ToolGenerator(self)
+        gen.addParam(tool_name="wpasec_update", param_name="api_keys", description="Key for WPASEC")
+        gen.addParam(tool_name="wpasec_update", param_name="wpasec_link", description="Link to wpasec api")
+        gen.add_run_fun("wpasec_update", self.__wpasec_update)
+        return gen.get_list()

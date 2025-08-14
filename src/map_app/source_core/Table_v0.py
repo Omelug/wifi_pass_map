@@ -9,6 +9,7 @@ from sqlalchemy.sql import expression
 
 from formator.bssid import format_bssid
 from map_app.source_core.Source import MapSource
+from map_app.source_core.ToolSource import ToolGenerator
 from map_app.source_core.db import Database
 from map_app.source_core.manager import _load_source_objects, order_sources_by_config
 
@@ -123,14 +124,12 @@ class Table_v0(MapSource):
                         seen_bssids.add(bssid)
 
     def get_tools(self) -> Dict[str, Dict[str, Any]]:
-        config = configparser.ConfigParser()
-        config.read(self.config_path(Table_v0.DEFAULT_SOURCE_NAME))
-        global_param = [("block_duplicates", str, None, config['table_v0']['block_duplicates'], "(false, remove_old, merge_to_new, merge_to_old) Block insert of duplicates betweeb tablec0 tables"), ]
-        return {
-            "Table_v0": {"params":global_param},
-            "remove_duplicates": {"run_fun": self.__remove_duplicates},
-            "tablev0_locate": {"run_fun": Table_v0.table_v0_locate}
-        }
+        gen = ToolGenerator(self, config_path=self.config_path(Table_v0.DEFAULT_SOURCE_NAME))
+        gen.addParam("table_v0", "block_duplicates",
+                     description="(false, remove_old, merge_to_new, merge_to_old) Block insert of duplicates between tablev0 tables")
+        gen.add_run_fun("remove_duplicates", self.__remove_duplicates)
+        gen.add_run_fun("tablev0_locate", Table_v0.table_v0_locate)
+        return gen.get_list()
 
     @staticmethod
     def create_table(table_name) -> Table:

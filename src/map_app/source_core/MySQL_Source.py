@@ -3,6 +3,8 @@ import logging
 import warnings
 from typing import Dict, Any, Optional
 from sqlalchemy import inspect, create_engine, exc
+
+from map_app.source_core.ToolSource import ToolGenerator
 from src.map_app.source_core.Source import MapSource
 
 #---------------------MySQL_Source----------------------
@@ -16,7 +18,6 @@ class MySQL_MapSource(MapSource):
         self.SOURCE_NAME = database_name
         if database_name is None:
             self.SOURCE_NAME = MySQL_MapSource.DEFAULT_SOURCE_NAME
-            return
         super().__init__(database_name, config)
 
         default_config = configparser.ConfigParser()
@@ -64,20 +65,14 @@ class MySQL_MapSource(MapSource):
         except exc.SQLAlchemyError as e:
             logging.error(f"Error: Cannot connect to the database {self.SOURCE_NAME}. Exception: {e}")
 
-    def get_tools(self) -> Dict[str, Dict[str, Any]]| None:
-        config = configparser.ConfigParser()
-        if not config.read(self.config_path(MySQL_MapSource.DEFAULT_SOURCE_NAME)):
-            return None
-        global_param = [
-            ("db_user", str, None, config[MySQL_MapSource.DEFAULT_SOURCE_NAME]['db_user'], "mysql user"),
-            ("db_pass", str, None, config[MySQL_MapSource.DEFAULT_SOURCE_NAME]['db_pass'], "mysql password"),
-            ("db_ip", str, None, config[MySQL_MapSource.DEFAULT_SOURCE_NAME]['db_ip'], "mysql ip"),
-            ("db_port", str, None, config[MySQL_MapSource.DEFAULT_SOURCE_NAME]['db_port'], "mysql port"),
-            ("db_name", str, None, config[MySQL_MapSource.DEFAULT_SOURCE_NAME]['db_name'], "mysql database name"),
-        ]
-        return {
-            self.DEFAULT_SOURCE_NAME : {"params":global_param}
-        }
+    def get_tools(self) -> Dict[str, Dict[str, Any]] | None:
+        gen = ToolGenerator(self, config_path=self.config_path(MySQL_MapSource.DEFAULT_SOURCE_NAME))
+        gen.addParam(self.DEFAULT_SOURCE_NAME, "db_user", description="mysql user")
+        gen.addParam(self.DEFAULT_SOURCE_NAME, "db_pass", description="mysql password")
+        gen.addParam(self.DEFAULT_SOURCE_NAME, "db_ip", description="mysql ip")
+        gen.addParam(self.DEFAULT_SOURCE_NAME, "db_port", description="mysql port")
+        gen.addParam(self.DEFAULT_SOURCE_NAME, "db_name", description="mysql database name")
+        return gen.get_list()
 
     def connection_link(self, dbname=None):
         config = configparser.ConfigParser()

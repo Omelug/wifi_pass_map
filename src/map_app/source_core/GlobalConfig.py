@@ -5,7 +5,7 @@ import shutil
 from typing import Dict, Any
 
 from formator.param_validator import valid_relative_path
-from map_app.source_core.ToolSource import ToolSource
+from map_app.source_core.ToolSource import ToolSource, SingletonMeta
 
 
 class GlobalConfig(ToolSource):
@@ -23,7 +23,7 @@ class GlobalConfig(ToolSource):
             'plugins': 'true',
             'config': 'true',
             'data': 'true',
-            'backup_path': 'backup',
+            'backup_folder_path': 'backup',
         }
         default_config['load_backup'] = {
             'override': 'true',
@@ -42,7 +42,7 @@ class GlobalConfig(ToolSource):
         def resolve_path(path):
             return path if os.path.isabs(path) else os.path.join(BASE_DIR, path)
 
-        backup_path = resolve_path(backup_cfg.get('backup_path'))
+        backup_path = resolve_path(backup_cfg.get('backup_folder_path'))
         os.makedirs(backup_path, exist_ok=True)
 
         if backup_cfg.getboolean('plugins', fallback=True):
@@ -69,7 +69,6 @@ class GlobalConfig(ToolSource):
                 shutil.copytree(data_src, data_dst, dirs_exist_ok=True)
 
     def __load_backup(self):
-        import glob
 
         config = configparser.ConfigParser()
         config.read(self.config_path())
@@ -110,33 +109,33 @@ class GlobalConfig(ToolSource):
                 shutil.rmtree(target_data_folder)
             shutil.copytree(backup_data_folder, target_data_folder, dirs_exist_ok=True)
 
+        from map_app.source_core.manager import _load_source_objects  # Move import here
+        SingletonMeta.clear_instances()
+        _ = _load_source_objects(ToolSource)
+
     def get_tools(self) -> Dict[str, Dict[str, Any]]:
-        config = configparser.ConfigParser()
-        config.read(self.config_path())
+        from map_app.source_core.ToolSource import ToolGenerator
+        gen = ToolGenerator(self)
 
-        global_param = [
-            ("ordered_sources", str, None, config['view_settings']['ordered_sources'], "Ordered listof sources"),
-            ("start_map_point", str, None, config['start_view']['start_map_point'], "start map point zoom"),
-            ("start_zoom", str, None, config['start_view']['start_zoom'], "start map zoom"),
-        ]
+        gen.addParam("view_settings", "ordered_sources", description="Ordered listof sources")
+        gen.addParam("start_view", "start_map_point", description="start map point zoom")
+        gen.addParam("start_view", "start_zoom", description="start map zoom")
 
-        create_backup_param = [
-            ("Backup plugins?", str, None, config['create_backup']['plugins'], "(true/false/only_custom)"),
-            ("Backup config?", str, None, config['create_backup']['config'], "Ordered list of sources (true/false)"),
-            ("Backup data?", str, None, config['create_backup']['data'], "(true/false)"),
-            ("Backup folder path", str, valid_relative_path, config['create_backup']['backup_path'], "(true/false/run_select)"),
-        ]
+        # Create backup
+        gen.addParam("create_backup", "plugins", description="(true/false/only_custom)")
+        gen.addParam("create_backup", "config", description="Ordered list of sources (true/false)")
+        gen.addParam("create_backup", "data", description="(true/false)")
+        gen.addParam("create_backup", "backup_folder_path", validation_function=valid_relative_path,
+                     description="(true/false/run_select)")
+        gen.add_run_fun("create_backup", self.__create_backup)
 
-        load_backup_param = [
-            ("override", str, None, config['load_backup']['override'], "(true/false)"),
-            ("Backup folder path", str, os.path.exists, config['load_backup']['load_src_path'], "(true/false/run_select)"),
-        ]
+        # Load backup
+        gen.addParam("load_backup", "override", description="(true/false)")
+        gen.addParam("load_backup", "load_src_path", validation_function=os.path.exists,
+                     description="(true/false/run_select)")
+        gen.add_run_fun("load_backup", self.__load_backup)
 
-        return {
-            "global_settings": {"params": global_param},
-            "create_backup": {"params": create_backup_param, "run_fun": self.__create_backup},
-            "load_backup": {"params": load_backup_param, "run_fun": self.__load_backup}
-        }
+        return gen.get_list()
 
     def get_ordered_sources(self):
         config = configparser.ConfigParser()

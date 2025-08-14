@@ -1,6 +1,7 @@
 import configparser
 import logging
 
+from map_app.source_core.ToolSource import ToolGenerator
 from src.map_app.source_core.Source import MapSource
 
 def param_control(string):
@@ -26,11 +27,11 @@ class Example(MapSource):
         logging.info(f"{custom_text}")
 
     def get_tools(self):
-        config = configparser.ConfigParser()
-        config.read(self.config_path())
-
-        params = [("custom_text", str, param_control, config['example_tool']['custom_text'], "custom text for print")]
-        return {"example_tool": {"run_fun":  self.__print_example, "params":params}}
+        gen = ToolGenerator(self)
+        gen.addParam(tool_name="example_tool", param_name="custom_text", validation_function=param_control,
+                     description="custom text for print")
+        gen.add_run_fun("example_tool", self.__print_example)
+        return gen.get_list()
 
     def get_map_data(self, filters=None):
 

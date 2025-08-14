@@ -4,6 +4,8 @@ import logging
 import os
 import sys
 import requests
+
+from map_app.source_core.ToolSource import ToolGenerator
 from src.map_app.source_core.Table_v0 import Table_v0
 from src.map_app.source_core.db import Database
 from src.formator.potfile import decode_hexed
@@ -81,10 +83,8 @@ class Pwncrack(Table_v0):
         self.__csv_to_db(acc_potfile)
 
     def get_tools(self):
-        config = configparser.ConfigParser()
-        config.read(self.config_path())
-
-        pwncrack_update_params = [("api_keys", str, None, config['pwncrack_update']['api_keys'], "Key for pwncrack"),
-                                ("pwncrack_link", str, None, config['pwncrack_update']['pwncrack_link'], "Link to pwncrack api")]
-        return {"pwncrack_update":  {"run_fun": self.__pwncrack_update, "params":pwncrack_update_params}}
-
+        gen = ToolGenerator(self)
+        gen.addParam(tool_name="pwncrack_update", param_name="api_keys", description="Key for pwncrack")
+        gen.addParam(tool_name="pwncrack_update", param_name="pwncrack_link", description="Link to pwncrack api")
+        gen.add_run_fun("pwncrack_update", self.__pwncrack_update)
+        return gen.get_list()

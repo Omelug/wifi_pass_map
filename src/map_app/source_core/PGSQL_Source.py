@@ -1,5 +1,7 @@
 import configparser
 from typing import Dict, Any
+
+from map_app.source_core.ToolSource import ToolGenerator
 from src.map_app.source_core.Source import MapSource
 
 class PGSQL_MapSource(MapSource):
@@ -8,7 +10,6 @@ class PGSQL_MapSource(MapSource):
         self.SOURCE_NAME = database_name
         if database_name is None:
             self.SOURCE_NAME = PGSQL_MapSource.DEFAULT_SOURCE_NAME
-            return
         super().__init__(database_name, config)
 
         default_config = configparser.ConfigParser()
@@ -21,20 +22,14 @@ class PGSQL_MapSource(MapSource):
         }
         self.create_config(self.config_path(PGSQL_MapSource.DEFAULT_SOURCE_NAME), default_config)
 
-    def get_tools(self) -> Dict[str, Dict[str, Any]]|None:
-        config = configparser.ConfigParser()
-        if not config.read(self.config_path(PGSQL_MapSource.DEFAULT_SOURCE_NAME)):
-            return None
-        global_param = [
-            ("db_user", str, None, config[PGSQL_MapSource.DEFAULT_SOURCE_NAME]['db_user'], "postgres SQL user"),
-            ("db_pass", str, None, config[PGSQL_MapSource.DEFAULT_SOURCE_NAME]['db_pass'], "postgres SQL password"),
-            ("db_ip", str, None, config[PGSQL_MapSource.DEFAULT_SOURCE_NAME]['db_ip'], "postgres SQL ip"),
-            ("db_port", str, None, config[PGSQL_MapSource.DEFAULT_SOURCE_NAME]['db_port'], "postgres SQL port"),
-            ("db_name", str, None, config[PGSQL_MapSource.DEFAULT_SOURCE_NAME]['db_name'], "postgres SQL database name"),
-        ]
-        return {
-            self.DEFAULT_SOURCE_NAME : {"params":global_param}
-        }
+    def get_tools(self) -> Dict[str, Dict[str, Any]] | None:
+        gen = ToolGenerator(self, config_path=self.config_path(PGSQL_MapSource.DEFAULT_SOURCE_NAME))
+        gen.addParam(self.DEFAULT_SOURCE_NAME, "db_user", description="postgres SQL user")
+        gen.addParam(self.DEFAULT_SOURCE_NAME, "db_pass", description="postgres SQL password")
+        gen.addParam(self.DEFAULT_SOURCE_NAME, "db_ip", description="postgres SQL ip")
+        gen.addParam(self.DEFAULT_SOURCE_NAME, "db_port", description="postgres SQL port")
+        gen.addParam(self.DEFAULT_SOURCE_NAME, "db_name", description="postgres SQL database name")
+        return gen.get_list()
 
     def connection_link(self, dbname=None, eq_str=False):
         config = configparser.ConfigParser()

@@ -214,17 +214,14 @@ class p3wifi(MySQL_MapSource, PGSQL_MapSource):
             country=config[self.SOURCE_NAME]['country']
         )
 
-
-    def get_tools(self) -> Dict[str, Dict[str, Any]]| None:
-        config = configparser.ConfigParser()
-        config.read(self.config_path())
-        cut_of_params = [
-            ("country", str, None, config[self.SOURCE_NAME]['country'], "country code ISO-3166-1"),
-            ("out_database", str, None, config[self.SOURCE_NAME]['out_schema'], "out databse, same for override"),
-        ]
-        return {
-            self.DEFAULT_SOURCE_NAME: {"params":[]},
-            #"load .sql backup": {"run_fun": self._load_backup},
-            #"convert mysql to postgres": {"run_fun": self._mysql_to_pg},
-            "cut_of_databse" : { "run_fun": self._cut_of_db,"params": cut_of_params }
-        }
+    def get_tools(self) -> Dict[str, Dict[str, Any]] | None:
+        from map_app.source_core.ToolSource import ToolGenerator
+        gen = ToolGenerator(self)
+        gen.addParam(tool_name="cut_of_databse", param_name="country", description="country code ISO-3166-1")
+        gen.addParam(tool_name="cut_of_databse", param_name="out_database",
+                     description="out database, same for override")
+        gen.add_run_fun("cut_of_databse", self._cut_of_db)
+        # Add DEFAULT_SOURCE_NAME with empty params
+        result = gen.get_list()
+        result[self.DEFAULT_SOURCE_NAME] = {"params": []}
+        return result
