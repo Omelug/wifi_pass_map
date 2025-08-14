@@ -148,11 +148,20 @@ def save_params() -> Tuple[Dict[str, Any], int]:
     if tool_name not in config:
         config[tool_name] = {}
 
+    tools = tool_list()
+    tool_entry = tools.get(source_class_name, {}).get(tool_name, {})
+    params_list = tool_entry.get("params", [])
 
     for param_name, param_value in params.items():
-        #FIXME find tool and call functunon to verify input
-        # if not succed, resturn error
-        # return {"status": "error", "message": f"Config input was declined by functiion {verify_fun_name}"}, 403
+        # Find validation function for this param
+        validation_fun = None
+        for p in params_list:
+            if p[0] == param_name:
+                validation_fun = p[2]
+                break
+        if validation_fun and not validation_fun(param_value):
+            return {"status": "error",
+                    "message": f"Config input was declined by function {validation_fun.__name__}"}, 403
         config[tool_name][param_name] = str(param_value)
 
     with open(config_file, 'w') as cf:
