@@ -9,28 +9,31 @@ v = visual, d = documentation, t = test
 
 ---------TODO IN NEXT REALEASE 0.0.3
 + automatization to run it on mobile
-
----------TODO IN NEXT REALEASE 0.0.2
-t: search test
-t: run test in costom enviroment
-t: selenum tests ???
-b: some tools operation depends on self.SOURCE_NAMEsoem a depends on file name
-+: show cracked count in statDiv
-d: documnet that .ini config have to be same like tool name (and chekc it with tests)!
-
 +:Country specific p3wifi:
      - add tool to
         - downloadn and load database
-        - cut only one database
+        - cut only one country database
         - add warning messages - database not accesible etc.
         - add manual to this
      -> some SQL indexes for big data
-+: add import/export config backup in global tools
+
+---------TODO IN NEXT REALEASE 0.0.2
++: add load backup in tools
++: addc check funxtions for input + unit tests
+
+t: search test
+t: selenium tests ???
+b: some tools operation depends on self.SOURCE_NAME, some a depends on file name
++: show cracked count in statDiv
+d: documnet that .ini config have to be same like tool name (and chekc it with tests)!
+
 +: add help small windows if i focus on button in tools (or just add icons)
 
-------- DONE in NEXT REALEASE REALEASE 0.0.2
+------- DONE in REALEASE 0.0.2
 
-
++: create backup tool
+t: behave testing
+v: tools few visual changes
 
 -------CREATE RELEASE
 

@@ -18,13 +18,13 @@ class GlobalConfig(ToolSource):
             'start_zoom': '7',
         }
 
-        default_config['Create backup'] = {
+        default_config['create_backup'] = {
             'plugins': 'true',
             'config': 'true',
             'data': 'true',
             'backup_path': 'backup',
         }
-        default_config['Load backup'] = {
+        default_config['load_backup'] = {
             'override': 'true',
             'load_src_path': 'src',
         }
@@ -33,7 +33,7 @@ class GlobalConfig(ToolSource):
     def __create_backup(self):
         config = configparser.ConfigParser()
         config.read(self.config_path())
-        backup_cfg = config['Create backup']
+        backup_cfg = config['create_backup']
         print(backup_cfg['data'])
 
         BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
@@ -68,7 +68,46 @@ class GlobalConfig(ToolSource):
                 shutil.copytree(data_src, data_dst, dirs_exist_ok=True)
 
     def __load_backup(self):
-        pass
+        import glob
+
+        config = configparser.ConfigParser()
+        config.read(self.config_path())
+        load_cfg = config['load_backup']
+
+        BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
+        def resolve_path(path):
+            return path if os.path.isabs(path) else os.path.join(BASE_DIR, path)
+
+        override = load_cfg.getboolean('override', fallback=True)
+        load_src_path = resolve_path(load_cfg.get('load_src_path', 'src'))
+        backup_path = resolve_path(config['create_backup'].get('backup_path', 'backup'))
+
+        # Restore config folder
+        backup_config_folder = os.path.join(backup_path, 'config')
+        target_config_folder = os.path.join(load_src_path, 'map_app', 'sources', 'config')
+        if os.path.isdir(backup_config_folder):
+            if override and os.path.isdir(target_config_folder):
+                shutil.rmtree(target_config_folder)
+            shutil.copytree(backup_config_folder, target_config_folder, dirs_exist_ok=True)
+
+        # Restore plugins
+        backup_plugins_folder = os.path.join(backup_path, 'plugins')
+        target_plugins_folder = os.path.join(load_src_path, 'map_app', 'sources')
+        if os.path.isdir(backup_plugins_folder):
+            if override:
+                for f in glob.glob(os.path.join(target_plugins_folder, '*.py')):
+                    os.remove(f)
+            for py_file in glob.glob(os.path.join(backup_plugins_folder, '*.py')):
+                shutil.copy2(py_file, target_plugins_folder)
+
+        # Restore data
+        backup_data_folder = os.path.join(backup_path, 'data')
+        target_data_folder = resolve_path('data')
+        if os.path.isdir(backup_data_folder):
+            if override and os.path.isdir(target_data_folder):
+                shutil.rmtree(target_data_folder)
+            shutil.copytree(backup_data_folder, target_data_folder, dirs_exist_ok=True)
 
     def get_tools(self) -> Dict[str, Dict[str, Any]]:
         config = configparser.ConfigParser()
@@ -81,21 +120,21 @@ class GlobalConfig(ToolSource):
         ]
 
         create_backup_param = [
-            ("Backup plugins?", str, None, config['Create backup']['plugins'], "(true/false/only_custom)"),
-            ("Backup config?", str, None, config['Create backup']['config'], "Ordered listof sources (true/false)"),
-            ("data", str, None, config['Create backup']['data'], "(true/false)"),
-            ("backup_path", str, None, config['Create backup']['backup_path'], "(true/false/run_select)"),
+            ("Backup plugins?", str, None, config['create_backup']['plugins'], "(true/false/only_custom)"),
+            ("Backup config?", str, None, config['create_backup']['config'], "Ordered listof sources (true/false)"),
+            ("data", str, None, config['create_backup']['data'], "(true/false)"),
+            ("backup_path", str, None, config['create_backup']['backup_path'], "(true/false/run_select)"),
         ]
 
         load_backup_param = [
-            ("override", str, None, config['Load backup']['override'], "(true/false)"),
-            ("load_src_path", str, None, config['Load backup']['load_src_path'], "(true/false/run_select)"),
+            ("override", str, None, config['load_backup']['override'], "(true/false)"),
+            ("load_src_path", str, None, config['load_backup']['load_src_path'], "(true/false/run_select)"),
         ]
 
         return {
             "Global Settings": {"params": global_param},
-            "Create backup": {"params": create_backup_param, "run_fun": self.__create_backup},
-            "Load backup": {"params": load_backup_param, "run_fun": self.__load_backup}
+            "create_backup": {"params": create_backup_param, "run_fun": self.__create_backup},
+            "load_backup": {"params": load_backup_param, "run_fun": self.__load_backup}
         }
 
     def get_ordered_sources(self):
