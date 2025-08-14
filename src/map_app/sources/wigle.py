@@ -7,6 +7,7 @@ import requests
 from requests import ReadTimeout
 from sqlalchemy import select, Table, update, Connection
 
+from formator.param_validator import valid_wigle_key
 from map_app.source_core.ToolSource import ToolSource, ToolGenerator
 from map_app.source_core.db import Database
 
@@ -140,6 +141,7 @@ class Wigle(ToolSource):
         gen = ToolGenerator(self)
         gen.addParam(tool_name="wigle_locate",
                      param_name="api_keys",
+                     validation_function=valid_wigle_key,
                      description="Key for Wigle")
         gen.addParam(tool_name="wigle_locate",
                      param_name="locate_older_than_days",

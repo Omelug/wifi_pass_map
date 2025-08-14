@@ -111,7 +111,7 @@ class GlobalConfig(ToolSource):
 
         from map_app.source_core.manager import _load_source_objects  # Move import here
         SingletonMeta.clear_instances()
-        _ = _load_source_objects(ToolSource)
+        #_ = _load_source_objects(ToolSource)
 
     def get_tools(self) -> Dict[str, Dict[str, Any]]:
         from map_app.source_core.ToolSource import ToolGenerator
