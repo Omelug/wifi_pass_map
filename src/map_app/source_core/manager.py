@@ -88,20 +88,16 @@ def _load_source_objects(Source_class, disabled:bool = False, no_source_folder:b
     ordered_names = order_sources_by_config(list(name_to_obj.keys()))
     return [name_to_obj[name] for name in ordered_names if name in name_to_obj]
 
-def tool_list(add_class=False) -> dict:
-    """Get tool lists from sources using get_tools(), adding object_name to each tool."""
+def tool_list() -> dict:
+    """Get tool lists from sources using get_tools(), adding config_name to each tool."""
     tools = {}
     source_objects = _load_source_objects(ToolSource)
     for source_obj in source_objects:
         if hasattr(source_obj, 'get_tools'):
-            object_name = type(source_obj).__name__.lower()
             obj_tools = source_obj.get_tools()
             if obj_tools is None:
                 continue
-            tools[object_name] = obj_tools
-
-            if add_class and tools[object_name].get("class",None) is None:
-                tools[object_name]["class"] = type(source_obj)
+            tools[type(source_obj).__name__] = obj_tools
         else:
             logging.warning(f"{type(source_obj).__name__} does not have a get_tools() function")
     return tools

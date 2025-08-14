@@ -60,24 +60,24 @@ def load_sqare() -> Response:
 @api_bp.route('/api/tools', methods=['POST'])
 def run_tool() -> Tuple[Dict[str, Any], int] | Response:
     """Run specified tool script, stream its output."""
-    tools = tool_list(add_class=True)
+    tools = tool_list()
 
     # Get script name and optional arguments from the POST request
-    object_name = request.json.get('object_name')
+    source_class_name = request.json.get('source_class_name')
     tool_name = request.json.get('tool_name')
 
-    if not object_name or not tool_name:
-        err_msg = "Empty plugin name or tool name"
+    if not source_class_name or not tool_name:
+        err_msg = "Empty source_class_name name or tool_name"
         logging.warning(f"Request Path: {request.path} - {err_msg}")
         return {"status": "error", "message": err_msg}, 404
 
-    if object_name not in tools.keys():
-        err_msg = f"The plugin {object_name} was not found"
+    if source_class_name not in tools.keys():
+        err_msg = f"The plugin {source_class_name} was not found"
         logging.error(f"Request Path: {request.path} - {err_msg} ")
         return {"status": "error", "message": f"{err_msg}, available options are {', '.join(tools.keys())}"}, 404
 
-    if tool_name not in tools[object_name].keys():
-        err_msg = f"The tool {tool_name} was not found in plugin {object_name}"
+    if tool_name not in tools[source_class_name].keys():
+        err_msg = f"The tool {tool_name} was not found in plugin {source_class_name}"
         logging.error(f"Request Path: {request.path} - {err_msg}")
         return {"status": "error", "message": err_msg}, 404
 
@@ -90,15 +90,14 @@ def run_tool() -> Tuple[Dict[str, Any], int] | Response:
             msg = self.format(record)
             self.q.put(msg + '\n')
 
-    func = tools[object_name][tool_name].get("run_fun", None)
+    func = tools[source_class_name][tool_name].get("run_fun", None)
     if func is None:
-        logging.error(f"Not run_fun in {object_name} - {tool_name}")
+        logging.error(f"Not run_fun in {source_class_name} - {tool_name}")
         return {"status": "error", "message": f"Not run_fun in {tool_name}"}, 404
 
     def generate_log_output(func):
         """ Run the function and capture its logging output"""
         q = queue.Queue()
-
         def run_and_capture():
             handler = QueueHandler(q)
             handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s: %(message)s'))
@@ -125,16 +124,16 @@ def run_tool() -> Tuple[Dict[str, Any], int] | Response:
 def save_params() -> Tuple[Dict[str, Any], int]:
     """Save user-defined parameters for a given source script and tool."""
     data = request.json or {}
-    object_name = data.get('object_name')
+    config_name = data.get('config_name')
     tool_name = data.get('tool_name')
     params = data.get('params')
 
-    if not object_name or not tool_name or not params:
+    if not config_name or not tool_name or not params:
         return {"status": "error", "message": "Script name or tool name or parameters missing"}, 400
 
     #secure input
-    config_file = os.path.join(SAFE_CONFIG_DIR, f"{object_name}.ini")
-    if not config_file.startswith(SAFE_CONFIG_DIR) or not source_object_name(object_name):
+    config_file = os.path.join(SAFE_CONFIG_DIR, f"{config_name}.ini")
+    if not config_file.startswith(SAFE_CONFIG_DIR) or not source_object_name(config_name):
         return {"status": "error", "message": "Invalid script name."}, 404
 
     config = configparser.ConfigParser()
@@ -146,7 +145,11 @@ def save_params() -> Tuple[Dict[str, Any], int]:
     if tool_name not in config:
         config[tool_name] = {}
 
+
     for param_name, param_value in params.items():
+        #FIXME find tool and call functunon to verify input
+        # if not succed, resturn error
+        # return {"status": "error", "message": f"Config input was declined by functiion {verify_fun_name}"}, 403
         config[tool_name][param_name] = str(param_value)
 
     with open(config_file, 'w') as cf:

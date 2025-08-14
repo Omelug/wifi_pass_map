@@ -4,12 +4,16 @@ How to make new source?
     ! Name of file have to be same like name of class (rename Example)
     - use __requirements__ to set requirements names (now it si only for description, will be later used for auto install)
 
-    - <config name>.ini
+
+
+	- Use function config_path(config_name=(default is SOURCE_NAME)) to get config path for Source class
+    Source class -> config_path() -> config_name
+    - <config_name>.ini
         [tool_name]
         <param_name> = <param_value>
 
+
     - if you want create param for tool:
-        - section_name "class" is reserved for plugin name (class have to be name )
 
 
 

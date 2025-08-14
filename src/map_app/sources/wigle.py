@@ -141,7 +141,7 @@ class Wigle(ToolSource):
         config.read(self.config_path())
         wigle_param = [("api_keys", str, None, config['wigle_locate']['api_keys'], "Key for Wigle"),
                        ("locate_older_than_days", int, None, config['wigle_locate']['locate_older_than_days'], "Check localization older than")]
-        return {"wigle":{"params":wigle_param}}
+        return {"wigle_locate":{"params":wigle_param}}
 
 
 
