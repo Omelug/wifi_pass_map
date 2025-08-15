@@ -18,3 +18,16 @@ def valid_wigle_key(input_value):
         return False
     return True
 
+def valid_wpasec_key(input_value):
+    if not re.fullmatch(r"^[a-fA-F0-9]{32}$", input_value):
+        logging.warning(f"Wpasec key '{input_value}' is not in the correct format.")
+        return False
+    return True
+
+def valid_link(link):
+    # Simple URL validation
+    pattern = r"^https?://[^\s/$.?#].[^\s]*$"
+    if not isinstance(link, str) or not re.fullmatch(pattern, link):
+        logging.warning(f"Link '{link}' is not a valid URL.")
+        return False
+    return True

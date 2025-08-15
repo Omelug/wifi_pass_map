@@ -10,7 +10,7 @@ from src.map_app.source_core.Table_v0 import Table_v0
 from src.map_app.source_core.db import Database
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
-
+from formator.param_validator import valid_wpasec_key, valid_link
 
 class Wpasec(Table_v0):
     __description__ = "Source to get potfile from wpasec (https://github.com/RealEnder/dwpa)"
@@ -84,7 +84,7 @@ class Wpasec(Table_v0):
 
     def get_tools(self):
         gen = ToolGenerator(self)
-        gen.addParam(tool_name="wpasec_update", param_name="api_keys", description="Key for WPASEC")
-        gen.addParam(tool_name="wpasec_update", param_name="wpasec_link", description="Link to wpasec api")
+        gen.addParam(tool_name="wpasec_update", param_name="api_keys", validation_function=valid_wpasec_key, description="Key for WPASEC")
+        gen.addParam(tool_name="wpasec_update", param_name="wpasec_link", validation_function=valid_link, description="Link to wpasec api")
         gen.add_run_fun("wpasec_update", self.__wpasec_update)
         return gen.get_list()
