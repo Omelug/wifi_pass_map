@@ -145,6 +145,8 @@ class Wigle(MapSource):
         return localized_networks, total_networks
 
     def wigle_download_to_sql(self):
+        import os, json, logging, sqlite3, configparser, requests
+
         config = configparser.ConfigParser()
         config.read(self.config_path())
 
@@ -163,39 +165,49 @@ class Wigle(MapSource):
         conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
         cursor.execute("""
-            CREATE TABLE IF NOT EXISTS wigle_networks
-            (
-                bssid      TEXT PRIMARY KEY,
-                ssid       TEXT,
-                encryption TEXT,
-                trilat     REAL,
-                trilong    REAL,
-                country    TEXT,
-                city       TEXT,
-                lasttime   TEXT
-            )
-        """)
+                       CREATE TABLE IF NOT EXISTS wigle_networks
+                       (
+                           bssid      TEXT PRIMARY KEY,
+                           ssid       TEXT,
+                           encryption TEXT,
+                           trilat     REAL,
+                           trilong    REAL,
+                           country    TEXT,
+                           city       TEXT,
+                           lasttime   TEXT
+                       )
+                       """)
 
         total_downloaded = 0
         start = 0
-        batch_size = 100
+        page_size = 100
 
         while True:
             paged_params = params.copy()
             paged_params['start'] = start
+            paged_params['resultsPerPage'] = page_size
+
             response = requests.get(url, params=paged_params, headers=headers, timeout=40)
             if response.status_code != 200:
-                logging.info(f"Download error: {response.status_code}")
+                logging.error(f"Download error: {response.status_code}")
                 break
 
-            data = response.json().get('results', [])
-            if not data:
-                logging.info("No more data to download.")
+            json_data = response.json()
+            results = json_data.get('results', [])
+            total_results = json_data.get('totalResults', 0)
+
+            if start >= total_results:
+                logging.info("Reached all available results, ending download.")
                 break
 
-            for entry in data:
+            if not results:
+                logging.info("No results returned, ending download.")
+                break
+
+            for entry in results:
                 cursor.execute("""
-                    INSERT OR REPLACE INTO wigle_networks (bssid, ssid, encryption, trilat, trilong, country, city, lasttime)
+                    INSERT OR REPLACE INTO wigle_networks
+                    (bssid, ssid, encryption, trilat, trilong, country, city, lasttime)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """, (
                     entry.get('netid'),
@@ -208,12 +220,15 @@ class Wigle(MapSource):
                     entry.get('lasttime')
                 ))
             conn.commit()
-            total_downloaded += len(data)
-            logging.info(f"Downloaded {len(data)} APs in this batch. Total downloaded: {total_downloaded}")
-            if len(data) < batch_size:
+
+            total_downloaded += len(results)
+            logging.info(f"Downloaded {len(results)} APs in this batch. Total downloaded: {total_downloaded}")
+
+            start += len(results)
+
+            if len(results) < page_size:
                 logging.info("Last batch received, ending download.")
                 break
-            start += batch_size
 
         conn.close()
         logging.info(f"Download complete. Total APs downloaded: {total_downloaded}")
@@ -224,13 +239,14 @@ class Wigle(MapSource):
 
         gen.addParam(tool_name="wigle_locate",
                      param_name="api_keys",
-                     validation_function=valid_wigle_key,
+                     #validation_function=valid_wigle_key,
                      description="Key for Wigle")
         gen.addParam(tool_name="wigle_locate",
                      param_name="locate_older_than_days",
                      input_type=int,
                      validation_function=int,
                      description="Check localization older than")
+        gen.add_run_fun(tool_name="wigle_locate", run_fun=self.wigle_locate)
 
         print(self.config_path())
         gen.addParam(tool_name="wigle_view",
@@ -239,7 +255,6 @@ class Wigle(MapSource):
         gen.addParam(tool_name="wigle_view",
                      param_name="download_params",
                      description="Filter for download")
-
         gen.add_run_fun(tool_name="wigle_view", run_fun=self.wigle_download_to_sql)
         return gen.get_list()
 
