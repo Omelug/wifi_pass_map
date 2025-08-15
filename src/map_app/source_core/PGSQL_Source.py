@@ -2,7 +2,7 @@ import configparser
 from typing import Dict, Any
 
 from map_app.source_core.ToolSource import ToolGenerator
-from src.map_app.source_core.Source import MapSource
+from src.map_app.source_core.MapSource import MapSource
 
 class PGSQL_MapSource(MapSource):
     DEFAULT_SOURCE_NAME = "pgsql_mapsource"

@@ -2,7 +2,7 @@ import configparser
 import logging
 
 from map_app.source_core.ToolSource import ToolGenerator
-from src.map_app.source_core.Source import MapSource
+from src.map_app.source_core.MapSource import MapSource
 
 def param_control(string):
     return string[0] == "e"

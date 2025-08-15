@@ -13,19 +13,14 @@ How to make new source?
         <param_name> = <param_value>
 
 
-    - if you want create param for tool (typical get_tool function):
-	    def get_tools(self):
-            config = configparser.ConfigParser()
-            config.read(self.config_path())
-            wigle_param = [("<param_name>", str, None | validation_function , config['wigle_locate'][<param_name>], "Info about param")]
-
-        return {"wigle_locate":{"params":wigle_param}}
-
+    - if you want create param for tools:
         - validation_function is function what have one param - input string
 
 
 Another tips:
 	- check if same source name is not created alredy
+	- create unit tests in /tests
+	- create behave tests in tests_behave
 
 What keywords are reserved?
 

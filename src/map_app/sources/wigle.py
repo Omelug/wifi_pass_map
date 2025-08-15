@@ -1,18 +1,21 @@
 import configparser
+import json
 import logging
+import os
 import sqlite3
 from datetime import datetime, timedelta
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 import requests
 from requests import ReadTimeout
 from sqlalchemy import select, Table, update, Connection
 
 from formator.param_validator import valid_wigle_key
-from map_app.source_core.ToolSource import ToolSource, ToolGenerator
+from map_app.source_core.MapSource import MapSource
+from map_app.source_core.ToolSource import ToolGenerator
 from map_app.source_core.db import Database
 
 
-class Wigle(ToolSource):
+class Wigle(MapSource):
     __description__ = "Tools to get localization for access point from wigle(https://wigle.net/)"
 
     def __init__(self):
@@ -22,6 +25,10 @@ class Wigle(ToolSource):
         default_config['wigle_locate'] = {
             'api_keys': '<your_wigle_api_key_here>',
             'locate_older_than_days': 7
+        }
+        default_config['wigle_view'] = {
+            'database_name': 'wigle_wpa3',
+            'download_params': '{"encryption": "WPA3", "country": "CZ"}'
         }
 
         self.create_config(config=default_config)
@@ -137,8 +144,84 @@ class Wigle(ToolSource):
                 logging.info(f"Timeout error: {e}")
         return localized_networks, total_networks
 
+    def wigle_download_to_sql(self):
+        config = configparser.ConfigParser()
+        config.read(self.config_path())
+
+        db_name = config.get('wigle_view', 'database_name')
+        raw_params = config.get('wigle_view', 'download_params')
+        params = json.loads(raw_params.replace("'", '"'))
+
+        api_key = self.__get_api_key()
+        url = "https://api.wigle.net/api/v2/network/search"
+        headers = {"Authorization": f"Basic {api_key}"}
+
+        base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
+        db_path = os.path.abspath(os.path.join(base_dir, f"data/raw/wigle/{db_name}.db"))
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS wigle_networks
+            (
+                bssid      TEXT PRIMARY KEY,
+                ssid       TEXT,
+                encryption TEXT,
+                trilat     REAL,
+                trilong    REAL,
+                country    TEXT,
+                city       TEXT,
+                lasttime   TEXT
+            )
+        """)
+
+        total_downloaded = 0
+        start = 0
+        batch_size = 100
+
+        while True:
+            paged_params = params.copy()
+            paged_params['start'] = start
+            response = requests.get(url, params=paged_params, headers=headers, timeout=40)
+            if response.status_code != 200:
+                logging.info(f"Download error: {response.status_code}")
+                break
+
+            data = response.json().get('results', [])
+            if not data:
+                logging.info("No more data to download.")
+                break
+
+            for entry in data:
+                cursor.execute("""
+                    INSERT OR REPLACE INTO wigle_networks (bssid, ssid, encryption, trilat, trilong, country, city, lasttime)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """, (
+                    entry.get('netid'),
+                    entry.get('ssid'),
+                    entry.get('encryption'),
+                    entry.get('trilat'),
+                    entry.get('trilong'),
+                    entry.get('country'),
+                    entry.get('city'),
+                    entry.get('lasttime')
+                ))
+            conn.commit()
+            total_downloaded += len(data)
+            logging.info(f"Downloaded {len(data)} APs in this batch. Total downloaded: {total_downloaded}")
+            if len(data) < batch_size:
+                logging.info("Last batch received, ending download.")
+                break
+            start += batch_size
+
+        conn.close()
+        logging.info(f"Download complete. Total APs downloaded: {total_downloaded}")
+        return total_downloaded
+
     def get_tools(self):
         gen = ToolGenerator(self)
+
         gen.addParam(tool_name="wigle_locate",
                      param_name="api_keys",
                      validation_function=valid_wigle_key,
@@ -148,8 +231,51 @@ class Wigle(ToolSource):
                      input_type=int,
                      validation_function=int,
                      description="Check localization older than")
+
+        print(self.config_path())
+        gen.addParam(tool_name="wigle_view",
+                     param_name="database_name",
+                     description="Name of sql database in /data/raw/wigle/")
+        gen.addParam(tool_name="wigle_view",
+                     param_name="download_params",
+                     description="Filter for download")
+
+        gen.add_run_fun(tool_name="wigle_view", run_fun=self.wigle_download_to_sql)
         return gen.get_list()
 
+    def get_map_data(self, filters: Optional[Dict[str, Any]] = None) -> list[dict[str, Any]]:
+        config = configparser.ConfigParser()
+        config.read(self.config_path())
+        db_name = config.get('wigle_view', 'database_name')
+        base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
+        db_path = os.path.abspath(os.path.join(base_dir, f"data/raw/wigle/{db_name}.db"))
 
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
 
+        query = "SELECT bssid, ssid, encryption, trilat, trilong FROM wigle_networks"
+        params = []
+        if filters:
+            clauses = []
+            for key, value in filters.items():
+                clauses.append(f"{key} = ?")
+                params.append(value)
+            if clauses:
+                query += " WHERE " + " AND ".join(clauses)
 
+        cursor.execute(query, params)
+        rows = cursor.fetchall()
+        conn.close()
+
+        # Map columns to required output keys
+        return [
+            {
+                "bssid": row[0],
+                "encryption": row[2],
+                "essid": row[1],
+                "password": None,
+                "latitude": row[3],
+                "longitude": row[4]
+            }
+            for row in rows
+        ]

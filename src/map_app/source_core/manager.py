@@ -8,7 +8,7 @@ from typing import Dict, List, Any, Tuple, Optional
 from attr.validators import disabled
 
 from map_app.source_core.GlobalConfig import GlobalConfig
-from map_app.source_core.Source import ToolSource, MapSource
+from map_app.source_core.MapSource import ToolSource, MapSource
 
 BASE_FILE = os.path.dirname(os.path.abspath(__file__))
 

@@ -8,7 +8,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql import expression
 
 from formator.bssid import format_bssid
-from map_app.source_core.Source import MapSource
+from map_app.source_core.MapSource import MapSource
 from map_app.source_core.ToolSource import ToolGenerator
 from map_app.source_core.db import Database
 from map_app.source_core.manager import _load_source_objects, order_sources_by_config
