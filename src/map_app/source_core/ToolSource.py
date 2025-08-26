@@ -77,6 +77,11 @@ class ToolGenerator():
             if tool_name in self.run_funs:
                 entry["run_fun"] = self.run_funs[tool_name]
             result[tool_name] = entry
+
+        for tool_name in self.run_funs:
+            if tool_name not in result:
+                result[tool_name] = {"params": [], "run_fun": self.run_funs[tool_name]}
+
         return result
 
 

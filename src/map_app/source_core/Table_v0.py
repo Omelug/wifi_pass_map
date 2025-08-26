@@ -129,6 +129,9 @@ class Table_v0(MapSource):
                      description="(false, remove_old, merge_to_new, merge_to_old) Block insert of duplicates between tablev0 tables")
         gen.add_run_fun("remove_duplicates", self.__remove_duplicates)
         gen.add_run_fun("tablev0_locate", Table_v0.table_v0_locate)
+
+        print(gen.get_list())
+
         return gen.get_list()
 
     @staticmethod

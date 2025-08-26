@@ -4,6 +4,7 @@ import logging
 import os
 import sqlite3
 from datetime import datetime, timedelta
+from pathlib import Path
 from typing import Dict, Any, Optional
 import requests
 from requests import ReadTimeout
@@ -26,14 +27,10 @@ class Wigle(MapSource):
             'api_keys': '<your_wigle_api_key_here>',
             'locate_older_than_days': 7
         }
-        default_config['wigle_view'] = {
-            'database_name': 'wigle_wpa3',
-            'download_params': '{"encryption": "WPA3", "country": "CZ"}'
-        }
 
         self.create_config(config=default_config)
 
-    def __get_api_key(self) -> str:
+    def _get_api_key(self) -> str:
         config = configparser.ConfigParser()
         config.read(self.config_path())
         return config['wigle_locate']['api_keys'].split(',')[0]
@@ -108,7 +105,7 @@ class Wigle(MapSource):
                 wpasec_data = session.execute(not_localized_q).fetchall()
 
                 #shuffle data to increase chance for hits for the next day when running into the API Limit
-                api_key = Wigle().__get_api_key()
+                api_key = Wigle()._get_api_key()
                 logging.info(f"{self.SOURCE_NAME} API key loaded, try check {len(wpasec_data)} networks")
 
                 for row in wpasec_data:
@@ -144,96 +141,6 @@ class Wigle(MapSource):
                 logging.info(f"Timeout error: {e}")
         return localized_networks, total_networks
 
-    def wigle_download_to_sql(self):
-        import os, json, logging, sqlite3, configparser, requests
-
-        config = configparser.ConfigParser()
-        config.read(self.config_path())
-
-        db_name = config.get('wigle_view', 'database_name')
-        raw_params = config.get('wigle_view', 'download_params')
-        params = json.loads(raw_params.replace("'", '"'))
-
-        api_key = self.__get_api_key()
-        url = "https://api.wigle.net/api/v2/network/search"
-        headers = {"Authorization": f"Basic {api_key}"}
-
-        base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
-        db_path = os.path.abspath(os.path.join(base_dir, f"data/raw/wigle/{db_name}.db"))
-        os.makedirs(os.path.dirname(db_path), exist_ok=True)
-
-        conn = sqlite3.connect(db_path)
-        cursor = conn.cursor()
-        cursor.execute("""
-                       CREATE TABLE IF NOT EXISTS wigle_networks
-                       (
-                           bssid      TEXT PRIMARY KEY,
-                           ssid       TEXT,
-                           encryption TEXT,
-                           trilat     REAL,
-                           trilong    REAL,
-                           country    TEXT,
-                           city       TEXT,
-                           lasttime   TEXT
-                       )
-                       """)
-
-        total_downloaded = 0
-        start = 0
-        page_size = 100
-
-        while True:
-            paged_params = params.copy()
-            paged_params['start'] = start
-            paged_params['resultsPerPage'] = page_size
-
-            response = requests.get(url, params=paged_params, headers=headers, timeout=40)
-            if response.status_code != 200:
-                logging.error(f"Download error: {response.status_code}")
-                break
-
-            json_data = response.json()
-            results = json_data.get('results', [])
-            total_results = json_data.get('totalResults', 0)
-
-            if start >= total_results:
-                logging.info("Reached all available results, ending download.")
-                break
-
-            if not results:
-                logging.info("No results returned, ending download.")
-                break
-
-            for entry in results:
-                cursor.execute("""
-                    INSERT OR REPLACE INTO wigle_networks
-                    (bssid, ssid, encryption, trilat, trilong, country, city, lasttime)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                """, (
-                    entry.get('netid'),
-                    entry.get('ssid'),
-                    entry.get('encryption'),
-                    entry.get('trilat'),
-                    entry.get('trilong'),
-                    entry.get('country'),
-                    entry.get('city'),
-                    entry.get('lasttime')
-                ))
-            conn.commit()
-
-            total_downloaded += len(results)
-            logging.info(f"Downloaded {len(results)} APs in this batch. Total downloaded: {total_downloaded}")
-
-            start += len(results)
-
-            if len(results) < page_size:
-                logging.info("Last batch received, ending download.")
-                break
-
-        conn.close()
-        logging.info(f"Download complete. Total APs downloaded: {total_downloaded}")
-        return total_downloaded
-
     def get_tools(self):
         gen = ToolGenerator(self)
 
@@ -246,51 +153,5 @@ class Wigle(MapSource):
                      input_type=int,
                      validation_function=int,
                      description="Check localization older than")
-        gen.add_run_fun(tool_name="wigle_locate", run_fun=self.wigle_locate)
-
-        print(self.config_path())
-        gen.addParam(tool_name="wigle_view",
-                     param_name="database_name",
-                     description="Name of sql database in /data/raw/wigle/")
-        gen.addParam(tool_name="wigle_view",
-                     param_name="download_params",
-                     description="Filter for download")
-        gen.add_run_fun(tool_name="wigle_view", run_fun=self.wigle_download_to_sql)
+        #gen.add_run_fun(tool_name="wigle_locate", run_fun=self.wigle_locate)
         return gen.get_list()
-
-    def get_map_data(self, filters: Optional[Dict[str, Any]] = None) -> list[dict[str, Any]]:
-        config = configparser.ConfigParser()
-        config.read(self.config_path())
-        db_name = config.get('wigle_view', 'database_name')
-        base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
-        db_path = os.path.abspath(os.path.join(base_dir, f"data/raw/wigle/{db_name}.db"))
-
-        conn = sqlite3.connect(db_path)
-        cursor = conn.cursor()
-
-        query = "SELECT bssid, ssid, encryption, trilat, trilong FROM wigle_networks"
-        params = []
-        if filters:
-            clauses = []
-            for key, value in filters.items():
-                clauses.append(f"{key} = ?")
-                params.append(value)
-            if clauses:
-                query += " WHERE " + " AND ".join(clauses)
-
-        cursor.execute(query, params)
-        rows = cursor.fetchall()
-        conn.close()
-
-        # Map columns to required output keys
-        return [
-            {
-                "bssid": row[0],
-                "encryption": row[2],
-                "essid": row[1],
-                "password": None,
-                "latitude": row[3],
-                "longitude": row[4]
-            }
-            for row in rows
-        ]
